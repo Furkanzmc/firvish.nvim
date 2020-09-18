@@ -13,7 +13,7 @@ M.show_preview = function(title, filetype)
 
     vim.api.nvim_buf_set_option(".", "buflisted", false)
     vim.api.nvim_buf_set_option(".", "buftype", "nowrite")
-    vim.api.nvim_buf_set_option(".", "filetype", "firvish")
+    vim.api.nvim_buf_set_option(".", "filetype", filetype)
 
     return bufnr
 end
@@ -45,5 +45,18 @@ M.find_open_window = function(buffer)
 
     return {tabnr=-1, winnr=-1}
 end
+
+M.is_window_visible = function(tabnr, bufnr)
+  local buffers = vim.fn.tabpagebuflist(tabnr)
+  for _,win in pairs(buffers)
+  do
+    if win == bufnr then
+      return true
+    end
+  end
+
+  return false
+end
+
 
 return M

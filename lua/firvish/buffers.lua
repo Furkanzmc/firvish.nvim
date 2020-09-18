@@ -44,16 +44,20 @@ function create_buffer_list()
 
 end
 
-function is_window_visible(tabnr, bufnr)
-  local buffers = vim.fn.tabpagebuflist(tabnr)
-  for _,win in pairs(buffers)
-  do
-    if win == bufnr then
-      return true
-    end
+M.on_buf_delete = function()
+  open_bufnr = nil
+end
+
+M.on_buf_leave = function()
+  previous_bufnr = nil
+end
+
+M.close_buffers = function()
+  if previous_bufnr ~= nil then
+    vim.api.nvim_command("buffer " .. previous_bufnr)
   end
 
-  return false
+  previous_bufnr = nil
 end
 
 M.jump_to_buffer = function()
@@ -61,7 +65,7 @@ M.jump_to_buffer = function()
   local bufnr = open_bufnr
   local buffer_info = vim.api.nvim_buf_get_var(bufnr, "firvish").buffers[linenr]
 
-  M.firvish_close()
+  M.close_buffers()
 
   local jump_info = utils.find_open_window(buffer_info.bufnr)
   if jump_info.tabnr ~= -1 and jump_info.winnr ~= -1 then
@@ -71,23 +75,7 @@ M.jump_to_buffer = function()
   end
 end
 
-M.on_buf_delete = function()
-  open_bufnr = nil
-end
-
-M.on_buf_leave = function()
-  previous_bufnr = nil
-end
-
-M.firvish_close = function()
-  if previous_bufnr ~= nil then
-    vim.api.nvim_command("buffer " .. previous_bufnr)
-  end
-
-  previous_bufnr = nil
-end
-
-M.open_buffer_list = function()
+M.open_buffers = function()
   local tabnr = vim.fn.tabpagenr()
   previous_bufnr = vim.fn.bufnr()
 
@@ -95,11 +83,11 @@ M.open_buffer_list = function()
     open_bufnr = utils.show_preview("neovim-firvish [buffers]", "firvish")
     vim.api.nvim_command("augroup neovim_firvish_buffer")
     vim.api.nvim_command("autocmd! * <buffer>")
-    vim.api.nvim_command("autocmd BufDelete <buffer> lua require'firvish'.on_buf_delete()")
-    vim.api.nvim_command("autocmd BufWipeout <buffer> lua require'firvish'.on_buf_delete()")
-    vim.api.nvim_command("autocmd BufLeave <buffer> lua require'firvish'.on_buf_leave()")
+    vim.api.nvim_command("autocmd BufDelete <buffer> lua require'firvish.buffers'.on_buf_delete()")
+    vim.api.nvim_command("autocmd BufWipeout <buffer> lua require'firvish.buffers'.on_buf_delete()")
+    vim.api.nvim_command("autocmd BufLeave <buffer> lua require'firvish.buffers'.on_buf_leave()")
     vim.api.nvim_command("augroup END")
-  elseif is_window_visible(tabnr, open_bufnr) then
+  elseif utils.is_window_visible(tabnr, open_bufnr) then
     vim.api.nvim_command(vim.fn.bufwinnr(open_bufnr) .. "wincmd w")
   end
 
@@ -111,7 +99,7 @@ M.open_buffer_list = function()
   vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
 end
 
-M.refresh_buffer_list = function()
+M.refresh_buffers = function()
   local info = create_buffer_list()
   utils.set_lines(open_bufnr, info[1])
 
