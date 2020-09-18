@@ -1,0 +1,367 @@
+*firvish.txt*  firvish.nvim
+
+Author:  Furkan Uzumcu
+
+INTRODUCTION                                                      *firvish.nvim*
+
+This plug-in was heavily inspired by vim-dirvish.
+
+firvish.nvim is a buffer centric job control plug-in. It provides mappings for
+handling buffer list, history, NeoVim and external commands. All the output of
+these commands are streamed to a dedicated buffer.
+
+The main goal of firvish.nvim is to provide a single way of interacting with
+external commands, and internal commands of NeoVim: Buffers. They are used to
+interact with the output of commands, and the input is sent to external commands
+to interactively communicate with them.
+
+
+COMMANDS                                                      *firvish-commands*
+================================================================================
+
+Global ~
+
+These commands are available in any buffer.
+
+:Buffers                                                              *:Buffers*
+
+It opens a new buffer and shows the list of buffers.  Within this buffer,
+there's available commands and mappings to manipulate the buffer list.
+
+Alternatively, you can open `firvish://buffers` to view the list of buffers.
+
+:History                                                              *:History*
+
+It opens a new buffer and shows the list of file history.
+
+Alternatively, you can open `firvish://history` to view the history.
+
+
+:Rg[!] {args}                                                              *:Rg*
+
+If ripgrep is installed on your system, you can use this command to search in a
+given directory. The output of the search will be streamed to a dedicated
+buffer. The file type of the opened buffer is set to `firvish-dir`.
+
+Any arguments that you pass will be passed on to the `rg` executable.
+
+Example: >
+    :Rg firvish ./lua
+
+:Crg {args}                                                               *:Crg*
+
+Like |:Rg| but the output is directed to |quickfix| window.
+
+Example: >
+    :Crg firvish ./lua
+
+:Lrg {args}                                                               *:Lrg*
+
+Like |:Rg| but the output is directed to |location-list| window.
+
+Example: >
+    :Lrg firvish ./lua
+
+
+:Ug[!] {args}                                                              *:Ug*
+
+If ugrep is installed on your system, you can use this command to search in a
+directory. It works similar to the |:Rg| command. The file type of the opened
+buffer is set to `firvish-dir`.
+
+Example: >
+    :Ug firvish ./lua
+
+:Cug {args}                                                               *:Cug*
+
+Like |:Ug| but the output is directed to |quickfix| window.
+
+Example: >
+    :Cug firvish ./lua
+
+:Lug {args}                                                               *:Lug*
+
+Like |:Ug| but the output is directed to |location-list| window.
+
+Example: >
+    :Lug firvish ./lua
+
+
+:Fd[!] {args}                                                              *:Fd*
+
+If fd is installed on your system, you can use this command to search
+files/folders in a given directory.  The output of the search will be streamed
+to a dedicated buffer. Any arguments that you pass will be passed on to the `fd`
+executable. The file type of the opened buffer is set to `firvish-dir`.
+
+Example: >
+    :Fd firvish -e lua
+
+:Cfd {args}                                                               *:Cfd*
+
+Like |:Fd| but the output is directed to |quickfix| window.
+
+Example: >
+    :Cfd firvish -e lua
+
+:Lfd {args}                                                               *:Lfd*
+
+Like |:Fd| but the output is directed to |location-list| window.
+
+Example: >
+    :Lfd firvish -e lua
+
+
+:FRun[!] {args}                                                          *:FRun*
+
+It is a generic command to run any external commands. The commands are run
+asynchronously and the output is streamed to a dedicated buffer.
+
+If <bang> is used, then a buffer is not automatically opened. The command runs
+in the background. You can use |:FirvishJobs| to see the list of jobs that are
+running.
+
+Example: >
+    :FRun git log -3
+
+Example: >
+    :FRun! git log -3
+
+:Cfrun {args}                                                           *:Cfrun*
+
+Like |:FRun| but the output is directed to |quickfix| window.
+
+Example: >
+    :Cfrun git log -3
+
+:Lfrun {args}                                                           *:Lfrun*
+
+Like |:FRun| but the output is directed to |location-list| window.
+
+Example: >
+    :Lfrun firvish -e lua
+
+
+:[range]Fhdo[!] {args}                                                   *:Fhdo*
+
+This command works similar to vim-dirvish's |:Shdo| command. Generates a
+shell/Vim script with {cmd} applied to [range]. The window-local directory is
+initialized to the window prior to calling the command. If <bang> is given, a
+Vimscript file is opened instead of a shell.
+
+You can use |g:firvish_shell| to modify the shell used to run the command.
+Defaults to the value of |shell|.
+
+Example: >
+    :Fhdo Write-Host {}
+
+Use the following command to run git pull on one or multiple
+directories: >
+    :Fhdo Write-Host "Updating {}" && Push-Location {}
+        \ && git pull && Pop-Location
+
+Example: >
+    :FRun! echo {}
+
+:[range]FhFilter[!] {pattern}                                        *:FhFilter*
+
+This is a convenience command around |:g|. If <bang> is used, it removes the
+lines that do not match {pattern}, otherwise removes the lines that match the
+{pattern}.
+
+Example: >
+    :FhFilter firvish
+
+Example: >
+    :FhFilter! NeoVim
+
+:FirvishJobs                                                      *:FirvishJobs*
+
+Opens a preview window that displays the list of previously run, and currently
+running jobs.
+
+Jobs can be stopped from here, or output can be previewed, or it can be deleted
+from the history. Every job that's run with |:Fhdo| and |:FRun| ends up in this
+list.
+
+Some jobs can be started to not be persisted in this list. However, they will
+still show up as long as they are running. |:Rg|, |:Ug|, and |:Fd| are run in
+such way.
+
+:[range]FhQf[!]                                                          *:FhQf*
+
+Processes the the lines in [range] according to |errorformat| and sets the
+quickfix list to the processed output. If <bang> is provided, the existing
+quickfic items are replaces, otherwise the new list is appended.
+
+Example: >
+    :3,30FhQf firvish
+
+Example: >
+    :3,30FhQf! firvish
+
+
+:[range]Fhllist[!]                                                    *:Fhllist*
+
+Works exactly as |:FhQf| but uses the |loclist|.
+
+Buffer-local (filetype=firvish-buffers) ~
+
+:[range]Bufdo {cmd}                                                     *:Bufdo*
+
+Runs {cmd} over the selected buffers. Works similar to |:bufdo|, except this
+one works over the [range] in the buffer.
+
+:[range]Bdelete[!]                                                     *:Bdelete*
+
+Deletes the buffers in [range]. If <bang> is given, the command is equivelant to
+|:bdelete!|.
+
+
+OPTIONS                                                        *firvish-options*
+================================================================================
+
+These options are only enabled if |options.nvim| is installed.
+See https://github.com/Furkanzmc/options.nvim for installation details.
+
+Global ~
+
+alwayspreview                                    *firvish-options-alwayspreview*
+
+When set to true, the output of the running job will be shown in
+|previewwindow|. Defaults to `false`.
+
+MAPPINGS                                                      *firvish-mappings*
+================================================================================
+
+Global ~
+    <Plug>(firvish_buffers)
+    <leader>b   Opens the buffer list. Same as |:Buffers|
+
+    <Plug>(firvish_history)
+    <leader>h   Opens the history buffer. Same as |:History|
+
+    Note: the leader mappings are available only if you set
+    g:firvish_use_default_mappings to a non 0 value.
+
+Buffer-local (filetype=firvish-buffers) ~
+    <enter>     Jumps to the buffer under the cursor. If the buffer is visible
+                in any window, swtiches to that one. Otherwise opens it in the
+                current window.
+    gq          Closes the buffer list.
+    fm          Shows only the modified buffers.
+    ft          Shows only the buffers in the current tab.
+    fa          Shows only the buffers in |args|.
+    R           Refreshes the buffer list.
+
+Buffer-local (filetype=firvish-history) ~
+    <enter>     Open the file under the cursor.
+    gq          Closes the history list.
+    R           Refreshes the history list.
+    P           Previews the file under cursorin a vertical split.
+    a           Opens the file under cursor in a new vertical split.
+    o           Opens the file under cursor in a new horizontal split.
+    <C-N>       Previews the file in the next line.
+    <C-P>       Previews the file in the previous line.
+
+Buffer-local (filetype=firvish-dir) ~
+    P           Previews the file under cursorin a vertical split.
+    a           Opens the file under cursor in a new vertical split.
+    o           Opens the file under cursor in a new horizontal split.
+    <C-N>       Previews the file in the next line.
+    <C-P>       Previews the file in the previous line.
+    I           Opens a buffer in a split where the input will trigger the
+                latest command that was run and the content on the current line
+                is passed to the previous command.
+
+Buffer-local (filetype=firvish-job) ~
+    P           Previews the file under cursorin a vertical split.
+    a           Opens the file under cursor in a new vertical split.
+    o           Opens the file under cursor in a new horizontal split.
+    <C-N>       Previews the file in the next line.
+    <C-P>       Previews the file in the previous line.
+
+Buffer-local (filetype=firvish-job-list) ~
+    R           Refresh the list of jobs.
+    dd          Delete the job under the cursor from the history. This does not
+                work for jobs that are still running.
+    DD          Stop the job and delete from the history.
+    S           Stop the job under the cursor.
+    P           Preview the output of the job under the cursor in the preview
+                window.
+    [count]E    Echo the [count]th line of the job output without opening it.
+
+Buffer-local (filetype=firvish-job-output) ~
+    gb           Go back to the job list.
+    gq           Close the preview window.
+
+Buffer-local (filetype=firvish-fhdo) ~
+    E!          Run the commands in the buffer. This mapping is available when
+                |:Fhdo| command is used.
+
+LUA                                                                *firvish-lua*
+================================================================================
+
+start_job({opts})                                *firvish.job_control.start_job*
+    Starts a job with the given options. This is the main function used to
+    spawn processes. |:FRun| and the other process related commands use this
+    function to create new jobs. You can use this function to create your own
+    commands and launch new processes in different ways.
+
+    The following parameters desceibe the fields in {opts}.
+
+    Parameters: ~
+        {cmd} (table): The shell command to start.
+
+        {filetype} (string): The associated file type for this job. This will
+        be used when the job result is output to a buffer.  You can use this
+        filetype to customize how to interact with the output.
+
+        {title} (string): The title used for the buffer when the command
+        output is displayed.
+
+        {use_last_buffer} (optional, boolean): If this is set to `true`, then
+        the same buffer will be used for the consequitve calls to the same
+        job. Defaults to `false`.
+
+        {is_background_job} (optional, boolean): If set to `true`, the job's
+        output will not be immediately output to a buffer. When this is set,
+        `listed` is implied. Defaults to `false`.
+
+        {listed} (optional, boolean): When set to `true`, the job's output is
+        cached in the job list. You can use |:FirvishJobs| to later retrive
+        the results. Defaults to `false`.
+
+        {output_qf} (optional, boolean): When set to `true`, the job's output
+        will be sent to the |quickfix| window. There can only be one job
+        running with this option set to `true`. Defaults to `false`.
+
+        {output_lqf} (optional, boolean): When set to `true`, the job's output
+        will be sent to the |location-list| window. There can only be one job
+        running with this option set to `true`. Defaults to `false`.
+
+        {cwd} (optional, string): Specifies the working directory for the
+        command. Defaults to the buffer's working directory.
+
+        {efm} (optional, table): Adds extra |errorformat| entries when
+        |output_qf| or |output_lqf| is used.
+
+        {notify} (optional, bool): Defaults to false. When set to true, sends
+        a |vim.notify| that the job has finished.
+
+
+notify({msg}, {log_level}, {_opts})               *firvish.notifications.notify*
+
+By default, it's the same as |vim.notify()|. If you want to customize how
+notifications are shown, you can overwrite this function (e.g Show system
+notifications.).
+
+
+ABOUT                                                            *firvish-about*
+================================================================================
+
+Grab the latest version or report a bug on GitHub:
+
+https://github.com/Furkanzmc/firvish.nvim
+
+vim:tw=80:et:ft=help:norl:
