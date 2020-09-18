@@ -80,7 +80,7 @@ M.open_buffers = function()
   previous_bufnr = vim.fn.bufnr()
 
   if open_bufnr == nil then
-    open_bufnr = utils.show_preview("neovim-firvish [buffers]", "firvish")
+    open_bufnr = utils.show_preview("firvish [buffers]", "firvish", nil)
     vim.api.nvim_command("augroup neovim_firvish_buffer")
     vim.api.nvim_command("autocmd! * <buffer>")
     vim.api.nvim_command("autocmd BufDelete <buffer> lua require'firvish.buffers'.on_buf_delete()")

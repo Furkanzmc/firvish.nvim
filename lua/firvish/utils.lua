@@ -1,7 +1,7 @@
 local vim = vim
 local M = {}
 
-M.show_preview = function(title, filetype)
+M.show_preview = function(title, filetype, options)
     local bufnr = vim.api.nvim_create_buf(true, true)
 
     vim.api.nvim_command("buffer " .. bufnr)
@@ -11,7 +11,12 @@ M.show_preview = function(title, filetype)
     vim.api.nvim_buf_set_option(".", "readonly", false)
     vim.api.nvim_command("setlocal cursorline")
 
-    vim.api.nvim_buf_set_option(".", "buflisted", false)
+    if options ~= nil and options.buflisted ~= nil then
+        vim.api.nvim_buf_set_option(".", "buflisted", options.buflisted)
+    else
+        vim.api.nvim_buf_set_option(".", "buflisted", false)
+    end
+
     vim.api.nvim_buf_set_option(".", "buftype", "nowrite")
     vim.api.nvim_buf_set_option(".", "filetype", filetype)
 

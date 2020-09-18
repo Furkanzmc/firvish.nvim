@@ -32,7 +32,9 @@ function on_exit(job_id, _data, event)
 end
 
 M.start_job = function(cmd, filetype)
-  local bufnr = utils.show_preview("neovim-firvish [job-" .. job_count .. "]", filetype)
+  local bufnr = utils.show_preview(
+    "firvish [job-" .. job_count .. "]", filetype, {buflisted=true}
+    )
   job_count = job_count + 1
   vim.api.nvim_command("buffer " .. bufnr)
 
