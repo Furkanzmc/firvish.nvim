@@ -63,5 +63,4 @@ M.is_window_visible = function(tabnr, bufnr)
   return false
 end
 
-
 return M

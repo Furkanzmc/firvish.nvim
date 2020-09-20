@@ -5,7 +5,7 @@ local utils = require'firvish.utils'
 local open_bufnr = nil
 local cached_buffers = nil
 
-function create_buffer_list()
+function create_buffer_list(predicate)
   local buffer_information = vim.fn.getbufinfo()
   local buffers = {}
   local option = {}
@@ -14,7 +14,8 @@ function create_buffer_list()
 
   for key,bufnr in ipairs(all_buffers) 
   do
-    if vim.fn.buflisted(bufnr) == 1 and bufnr ~= open_bufnr then
+    if vim.fn.buflisted(bufnr) == 1 and bufnr ~= open_bufnr 
+      and (predicate == nil or (predicate ~= nil and predicate(bufnr))) then
       local bufnr_str = "[" .. bufnr .. "]"
       local line = bufnr_str
       local modified = vim.api.nvim_buf_get_option(bufnr, "modified")
@@ -103,6 +104,25 @@ M.refresh_buffers = function()
   local info = create_buffer_list()
   utils.set_lines(open_bufnr, info[1])
 
+  vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
+end
+
+M.filter_buffers = function(mode)
+  local info = nil
+  if mode == "modified" then
+    info = create_buffer_list(function(bufnr)
+      return vim.api.nvim_buf_get_option(bufnr, "modified")
+    end)
+  elseif mode == "current_tab" then
+    local tabnr = vim.fn.tabpagenr()
+    info = create_buffer_list(function(bufnr)
+      return utils.is_window_visible(tabnr, bufnr)
+    end)
+  else
+    assert(false, "Unsupported filter type: " .. mode)
+  end
+
+  utils.set_lines(open_bufnr, info[1])
   vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
 end
 
