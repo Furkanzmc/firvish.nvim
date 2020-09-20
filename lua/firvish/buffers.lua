@@ -15,7 +15,7 @@ function create_buffer_list(predicate)
   for key,bufnr in ipairs(all_buffers) 
   do
     if vim.fn.buflisted(bufnr) == 1 and bufnr ~= open_bufnr 
-      and (predicate == nil or (predicate ~= nil and predicate(bufnr))) then
+      and (predicate == nil or (predicate ~= nil and predicate(bufnr) == true)) then
       local bufnr_str = "[" .. bufnr .. "]"
       local line = bufnr_str
       local modified = vim.api.nvim_buf_get_option(bufnr, "modified")
@@ -65,6 +65,16 @@ M.jump_to_buffer = function()
   local linenr = vim.fn.line(".")
   local bufnr = open_bufnr
   local buffer_info = vim.api.nvim_buf_get_var(bufnr, "firvish").buffers[linenr]
+  if buffer_info == nil then
+    local lines = vim.api.nvim_buf_get_lines(open_bufnr, linenr - 1, linenr, true)
+    local line = lines[1]
+    if not string.match(line, "%W") then
+      buffer_info = {bufnr=string.sub(line, 2, string.find(line, "]") - 1)}
+    else
+      utils.log_error("Cannot read buffer number from the list.")
+      return
+    end
+  end
 
   M.close_buffers()
 

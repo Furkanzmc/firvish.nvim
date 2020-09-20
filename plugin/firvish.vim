@@ -3,7 +3,10 @@ if exists('g:loaded_firvish') || &cp || v:version < 700 || &cpo =~# 'C'
 endif
 
 nnoremap <silent> <Plug>(firvish_buffers) :<C-U>lua require'firvish.buffers'.open_buffers()<CR>
+nnoremap <silent> <Plug>(firvish_history) :<C-U>lua require'firvish.history'.open_history()<CR>
+
 nmap <nowait> <leader>b <Plug>(firvish_buffers)
+nmap <nowait> <leader>h <Plug>(firvish_history)
 
 command! -bang -nargs=* Rg :lua require'firvish.job_control'.start_job({
       \ "rg",
@@ -13,19 +16,17 @@ command! -bang -nargs=* Rg :lua require'firvish.job_control'.start_job({
       \ "--color=never",
       \ "--smart-case",
       \ "--vimgrep",
-      \ "--",
-      \ <q-args>,
+      \ <f-args>,
       \ },
-      \ "firvish_dir"
+      \ "firvish-dir"
       \ )<CR>
 
 command! -bang -nargs=* Fd :lua require'firvish.job_control'.start_job({
       \ "fd",
       \ "--color=never",
-      \ "--",
-      \ <q-args>,
+      \ <f-args>,
       \ },
-      \ "firvish_dir"
+      \ "firvish-dir"
       \ )<CR>
 
 let g:loaded_firvish = 1

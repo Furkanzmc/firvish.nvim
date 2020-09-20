@@ -63,4 +63,8 @@ M.is_window_visible = function(tabnr, bufnr)
   return false
 end
 
+M.log_error = function(message)
+    vim.api.nvim_command("echohl ErrorMsg | echo '[firvish] " .. message .. "' | echohl Normal")
+end
+
 return M
