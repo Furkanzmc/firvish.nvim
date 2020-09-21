@@ -4,6 +4,7 @@ local utils = require'firvish.utils'
 
 local open_bufnr = nil
 local cached_buffers = nil
+local is_buffers_dirty = false
 
 function create_buffer_list(predicate)
   local buffer_information = vim.fn.getbufinfo()
@@ -41,12 +42,19 @@ function create_buffer_list(predicate)
     end
   end
 
+  is_buffers_dirty = false
   return {buffers, option}
 
 end
 
 M.on_buf_delete = function()
   open_bufnr = nil
+end
+
+M.on_buf_enter = function()
+  if is_buffers_dirty == true then
+    M.refresh_buffers()
+  end
 end
 
 M.on_buf_leave = function()
@@ -59,6 +67,10 @@ M.close_buffers = function()
   end
 
   previous_bufnr = nil
+end
+
+M.mark_dirty = function()
+  is_buffers_dirty = true
 end
 
 M.jump_to_buffer = function()
@@ -92,8 +104,9 @@ M.open_buffers = function()
 
   if open_bufnr == nil then
     open_bufnr = utils.show_preview("firvish [buffers]", "firvish", nil)
-    vim.api.nvim_command("augroup neovim_firvish_buffer")
+    vim.api.nvim_command("augroup neovim_firvish_buffer_local")
     vim.api.nvim_command("autocmd! * <buffer>")
+    vim.api.nvim_command("autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()")
     vim.api.nvim_command("autocmd BufDelete <buffer> lua require'firvish.buffers'.on_buf_delete()")
     vim.api.nvim_command("autocmd BufWipeout <buffer> lua require'firvish.buffers'.on_buf_delete()")
     vim.api.nvim_command("autocmd BufLeave <buffer> lua require'firvish.buffers'.on_buf_leave()")
@@ -112,7 +125,14 @@ end
 
 M.refresh_buffers = function()
   local info = create_buffer_list()
-  utils.set_lines(open_bufnr, info[1])
+  local cursor = vim.api.nvim_win_get_cursor(0)
+  local lines = info[1]
+  utils.set_lines(open_bufnr, lines)
+  if cursor[1] > #lines then
+    cursor[1] = #lines - 1
+  end
+
+  vim.api.nvim_win_set_cursor(0, cursor)
 
   vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
 end

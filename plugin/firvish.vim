@@ -29,4 +29,9 @@ command! -bang -nargs=* Fd :lua require'firvish.job_control'.start_job({
       \ "firvish-dir"
       \ )<CR>
 
+augroup neovim_firvish_buffer
+  autocmd!
+  autocmd BufDelete,BufWipeout,BufAdd * lua require'firvish.buffers'.mark_dirty()
+augroup END
+
 let g:loaded_firvish = 1
