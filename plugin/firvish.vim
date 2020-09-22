@@ -8,7 +8,7 @@ nnoremap <silent> <Plug>(firvish_history) :<C-U>lua require'firvish.history'.ope
 nmap <nowait> <leader>b <Plug>(firvish_buffers)
 nmap <nowait> <leader>h <Plug>(firvish_history)
 
-command! -bang -nargs=* Rg :lua require'firvish.job_control'.start_job({
+command! -complete=file -nargs=* Rg :lua require'firvish.job_control'.start_job({
       \ "rg",
       \ "--column",
       \ "--line-number",
@@ -21,7 +21,7 @@ command! -bang -nargs=* Rg :lua require'firvish.job_control'.start_job({
       \ "firvish-dir"
       \ )<CR>
 
-command! -bang -nargs=* Fd :lua require'firvish.job_control'.start_job({
+command! -complete=file -nargs=* Fd :lua require'firvish.job_control'.start_job({
       \ "fd",
       \ "--color=never",
       \ <f-args>,
