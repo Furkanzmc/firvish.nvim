@@ -13,6 +13,7 @@ command! -complete=file -nargs=* Rg :lua require'firvish.job_control'.start_job(
       \ "--column",
       \ "--line-number",
       \ "--no-heading",
+      \ "--vimgrep",
       \ "--color=never",
       \ "--smart-case",
       \ "--vimgrep",
