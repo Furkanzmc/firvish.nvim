@@ -19,7 +19,8 @@ command! -complete=file -nargs=* Rg :lua require'firvish.job_control'.start_job(
       \ "--vimgrep",
       \ <f-args>,
       \ },
-      \ "firvish-dir"
+      \ "firvish-dir",
+      \ "rg"
       \ )<CR>
 
 command! -complete=file -nargs=* Fd :lua require'firvish.job_control'.start_job({
@@ -27,7 +28,8 @@ command! -complete=file -nargs=* Fd :lua require'firvish.job_control'.start_job(
       \ "--color=never",
       \ <f-args>,
       \ },
-      \ "firvish-dir"
+      \ "firvish-dir",
+      \ "fd"
       \ )<CR>
 
 augroup neovim_firvish_buffer

@@ -31,9 +31,10 @@ function on_exit(job_id, _data, event)
   jobs[job_id] = -1
 end
 
-M.start_job = function(cmd, filetype)
+M.start_job = function(cmd, filetype, title)
+  local buf_title = "firvish [" .. title .. "-" .. job_count .. "]"
   local bufnr = utils.show_preview(
-    "firvish [job-" .. job_count .. "]", filetype, {buflisted=true}
+    buf_title, filetype, {buflisted=true}
     )
   job_count = job_count + 1
   vim.api.nvim_command("buffer " .. bufnr)
