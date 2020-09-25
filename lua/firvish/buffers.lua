@@ -9,7 +9,6 @@ local is_buffers_dirty = false
 function create_buffer_list(predicate)
   local buffer_information = vim.fn.getbufinfo()
   local buffers = {}
-  local option = {}
   local all_buffers = vim.fn.range(1, vim.fn.bufnr('$'))
   local buf_num_length = #tostring(#all_buffers)
 
@@ -37,13 +36,12 @@ function create_buffer_list(predicate)
 
       if filetype ~= "qf" then
         buffers[#buffers + 1] = line
-        option[#option + 1] = {bufnr=bufnr, name=bufname}
       end
     end
   end
 
   is_buffers_dirty = false
-  return {buffers, option}
+  return buffers
 
 end
 
@@ -73,28 +71,28 @@ M.mark_dirty = function()
   is_buffers_dirty = true
 end
 
-M.jump_to_buffer = function()
-  local linenr = vim.fn.line(".")
-  local bufnr = open_bufnr
-  local buffer_info = vim.api.nvim_buf_get_var(bufnr, "firvish").buffers[linenr]
-  if buffer_info == nil then
-    local lines = vim.api.nvim_buf_get_lines(open_bufnr, linenr - 1, linenr, true)
-    local line = lines[1]
-    if not string.match(line, "%W") then
-      buffer_info = {bufnr=string.sub(line, 2, string.find(line, "]") - 1)}
-    else
-      utils.log_error("Cannot read buffer number from the list.")
-      return
-    end
+function get_bufnr(linenr)
+  local buffer_name = vim.fn.trim(string.gsub(vim.fn.getline(linenr), "[[0-9]+]", ""))
+  local bufnr = vim.fn.bufnr(buffer_name)
+
+  if bufnr == -1 then
+    utils.log_error("Cannot read buffer number from the list.")
+    return nil
   end
+
+  return bufnr
+end
+
+M.jump_to_buffer = function()
+  local bufnr = get_bufnr(vim.fn.line("."))
 
   M.close_buffers()
 
-  local jump_info = utils.find_open_window(buffer_info.bufnr)
+  local jump_info = utils.find_open_window(bufnr)
   if jump_info.tabnr ~= -1 and jump_info.winnr ~= -1 then
     utils.jump_to_window(jump_info.tabnr, jump_info.winnr)
   else
-    vim.api.nvim_command("buffer " .. buffer_info.bufnr)
+    vim.api.nvim_command("buffer " .. bufnr)
   end
 end
 
@@ -103,7 +101,7 @@ M.open_buffers = function()
   previous_bufnr = vim.fn.bufnr()
 
   if open_bufnr == nil then
-    open_bufnr = utils.show_preview("firvish [buffers]", "firvish", nil)
+    open_bufnr = utils.show_preview("firvish [buffers]", "firvish-buffers", nil)
     vim.api.nvim_command("augroup neovim_firvish_buffer_local")
     vim.api.nvim_command("autocmd! * <buffer>")
     vim.api.nvim_command("autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()")
@@ -117,43 +115,54 @@ M.open_buffers = function()
 
   vim.api.nvim_command("buffer " .. open_bufnr)
 
-  local info = create_buffer_list()
-  utils.set_lines(open_bufnr, info[1])
-
-  vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
+  local buffers = create_buffer_list()
+  utils.set_lines(open_bufnr, buffers)
 end
 
 M.refresh_buffers = function()
-  local info = create_buffer_list()
+  local lines = create_buffer_list()
   local cursor = vim.api.nvim_win_get_cursor(0)
-  local lines = info[1]
   utils.set_lines(open_bufnr, lines)
   if cursor[1] > #lines then
     cursor[1] = #lines - 1
   end
 
   vim.api.nvim_win_set_cursor(0, cursor)
-
-  vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
 end
 
 M.filter_buffers = function(mode)
-  local info = nil
+  local buffers = nil
   if mode == "modified" then
-    info = create_buffer_list(function(bufnr)
+    buffers = create_buffer_list(function(bufnr)
       return vim.api.nvim_buf_get_option(bufnr, "modified")
     end)
   elseif mode == "current_tab" then
     local tabnr = vim.fn.tabpagenr()
-    info = create_buffer_list(function(bufnr)
+    buffers = create_buffer_list(function(bufnr)
       return utils.is_window_visible(tabnr, bufnr)
     end)
   else
     assert(false, "Unsupported filter type: " .. mode)
   end
 
-  utils.set_lines(open_bufnr, info[1])
-  vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
+  utils.set_lines(open_bufnr, buffers)
+end
+
+M.buf_do = function(start_line, end_line, cmd)
+  local firvish = vim.api.nvim_buf_get_var(open_bufnr, "firvish_buffers")
+  local start_buffer = firvish.buffers[start_line]
+  local end_buffer = firvish.buffers[end_line]
+
+  vim.api.nvim_command(start_buffer.bufnr .. "," .. end_buffer.bufnr .. "bufdo " .. cmd)
+  vim.api.nvim_command("buffer " .. open_bufnr)
+end
+
+M.buf_delete = function(start_line, end_line)
+  local start_buffer = get_bufnr(start_line)
+  local end_buffer = get_bufnr(end_line)
+
+  vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bdelete")
+  M.refresh_buffers()
 end
 
 return M
