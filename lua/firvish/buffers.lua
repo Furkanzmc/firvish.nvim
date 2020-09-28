@@ -157,11 +157,16 @@ M.buf_do = function(start_line, end_line, cmd)
   vim.api.nvim_command("buffer " .. open_bufnr)
 end
 
-M.buf_delete = function(start_line, end_line)
+M.buf_delete = function(start_line, end_line, force)
   local start_buffer = get_bufnr(start_line)
   local end_buffer = get_bufnr(end_line)
 
-  vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bdelete")
+  if not force then
+    vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bdelete")
+  else
+    vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bdelete!")
+  end
+
   M.refresh_buffers()
 end
 

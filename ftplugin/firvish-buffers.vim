@@ -12,6 +12,6 @@ nmap <buffer> <silent> ft :lua require'firvish.buffers'.filter_buffers("current_
 nmap <buffer> <silent> <s-R> :lua require'firvish.buffers'.refresh_buffers()<CR>
 
 command! -buffer -nargs=* -range Bufdo :lua require'firvish.buffers'.buf_do(<line1>, <line2>, <q-args>)
-command! -buffer -nargs=* -range Bdelete :lua require'firvish.buffers'.buf_delete(<line1>, <line2>)
+command! -buffer -bang -nargs=* -range Bdelete :lua require'firvish.buffers'.buf_delete(<line1>, <line2>, "<bang>" == "!")
 
 let b:did_firvish = 1
