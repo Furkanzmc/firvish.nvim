@@ -72,7 +72,7 @@ M.mark_dirty = function()
 end
 
 function get_bufnr(linenr)
-  local buffer_name = vim.fn.trim(string.gsub(vim.fn.getline(linenr), "[[0-9]+]", ""))
+  local buffer_name = vim.fn.trim(vim.fn.substitute(vim.fn.getline(linenr), '\\([[0-9]\\+\\|\\).* ', "", "g"))
   local bufnr = vim.fn.bufnr(buffer_name)
 
   if bufnr == -1 then
