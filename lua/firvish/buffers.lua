@@ -114,6 +114,7 @@ M.open_buffers = function()
   end
 
   vim.api.nvim_command("buffer " .. open_bufnr)
+  vim.api.nvim_command("syntax clear | syntax on")
 
   local buffers = create_buffer_list()
   utils.set_lines(open_bufnr, buffers)
@@ -128,6 +129,7 @@ M.refresh_buffers = function()
   end
 
   vim.api.nvim_win_set_cursor(0, cursor)
+  vim.api.nvim_command("syntax clear | syntax on")
 end
 
 M.filter_buffers = function(mode)
@@ -140,6 +142,19 @@ M.filter_buffers = function(mode)
     local tabnr = vim.fn.tabpagenr()
     buffers = create_buffer_list(function(bufnr)
       return utils.is_window_visible(tabnr, bufnr)
+    end)
+  elseif mode == "args" then
+    local args = vim.fn.argv()
+    local args_bufnr = {}
+    for index,arg in ipairs(args)
+    do
+      args_bufnr[index] = vim.fn.bufnr(arg)
+    end
+
+    buffers = create_buffer_list(function(bufnr)
+      return utils.any_of(args_bufnr, function(v)
+        return v == bufnr
+      end)
     end)
   else
     assert(false, "Unsupported filter type: " .. mode)

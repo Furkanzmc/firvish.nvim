@@ -1,4 +1,4 @@
-if 'firvish' !=# get(b:, 'current_syntax', 'firvish')
+if 'firvish-buffers' !=# get(b:, 'current_syntax', 'firvish-buffers')
   finish
 endif
 
@@ -6,6 +6,11 @@ let s:sep = exists('+shellslash') && !&shellslash ? '\\' : '/'
 
 syntax match FirvishBufNr '^\[[0-9]\+\]'
 
-highlight default link FirvishBufNr Number
+for s:p in argv()
+  exe 'syntax match FirvishArg ,' . fnamemodify(s:p, ':p:~:.') . ', contains=FirvishBufNr'
+endfor
 
-let b:current_syntax = 'firvish'
+highlight default link FirvishBufNr Number
+highlight default link FirvishArg Todo
+
+let b:current_syntax = 'firvish-buffers'
