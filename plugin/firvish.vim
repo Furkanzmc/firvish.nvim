@@ -8,31 +8,51 @@ nnoremap <silent> <Plug>(firvish_history) :<C-U>lua require'firvish.history'.ope
 nmap <nowait> <leader>b <Plug>(firvish_buffers)
 nmap <nowait> <leader>h <Plug>(firvish_history)
 
-command! -bang -complete=file -nargs=* Rg :lua require'firvish.job_control'.start_job({
-      \ "rg",
-      \ "--column",
-      \ "--line-number",
-      \ "--no-heading",
-      \ "--vimgrep",
-      \ "--color=never",
-      \ "--smart-case",
-      \ "--vimgrep",
-      \ <f-args>,
-      \ },
-      \ "firvish-dir",
-      \ "rg",
-      \ "<bang>" == "!"
-      \ )<CR>
+if executable("rg")
+  command! -bang -complete=file -nargs=* Rg :lua require'firvish.job_control'.start_job({
+        \ "rg",
+        \ "--column",
+        \ "--line-number",
+        \ "--no-heading",
+        \ "--vimgrep",
+        \ "--color=never",
+        \ "--smart-case",
+        \ "--block-buffered",
+        \ <f-args>,
+        \ },
+        \ "firvish-dir",
+        \ "rg",
+        \ "<bang>" == "!"
+        \ )<CR>
+endif
 
-command! -bang -complete=file -nargs=* Fd :lua require'firvish.job_control'.start_job({
-      \ "fd",
-      \ "--color=never",
-      \ <f-args>,
-      \ },
-      \ "firvish-dir",
-      \ "fd",
-      \ "<bang>" == "!"
-      \ )<CR>
+if executable("ugrep")
+  command! -bang -complete=file -nargs=* Ug :lua require'firvish.job_control'.start_job({
+        \ "ugrep",
+        \ "--column-number",
+        \ "--line-number",
+        \ "--color=never",
+        \ "--smart-case",
+        \ "-J1",
+        \ <f-args>,
+        \ },
+        \ "firvish-dir",
+        \ "ugrep",
+        \ "<bang>" == "!"
+        \ )<CR>
+endif
+
+if executable("fd")
+  command! -bang -complete=file -nargs=* Fd :lua require'firvish.job_control'.start_job({
+        \ "fd",
+        \ "--color=never",
+        \ <f-args>,
+        \ },
+        \ "firvish-dir",
+        \ "fd",
+        \ "<bang>" == "!"
+        \ )<CR>
+endif
 
 augroup neovim_firvish_buffer
   autocmd!

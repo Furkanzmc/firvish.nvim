@@ -63,6 +63,11 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
       stdout_buffered=true,
     })
 
+  if job_id == 0 then
+    utils.log_error("Invalid arguments were provided to start_job.")
+  elseif job_id == -1 then
+    utils.log_error("Command or 'shell' is not executable.")
+  end
   jobs[job_id] = {bufnr=bufnr}
 end
 
