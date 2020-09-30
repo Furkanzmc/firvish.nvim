@@ -72,12 +72,19 @@ M.mark_dirty = function()
 end
 
 function get_bufnr(linenr)
-  local buffer_name = vim.fn.trim(vim.fn.substitute(vim.fn.getline(linenr), '\\([[0-9]\\+\\|\\).* ', "", "g"))
-  local bufnr = vim.fn.bufnr(buffer_name)
+  local line = vim.fn.getline(linenr)
+  local bufnr = vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g")
+  if bufnr ~= "" then
+    return bufnr
+  end
+
+  local buffer_name = string.sub(line, vim.fn.matchstrpos(line, "[A-Za-z]")[2], -1)
+  local buffer_name = vim.fn.trim(buffer_name)
+  bufnr = vim.fn.bufnr(buffer_name)
 
   if bufnr == -1 then
     utils.log_error("Cannot read buffer number from the list.")
-    return nil
+    return -1
   end
 
   return bufnr
@@ -85,6 +92,9 @@ end
 
 M.jump_to_buffer = function()
   local bufnr = get_bufnr(vim.fn.line("."))
+  if bufnr == -1 then
+    return
+  end
 
   M.close_buffers()
 
