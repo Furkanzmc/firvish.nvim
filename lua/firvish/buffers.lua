@@ -75,7 +75,7 @@ function get_bufnr(linenr)
   local line = vim.fn.getline(linenr)
   local bufnr = vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g")
   if bufnr ~= "" then
-    return bufnr
+    return tonumber(bufnr)
   end
 
   local buffer_name = string.sub(line, vim.fn.matchstrpos(line, "[A-Za-z]")[2], -1)
@@ -87,7 +87,7 @@ function get_bufnr(linenr)
     return -1
   end
 
-  return bufnr
+  return tonumber(bufnr)
 end
 
 M.jump_to_buffer = function()
@@ -95,8 +95,6 @@ M.jump_to_buffer = function()
   if bufnr == -1 then
     return
   end
-
-  M.close_buffers()
 
   local jump_info = utils.find_open_window(bufnr)
   if jump_info.tabnr ~= -1 and jump_info.winnr ~= -1 then
