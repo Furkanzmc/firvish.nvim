@@ -8,8 +8,12 @@ nnoremap <silent> <Plug>(firvish_history) :<C-U>lua require'firvish.history'.ope
 nmap <nowait> <leader>b <Plug>(firvish_buffers)
 nmap <nowait> <leader>h <Plug>(firvish_history)
 
+if !exists("g:firvish_interactive_window_height")
+  let g:firvish_interactive_window_height = 3
+endif
+
 if executable("rg")
-  command! -bang -complete=file -nargs=* Rg :lua require'firvish.job_control'.start_job({
+  command! -bang -complete=file -nargs=* Rg call luaeval('require"firvish.job_control".start_job({
         \ "rg",
         \ "--column",
         \ "--line-number",
@@ -23,27 +27,28 @@ if executable("rg")
         \ "firvish-dir",
         \ "rg",
         \ "<bang>" == "!"
-        \ )<CR>
+        \ )') | let b:firvish_job_command="Rg!"
 endif
 
 if executable("ugrep")
-  command! -bang -complete=file -nargs=* Ug :lua require'firvish.job_control'.start_job({
+  command! -bang -complete=file -nargs=* Ug call luaeval('require"firvish.job_control".start_job({
         \ "ugrep",
         \ "--column-number",
         \ "--line-number",
         \ "--color=never",
         \ "--smart-case",
+        \ "--line-buffered",
         \ "-J1",
         \ <f-args>,
         \ },
         \ "firvish-dir",
         \ "ugrep",
         \ "<bang>" == "!"
-        \ )<CR>
+        \ )') | let b:firvish_job_command="Ug!"
 endif
 
 if executable("fd")
-  command! -bang -complete=file -nargs=* Fd :lua require'firvish.job_control'.start_job({
+  command! -bang -complete=file -nargs=* Fd call luaeval('require"firvish.job_control".start_job({
         \ "fd",
         \ "--color=never",
         \ <f-args>,
@@ -51,7 +56,7 @@ if executable("fd")
         \ "firvish-dir",
         \ "fd",
         \ "<bang>" == "!"
-        \ )<CR>
+        \ )') | let b:firvish_job_command="Fd!"
 endif
 
 augroup neovim_firvish_buffer

@@ -30,7 +30,9 @@ end
 function on_exit(job_id, _data, event)
   local job_info = jobs[job_id]
   vim.api.nvim_buf_set_lines(job_info.bufnr, -1, -1, true, {"[firvish] Job Finished..."})
-  jobs[job_id] = -1
+  vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
+
+  jobs[job_id] = nil
 end
 
 M.start_job = function(cmd, filetype, title, use_last_buffer)
@@ -53,7 +55,9 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
 
   assert(bufnr ~= -1)
 
-  vim.api.nvim_command("buffer " .. bufnr)
+  if not use_last_buffer then
+    vim.api.nvim_command("buffer " .. bufnr)
+  end
 
   local job_id = vim.fn.jobstart(cmd, {
       on_stderr=on_stderr,
@@ -61,6 +65,8 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
       on_exit=on_exit,
       stderr_buffered=true,
       stdout_buffered=true,
+      cwd=vim.fn.getcwd(),
+      detach=false,
     })
 
   if job_id == 0 then
@@ -68,6 +74,8 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
   elseif job_id == -1 then
     utils.log_error("Command or 'shell' is not executable.")
   end
+
+  vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", job_id)
   jobs[job_id] = {bufnr=bufnr}
 end
 
