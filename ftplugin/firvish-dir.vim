@@ -10,6 +10,10 @@ nmap <buffer> <silent> <C-N> <cmd>call firvish#open_file_under_cursor("down", v:
 nmap <buffer> <silent> <C-P> <cmd>call firvish#open_file_under_cursor("up", v:true, v:true, v:true)<CR>
 
 function s:repeat_command(command)
+  if mode() != "i"
+    return
+  endif
+
   if !empty(getline(line(".")))
     if exists("b:firvish_job_id")
       call jobstop(b:firvish_job_id)
@@ -24,11 +28,6 @@ function s:start_interactive(command)
 
   file "firvish [interactive]"
 
-  setlocal modifiable
-  setlocal cursorline
-  setlocal nobuflisted
-
-  setlocal buftype=nowrite
   setlocal filetype=firvish-interactive
 
   execute "augroup ftp_firvish_" . bufnr(0)
@@ -36,7 +35,7 @@ function s:start_interactive(command)
 
     execute 'autocmd TextChangedI <buffer> call <SID>repeat_command("' . a:command . '")'
     autocmd BufLeave <buffer> bd!
-augroup END
+  augroup END
 
   startinsert
 endfunction
