@@ -59,10 +59,7 @@ M.open_history = function()
 end
 
 M.refresh_history = function()
-  local history = get_history(nil)
-  utils.set_lines(open_bufnr, history)
-
-  vim.api.nvim_buf_set_var(open_bufnr, "firvish", {buffers=info[2]})
+  M.open_history()
 end
 
 M.open_file = function()
