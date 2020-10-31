@@ -8,6 +8,10 @@ nnoremap <silent> <Plug>(firvish_history) :<C-U>lua require'firvish.history'.ope
 nmap <nowait> <leader>b <Plug>(firvish_buffers)
 nmap <nowait> <leader>h <Plug>(firvish_history)
 
+if !exists("g:firvish_shell")
+  let g:firvish_shell = &shell
+endif
+
 if !exists("g:firvish_interactive_window_height")
   let g:firvish_interactive_window_height = 3
 endif

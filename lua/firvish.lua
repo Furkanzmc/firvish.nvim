@@ -4,7 +4,7 @@ local M = {}
 
 M.open_linedo_buffer = function(line1, line2, source_buffer, cmd)
   local lines = vim.fn.getline(line1, line2)
-  local shell = vim.api.nvim_get_option("shell")
+  local shell = vim.api.nvim_get_var("firvish_shell")
   local extension = "sh"
   local is_powershell = string.match(shell, "powershell") ~= nil or string.match(shell, "pwsh") ~= nil
 
@@ -16,12 +16,6 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd)
 
   vim.api.nvim_command("silent split " .. vim.fn.tempname() .. "." .. extension)
   local bufnr = vim.fn.bufnr()
-
-  if string.match(shell, "powershell") ~= nil or string.match(shell, "pwsh") ~= nil then
-    vim.api.nvim_buf_set_option(".", "filetype", "ps1")
-  else
-    vim.api.nvim_buf_set_option(".", "filetype", shell)
-  end
 
   local command_lines = {}
   for index,line in pairs(lines)
@@ -49,8 +43,20 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd)
 end
 
 M.run_commands = function(bufnr)
+  local shell = vim.api.nvim_get_var("firvish_shell")
+  cmd = {shell}
+  if string.match(shell, "powershell") ~= nil or string.match(shell, "pwsh") ~= nil then
+    table.insert(cmd, "-NoLogo")
+    table.insert(cmd, "-NonInteractive")
+    table.insert(cmd, "-NoProfile")
+    table.insert(cmd, "-ExecutionPolicy")
+    table.insert(cmd, "RemoteSigned")
+    table.insert(cmd, "-File")
+  end
+
+  table.insert(cmd, vim.fn.expand("%"))
   require"firvish.job_control".start_job(
-    {vim.api.nvim_get_option("shell"), vim.fn.expand("%")},
+    cmd,
     "firvish-job",
     "fhdo",
     "<bang>" == "!"

@@ -9,12 +9,25 @@ local opened_buffers = {}
 
 function on_stdout(job_id, data, name)
   local job_info = jobs[job_id]
-  vim.api.nvim_buf_set_lines(job_info.bufnr, 0, -1, true, data)
+  local linenr = vim.fn.line("$")
+  if linenr == 1 and #data == 1 and data[#data] == "" then
+    return
+  end
+
+  if #data > 1 and data[#data] == "" then
+    data[#data] = nil
+  end
+  vim.api.nvim_buf_set_lines(job_info.bufnr, linenr, -1, true, data)
 end
 
 function on_stderr(job_id, data, name)
-  if data[1] == "" then
+  local linenr = vim.fn.line("$")
+  if #data == 1 and data[#data] == "" then
     return
+  end
+
+  if #data > 1 and data[#data] == "" then
+    data[#data] = nil
   end
 
   local error_lines = {}
@@ -24,12 +37,12 @@ function on_stderr(job_id, data, name)
   end
 
   local job_info = jobs[job_id]
-  vim.api.nvim_buf_set_lines(job_info.bufnr, -1, -1, true, error_lines)
+  vim.api.nvim_buf_set_lines(job_info.bufnr, linenr, -1, true, error_lines)
 end
 
 function on_exit(job_id, _data, event)
   local job_info = jobs[job_id]
-  vim.api.nvim_buf_set_lines(job_info.bufnr, -1, -1, true, {"[firvish] Job Finished..."})
+  vim.api.nvim_buf_set_lines(job_info.bufnr, vim.fn.line("$"), -1, true, {"[firvish] Job Finished..."})
   vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
 
   jobs[job_id] = nil
