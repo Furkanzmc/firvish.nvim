@@ -1,4 +1,122 @@
 local vim = vim
+local utils = require'firvish.utils'
 local M = {}
+
+M.open_linedo_buffer = function(line1, line2, source_buffer, cmd)
+  local lines = vim.fn.getline(line1, line2)
+  local shell = vim.api.nvim_get_option("shell")
+  local extension = "sh"
+  local is_powershell = string.match(shell, "powershell") ~= nil or string.match(shell, "pwsh") ~= nil
+
+  if is_powershell then
+    extension = "ps1"
+  elseif string.match(shell, "cmd") ~= nil then
+    extension = "bat"
+  end
+
+  vim.api.nvim_command("silent split " .. vim.fn.tempname() .. "." .. extension)
+  local bufnr = vim.fn.bufnr()
+
+  if string.match(shell, "powershell") ~= nil or string.match(shell, "pwsh") ~= nil then
+    vim.api.nvim_buf_set_option(".", "filetype", "ps1")
+  else
+    vim.api.nvim_buf_set_option(".", "filetype", shell)
+  end
+
+  local command_lines = {}
+  for index,line in pairs(lines)
+  do
+    command_lines[index] = string.gsub(cmd, "{}", line)
+  end
+
+  vim.api.nvim_buf_set_option(".", "modifiable", true)
+  vim.api.nvim_buf_set_option(".", "readonly", false)
+  vim.api.nvim_buf_set_option(".", "buflisted", false)
+
+  vim.api.nvim_command("setlocal cursorline")
+
+  local opts = { noremap=true, silent=true }
+  vim.api.nvim_buf_set_keymap(
+    bufnr,
+    'n',
+    'Z!',
+    "<cmd>silent write<Bar>execute 'lua require\"firvish\".run_commands(vim.fn.bufnr())'<CR>", opts)
+
+  utils.set_lines(bufnr, command_lines)
+
+  return bufnr
+end
+
+M.run_commands = function(bufnr)
+  require"firvish.job_control".start_job(
+    {vim.api.nvim_get_option("shell"), vim.fn.expand("%")},
+    "firvish-job",
+    "linedo",
+    "<bang>" == "!"
+    )
+  vim.api.nvim_command("bwipeout! " .. bufnr)
+end
+
+M.filter_lines = function(start_line, end_line, matching, args)
+  local bang = ""
+  if matching then
+    bang = "!"
+  end
+
+  if start_line == end_line then
+    vim.fn.execute("execute '%g" .. bang .. "/" .. args .. "/d'")
+  else
+    vim.fn.execute("execute '" .. start_line .. "," .. end_line .. "g" .. bang .. "/" .. args .. "/d'")
+  end
+end
+
+M.configure_common_commands = function()
+  vim.api.nvim_command('command! -buffer -bang -nargs=* -range FilterLines :lua require"firvish".filter_lines(<line1>, <line2>, "<bang>" ~= "!", <q-args>)')
+end
+
+M.configure_file_open_commands = function()
+  vim.api.nvim_command(
+    'nmap <buffer> <silent> P <cmd>lua require"firvish".open_file_under_cursor("", true, true, true)<CR>'
+    )
+  vim.api.nvim_command(
+    'nmap <buffer> <silent> a <cmd>lua require"firvish".open_file_under_cursor("", true, false, true)<CR>'
+    )
+  vim.api.nvim_command(
+    'nmap <buffer> <silent> o <cmd>lua require"firvish".open_file_under_cursor("", true, false, false)<CR>'
+    )
+
+  vim.api.nvim_command(
+    'nmap <buffer> <silent> <C-N> <cmd>lua require"firvish".open_file_under_cursor("down", true, true, true)<CR>'
+    )
+  vim.api.nvim_command(
+    'nmap <buffer> <silent> <C-P> <cmd>lua require"firvish".open_file_under_cursor("up", true, true, true)<CR>'
+    )
+end
+
+M.open_file_under_cursor = function(nav_direction, preview, reuse_window, vertical)
+  if reuse_window then
+    local current_winnr = vim.fn.winnr()
+    vim.api.nvim_command("wincmd l")
+    if vim.fn.winnr() ~= current_winnr then
+      vim.api.nvim_command("normal q")
+    end
+  end
+
+  if vertical then
+    vim.api.nvim_command("vertical normal ^F")
+  else
+    vim.api.nvim_command("normal ^F")
+  end
+
+  if preview then
+    vim.api.nvim_command("wincmd p")
+  end
+
+  if nav_direction == "down" then
+    vim.api.nvim_command("normal j")
+  elseif nav_direction == "up" then
+    vim.api.nvim_command("normal k")
+  end
+end
 
 return M

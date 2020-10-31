@@ -59,6 +59,19 @@ if executable("fd")
         \ )') | let b:firvish_job_command="Fd!"
 endif
 
+command! -bang -complete=shellcmd -nargs=* FRun 
+                  \ call luaeval('require"firvish.job_control".start_job({
+                  \     <f-args>,
+                  \ },
+                  \ "firvish-job",
+                  \ "job",
+                  \ "<bang>" == "!"
+                  \ )')
+
+command! -nargs=* -range -bang Linedo 
+                  \ lua require'firvish'.open_linedo_buffer(
+                  \     <line1>, <line2>, vim.fn.bufnr(), <q-args>)
+
 augroup neovim_firvish_buffer
   autocmd!
   autocmd BufDelete,BufWipeout,BufAdd * lua require'firvish.buffers'.mark_dirty()
