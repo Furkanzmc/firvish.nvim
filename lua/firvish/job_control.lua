@@ -63,8 +63,8 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
       on_stderr=on_stderr,
       on_stdout=on_stdout,
       on_exit=on_exit,
-      stderr_buffered=true,
-      stdout_buffered=true,
+      stderr_buffered=false,
+      stdout_buffered=false,
       cwd=vim.fn.getcwd(),
       detach=false,
     })

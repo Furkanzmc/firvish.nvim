@@ -59,7 +59,7 @@ if executable("fd")
         \ )') | let b:firvish_job_command="Fd!"
 endif
 
-command! -bang -complete=shellcmd -nargs=* FRun 
+command! -bang -complete=shellcmd -nargs=* FRun
                   \ call luaeval('require"firvish.job_control".start_job({
                   \     <f-args>,
                   \ },
@@ -68,7 +68,7 @@ command! -bang -complete=shellcmd -nargs=* FRun
                   \ "<bang>" == "!"
                   \ )')
 
-command! -nargs=* -range -bang Linedo 
+command! -nargs=* -complete=shellcmd -range -bang Fhdo
                   \ lua require'firvish'.open_linedo_buffer(
                   \     <line1>, <line2>, vim.fn.bufnr(), <q-args>)
 

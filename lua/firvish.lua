@@ -43,6 +43,7 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd)
     "<cmd>silent write<Bar>execute 'lua require\"firvish\".run_commands(vim.fn.bufnr())'<CR>", opts)
 
   utils.set_lines(bufnr, command_lines)
+  vim.api.nvim_command("write")
 
   return bufnr
 end
@@ -51,7 +52,7 @@ M.run_commands = function(bufnr)
   require"firvish.job_control".start_job(
     {vim.api.nvim_get_option("shell"), vim.fn.expand("%")},
     "firvish-job",
-    "linedo",
+    "fhdo",
     "<bang>" == "!"
     )
   vim.api.nvim_command("bwipeout! " .. bufnr)
