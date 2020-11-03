@@ -1,0 +1,12 @@
+local vim = vim
+local M = {}
+
+M.set_common_syntax = function()
+  vim.api.nvim_command('syntax match FirvishError "^ERROR:"')
+  vim.api.nvim_command('syntax match FirvishWarning "^WARNING:"')
+
+  vim.api.nvim_command('highlight default link FirvishError ErrorMsg')
+  vim.api.nvim_command('highlight default link FirvishWarning WarningMsg')
+end
+
+return M

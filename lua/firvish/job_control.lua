@@ -33,7 +33,7 @@ function on_stderr(job_id, data, name)
   local error_lines = {}
   for index,error in ipairs(data)
   do
-    error_lines[index] = "[firvish-error] - " .. error
+    error_lines[index] = "ERROR: " .. error
   end
 
   local job_info = jobs[job_id]
