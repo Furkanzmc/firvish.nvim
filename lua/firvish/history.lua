@@ -41,7 +41,7 @@ M.open_history = function()
   previous_bufnr = vim.fn.bufnr()
 
   if open_bufnr == nil then
-    open_bufnr = utils.show_preview("firvish [history]", "firvish-history", nil)
+    open_bufnr = utils.open_firvish_buffer("firvish [history]", "firvish-history", nil)
     vim.api.nvim_command("augroup neovim_firvish_history")
     vim.api.nvim_command("autocmd! * <buffer>")
     vim.api.nvim_command("autocmd BufDelete <buffer> lua require'firvish.history'.on_buf_delete()")

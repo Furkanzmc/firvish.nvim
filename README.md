@@ -8,3 +8,6 @@ with Lua, so sadly, it only works on NeoVim.
 # TODO
 
 - [ ] Add support for listing and stopping running jobs.
+    List them in a preview window, and use the same shortcuts in buffers to review the current output.
+- [ ] Ability to run background jobs that exposes the output on-demand.
+    + Maybe using the preview window.

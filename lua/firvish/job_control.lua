@@ -17,6 +17,8 @@ function on_stdout(job_id, data, name)
   if #data > 1 and data[#data] == "" then
     data[#data] = nil
   end
+
+  utils.merge_table(job_info.stdout, data)
   vim.api.nvim_buf_set_lines(job_info.bufnr, linenr, -1, true, data)
 end
 
@@ -37,6 +39,7 @@ function on_stderr(job_id, data, name)
   end
 
   local job_info = jobs[job_id]
+  utils.merge_table(job_info.stderr, error_lines)
   vim.api.nvim_buf_set_lines(job_info.bufnr, linenr, -1, true, error_lines)
 end
 
@@ -59,7 +62,7 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
   end
 
   if bufnr == -1 or vim.fn.bufexists(bufnr) == 0 then
-    bufnr = utils.show_preview(
+    bufnr = utils.open_firvish_buffer(
       buf_title, filetype, {buflisted=true}
       )
     opened_buffers[filetype] = bufnr
@@ -89,7 +92,14 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
   end
 
   vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", job_id)
-  jobs[job_id] = {bufnr=bufnr}
+  jobs[job_id] = {
+    bufnr=bufnr,
+    cmd=cmd,
+    title=title,
+    stdout={},
+    stderr={},
+    running=true
+  }
 end
 
 return M

@@ -109,7 +109,7 @@ M.open_buffers = function()
   previous_bufnr = vim.fn.bufnr()
 
   if open_bufnr == nil then
-    open_bufnr = utils.show_preview("firvish [buffers]", "firvish-buffers", nil)
+    open_bufnr = utils.open_firvish_buffer("firvish [buffers]", "firvish-buffers", nil)
     vim.api.nvim_command("augroup neovim_firvish_buffer_local")
     vim.api.nvim_command("autocmd! * <buffer>")
     vim.api.nvim_command("autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()")

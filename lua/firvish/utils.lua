@@ -1,7 +1,7 @@
 local vim = vim
 local M = {}
 
-M.show_preview = function(title, filetype, options)
+M.open_firvish_buffer = function(title, filetype, options)
     local bufnr = vim.api.nvim_create_buf(true, true)
 
     vim.api.nvim_command("buffer " .. bufnr)
@@ -77,6 +77,14 @@ M.any_of = function(items, predicate)
     end
 
     return false
+end
+
+M.merge_table = function(target, source)
+   for _,v in ipairs(source) do
+      table.insert(target, v)
+   end 
+ 
+   return target
 end
 
 return M
