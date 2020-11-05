@@ -2,23 +2,40 @@ local vim = vim
 local M = {}
 
 M.open_firvish_buffer = function(title, filetype, options)
-    local bufnr = vim.api.nvim_create_buf(true, true)
+    vim.api.nvim_command("edit " .. title)
+    local bufnr = vim.fn.bufnr()
 
-    vim.api.nvim_command("buffer " .. bufnr)
-    vim.api.nvim_command("file " .. title)
-
-    vim.api.nvim_buf_set_option(".", "modifiable", true)
-    vim.api.nvim_buf_set_option(".", "readonly", false)
-    vim.api.nvim_command("setlocal cursorline")
+    vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
+    vim.api.nvim_buf_set_option(bufnr, "readonly", false)
 
     if options ~= nil and options.buflisted ~= nil then
-        vim.api.nvim_buf_set_option(".", "buflisted", options.buflisted)
+        vim.api.nvim_buf_set_option(bufnr, "buflisted", options.buflisted)
     else
-        vim.api.nvim_buf_set_option(".", "buflisted", false)
+        vim.api.nvim_buf_set_option(bufnr, "buflisted", false)
     end
 
-    vim.api.nvim_buf_set_option(".", "buftype", "nowrite")
-    vim.api.nvim_buf_set_option(".", "filetype", filetype)
+    vim.api.nvim_buf_set_option(bufnr, "buftype", "nowrite")
+    vim.api.nvim_buf_set_option(bufnr, "filetype", filetype)
+
+    return bufnr
+end
+
+M.show_previw_window = function(title, lines)
+    vim.api.nvim_command("silent execute 'pedit " .. title .. "'")
+    vim.api.nvim_command("wincmd P")
+    local bufnr = vim.fn.bufnr()
+
+    vim.api.nvim_buf_set_option(".", "modifiable", true)
+    vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
+    vim.api.nvim_buf_set_option(".", "modifiable", false)
+
+    vim.api.nvim_buf_set_option(".", "readonly", true)
+    vim.api.nvim_command("setlocal cursorline")
+
+    vim.api.nvim_buf_set_option(".", "buflisted", false)
+
+    vim.api.nvim_buf_set_option(".", "buftype", "nofile")
+    vim.api.nvim_buf_set_option(".", "bufhidden", "wipe")
 
     return bufnr
 end
@@ -52,15 +69,15 @@ M.find_open_window = function(buffer)
 end
 
 M.is_window_visible = function(tabnr, bufnr)
-  local buffers = vim.fn.tabpagebuflist(tabnr)
-  for _,win in pairs(buffers)
-  do
-    if win == bufnr then
-      return true
+    local buffers = vim.fn.tabpagebuflist(tabnr)
+    for _,win in pairs(buffers)
+    do
+        if win == bufnr then
+            return true
+        end
     end
-  end
 
-  return false
+    return false
 end
 
 M.log_error = function(message)
@@ -80,11 +97,11 @@ M.any_of = function(items, predicate)
 end
 
 M.merge_table = function(target, source)
-   for _,v in ipairs(source) do
-      table.insert(target, v)
-   end 
- 
-   return target
+    for _,v in ipairs(source) do
+        table.insert(target, v)
+    end 
+
+    return target
 end
 
 return M

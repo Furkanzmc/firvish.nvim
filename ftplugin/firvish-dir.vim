@@ -4,7 +4,7 @@ endif
 
 lua << EOF
   require'firvish'.configure_common_commands()
-  require'firvish'.configure_file_open_commands()
+  require'firvish'.configure_buffer_preview_keymaps()
 EOF
 
 function s:repeat_command(command)
@@ -38,6 +38,6 @@ function s:start_interactive(command)
   startinsert
 endfunction
 
-nmap <buffer> <silent> I <cmd>call <SID>start_interactive(b:firvish_job_command)<CR>
+nmap <buffer> <silent> I <cmd>call <SID>start_interactive(b:firvish_repeat_job_command)<CR>
 
 let b:did_firvish = 1

@@ -30,8 +30,10 @@ if executable("rg")
         \ },
         \ "firvish-dir",
         \ "rg",
-        \ "<bang>" == "!"
-        \ )') | let b:firvish_job_command="Rg!"
+        \ "<bang>" == "!",
+        \ false,
+        \ false
+        \ )') | let b:firvish_repeat_job_command="Rg!"
 endif
 
 if executable("ugrep")
@@ -47,8 +49,10 @@ if executable("ugrep")
         \ },
         \ "firvish-dir",
         \ "ugrep",
-        \ "<bang>" == "!"
-        \ )') | let b:firvish_job_command="Ug!"
+        \ "<bang>" == "!",
+        \ false,
+        \ false
+        \ )') | let b:firvish_repeat_job_command="Ug!"
 endif
 
 if executable("fd")
@@ -59,8 +63,10 @@ if executable("fd")
         \ },
         \ "firvish-dir",
         \ "fd",
-        \ "<bang>" == "!"
-        \ )') | let b:firvish_job_command="Fd!"
+        \ "<bang>" == "!",
+        \ false,
+        \ false
+        \ )') | let b:firvish_repeat_job_command="Fd!"
 endif
 
 command! -bang -complete=shellcmd -nargs=* FRun
@@ -69,12 +75,16 @@ command! -bang -complete=shellcmd -nargs=* FRun
                   \ },
                   \ "firvish-job",
                   \ "job",
-                  \ "<bang>" == "!"
+                  \ false,
+                  \ "<bang>" == "!",
+                  \ true
                   \ )')
 
 command! -nargs=* -complete=shellcmd -range -bang Fhdo
                   \ lua require'firvish'.open_linedo_buffer(
                   \     <line1>, <line2>, vim.fn.bufnr(), <q-args>)
+
+command! FirvishJobs lua require'firvish.job_control'.list_jobs()
 
 augroup neovim_firvish_buffer
   autocmd!

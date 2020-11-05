@@ -81,7 +81,7 @@ M.configure_common_commands = function()
   vim.api.nvim_command('command! -buffer -bang -nargs=* -range FilterLines :lua require"firvish".filter_lines(<line1>, <line2>, "<bang>" ~= "!", <q-args>)')
 end
 
-M.configure_file_open_commands = function()
+M.configure_buffer_preview_keymaps = function()
   vim.api.nvim_command(
     'nmap <buffer> <silent> P <cmd>lua require"firvish".open_file_under_cursor("", true, true, true)<CR>'
     )

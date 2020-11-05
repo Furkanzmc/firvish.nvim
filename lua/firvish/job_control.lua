@@ -5,12 +5,15 @@ local utils = require'firvish.utils'
 local jobs = {}
 local job_count = 1
 local opened_buffers = {}
+local job_output_preview_bufnr = -1
+local preview_bufnr = -1
+local auto_close_preview_window = true
 
+-- Job Control {{{
 
 function on_stdout(job_id, data, name)
   local job_info = jobs[job_id]
-  local linenr = vim.fn.line("$")
-  if linenr == 1 and #data == 1 and data[#data] == "" then
+  if #data == 1 and data[#data] == "" then
     return
   end
 
@@ -19,11 +22,14 @@ function on_stdout(job_id, data, name)
   end
 
   utils.merge_table(job_info.stdout, data)
-  vim.api.nvim_buf_set_lines(job_info.bufnr, linenr, -1, true, data)
+  utils.merge_table(job_info.output, data)
+
+  if not job_info.is_background_job then
+    vim.api.nvim_buf_set_lines(job_info.bufnr, 0, -1, true, job_info.output)
+  end
 end
 
 function on_stderr(job_id, data, name)
-  local linenr = vim.fn.line("$")
   if #data == 1 and data[#data] == "" then
     return
   end
@@ -40,18 +46,38 @@ function on_stderr(job_id, data, name)
 
   local job_info = jobs[job_id]
   utils.merge_table(job_info.stderr, error_lines)
-  vim.api.nvim_buf_set_lines(job_info.bufnr, linenr, -1, true, error_lines)
+  utils.merge_table(job_info.output, error_lines)
+
+  if not job_info.is_background_job then
+    vim.api.nvim_buf_set_lines(job_info.bufnr, 0, -1, true, job_info.output)
+  end
 end
 
-function on_exit(job_id, _data, event)
+function on_exit(job_id, exit_code, event)
   local job_info = jobs[job_id]
-  vim.api.nvim_buf_set_lines(job_info.bufnr, vim.fn.line("$"), -1, true, {"[firvish] Job Finished..."})
-  vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
+  if not job_info.is_background_job then
+    vim.api.nvim_buf_set_lines(job_info.bufnr, vim.fn.line("$"), -1, true, {"[firvish] Job Finished..."})
+  end
 
-  jobs[job_id] = nil
+  vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
+  if not job_info.is_listed then
+    jobs[job_id] = nil
+    return
+  end
+
+  job_info.running = false
+  job_info.exit_code = exit_code
+  job_info.finish_time = vim.fn.strftime('%b %d %A %H:%M')
 end
 
-M.start_job = function(cmd, filetype, title, use_last_buffer)
+function close_job_output_preview()
+  assert(job_output_preview_bufnr ~= -1)
+
+  vim.api.nvim_command("bdelete " .. job_output_preview_bufnr)
+  job_output_preview_bufnr = -1
+end
+
+M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job, listed)
   local buf_title = "firvish [" .. title .. "-" .. job_count .. "]"
   local bufnr = -1
   
@@ -61,17 +87,17 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
     bufnr = opened_buffers[filetype]
   end
 
-  if bufnr == -1 or vim.fn.bufexists(bufnr) == 0 then
+  if (bufnr == -1 or vim.fn.bufexists(bufnr) == 0) and not is_background_job then
     bufnr = utils.open_firvish_buffer(
       buf_title, filetype, {buflisted=true}
       )
     opened_buffers[filetype] = bufnr
-    job_count = job_count + 1
+    assert(bufnr ~= -1)
   end
 
-  assert(bufnr ~= -1)
+  job_count = job_count + 1
 
-  if not use_last_buffer then
+  if not use_last_buffer and not is_background_job then
     vim.api.nvim_command("buffer " .. bufnr)
   end
 
@@ -91,15 +117,177 @@ M.start_job = function(cmd, filetype, title, use_last_buffer)
     utils.log_error("Command or 'shell' is not executable.")
   end
 
-  vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", job_id)
+  if not is_background_job then
+    vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", job_id)
+  end
+
   jobs[job_id] = {
     bufnr=bufnr,
     cmd=cmd,
-    title=title,
+    title=buf_title,
     stdout={},
     stderr={},
-    running=true
+    output={},
+    running=true,
+    is_background_job=is_background_job,
+    start_time=vim.fn.strftime('%b %d %A %H:%M'),
+    finish_time="",
+    exit_code=nil,
+    is_listed=listed
   }
 end
+
+-- }}}
+
+M.list_jobs = function()
+  local lines = {}
+  local additional_lines = {}
+
+   for job_id,value in pairs(jobs) do
+     local line = "[" .. job_id .. "]"
+     if value.is_background_job then
+       line = line .. " [B]"
+     end
+
+     if value.running then
+       line = line .. " [R]"
+     elseif not value.running then
+       line = line .. " [F]"
+     end
+
+     if not value.running and #value.stderr > 0 then
+       line = line .. " [W:" .. value.exit_code .. "]"
+     elseif not value.running and value.exit_code ~= 1 then
+       line = line .. " [E:" .. value.exit_code .. "]"
+     end
+
+     local cmdString = ""
+     for _, word in ipairs(value.cmd) do
+       cmdString = cmdString .. " " .. word
+     end
+     cmdString = string.gsub(cmdString, "^ ", "")
+     line = line .. ' "' .. cmdString .. '"'
+
+     table.insert(lines, line)
+
+     -- These are the optional line that will be echoed on cursor hold.
+     local additonal = 'Started: "' .. value.start_time .. '"'
+     if not value.running then
+       additonal = additonal .. ' Finished: "' .. value.finish_time .. '"'
+     end
+     table.insert(additional_lines, {echo=additonal, job_id=job_id})
+   end 
+
+   local bufnr = utils.show_previw_window("Firvish Jobs", lines)
+   preview_bufnr = bufnr
+   vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", additional_lines)
+
+    local opts = { noremap=true, silent=true }
+    vim.api.nvim_buf_set_keymap(
+        bufnr, 'n', '<S-r>', "<Cmd>lua require'firvish.job_control'.list_jobs()<CR>", opts)
+    vim.api.nvim_buf_set_keymap(
+        bufnr,
+        'n',
+        '<S-p>',
+        "<cmd>execute 'lua " .. 'require"firvish.job_control"' .. ".preview_job_output(' ."
+        .. "b:firvish_job_list_additional_lines[line('.') - 1].job_id . ')'<CR>", opts)
+
+    vim.api.nvim_command("augroup firvish_job_list_preview")
+    vim.api.nvim_command("autocmd!")
+    vim.api.nvim_command(
+      "autocmd CursorHold <buffer> lua require'firvish.job_control'.on_preview_cursorhold()")
+    vim.api.nvim_command(
+      "autocmd CursorMoved <buffer> lua require'firvish.job_control'.on_preview_cursormoved()")
+    vim.api.nvim_command("autocmd BufLeave <buffer> :lua require'firvish.job_control'.on_preview_bufleave()")
+    vim.api.nvim_command("augroup END")
+end
+
+M.preview_job_output = function(job_id)
+  auto_close_preview_window = false
+  local job_info = jobs[job_id]
+  if job_info == nil then
+    utils.log_error("Job does not exist: " .. job_id)
+    return
+  end
+
+  vim.api.nvim_command("botright new")
+  local bufnr = utils.open_firvish_buffer(
+    "Job Output", "firvish-job", {buflisted=false}
+  )
+
+  vim.api.nvim_command("augroup firvish_job_output_preview")
+  vim.api.nvim_command("autocmd!")
+  vim.api.nvim_command("augroup END")
+
+  vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, job_info.output)
+
+  job_output_preview_bufnr = bufnr
+
+  vim.api.nvim_command("augroup firvish_job_output_preview")
+  vim.api.nvim_command("autocmd!")
+  vim.api.nvim_command(
+    "autocmd BufLeave <buffer=" .. bufnr .. "> lua require'firvish.job_control'.on_job_output_preview_bufleave()")
+  vim.api.nvim_command("augroup END")
+end
+
+M.stop_job = function(job_id)
+end
+
+M.delete_job_from_history = function(job_id)
+end
+
+-- Event Handlers {{{
+
+M.on_preview_cursormoved = function()
+  local bufnr = vim.fn.bufnr()
+  local linenr = vim.fn.line('.')
+  local previous_line = -1
+  if vim.fn.exists("b:firvish_current_line") == 1 then
+    previous_line = vim.api.nvim_buf_get_var(bufnr, "firvish_current_line")
+  end
+
+  vim.api.nvim_buf_set_var(bufnr, "firvish_current_line", linenr)
+
+  if job_output_preview_bufnr ~= -1 and previous_line ~= -1 and previous_line ~= linenr then
+    close_job_output_preview()
+  end
+end
+
+M.on_preview_cursorhold = function()
+  assert(vim.wo.previewwindow == true)
+  local bufnr = vim.fn.bufnr()
+  local linenr = vim.fn.line(".")
+
+  if vim.fn.exists("b:firvish_current_line") == 1 and vim.api.nvim_buf_get_var(bufnr, "firvish_current_line") == linenr then
+    return
+  end
+
+  local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
+  vim.api.nvim_command("echomsg '[Firvish Job] " .. additional_lines[linenr].echo .. "'")
+end
+
+M.on_preview_bufleave = function()
+  if auto_close_preview_window == false then
+    return
+  end
+
+  if job_output_preview_bufnr ~= -1 then
+    close_job_output_preview()
+  end
+
+  vim.api.nvim_command("bdelete")
+  vim.api.nvim_command("echomsg ''")
+  preview_bufnr = -1
+end
+
+M.on_job_output_preview_bufleave = function()
+  if job_output_preview_bufnr ~= -1 then
+    close_job_output_preview()
+  end
+
+  auto_close_preview_window = true
+end
+
+-- }}}
 
 return M
