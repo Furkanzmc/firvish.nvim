@@ -7,7 +7,6 @@ nmap <buffer> <silent> gq :lua require'firvish.history'.close_history()<CR>
 nmap <buffer> <silent> <s-R> :lua require'firvish.history'.refresh_history()<CR>
 
 lua << EOF
-  require'firvish'.configure_common_commands()
   require'firvish'.configure_buffer_preview_keymaps()
 EOF
 

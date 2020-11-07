@@ -86,6 +86,9 @@ command! -nargs=* -complete=shellcmd -range -bang Fhdo
 
 command! FirvishJobs lua require'firvish.job_control'.list_jobs()
 
+command! -bang -nargs=* -range FhFilter :lua require"firvish".filter_lines(
+                  \ <line1>, <line2>, "<bang>" ~= "!", <q-args>)
+
 augroup neovim_firvish_buffer
   autocmd!
   autocmd BufDelete,BufWipeout,BufAdd * lua require'firvish.buffers'.mark_dirty()

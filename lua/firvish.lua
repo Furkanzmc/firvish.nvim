@@ -59,7 +59,9 @@ M.run_commands = function(bufnr)
     cmd,
     "firvish-job",
     "fhdo",
-    "<bang>" == "!"
+    false,
+    "<bang>" == "!",
+    true
     )
   vim.api.nvim_command("bwipeout! " .. bufnr)
 end
@@ -75,10 +77,6 @@ M.filter_lines = function(start_line, end_line, matching, args)
   else
     vim.fn.execute("execute '" .. start_line .. "," .. end_line .. "g" .. bang .. "/" .. args .. "/d'")
   end
-end
-
-M.configure_common_commands = function()
-  vim.api.nvim_command('command! -buffer -bang -nargs=* -range FilterLines :lua require"firvish".filter_lines(<line1>, <line2>, "<bang>" ~= "!", <q-args>)')
 end
 
 M.configure_buffer_preview_keymaps = function()

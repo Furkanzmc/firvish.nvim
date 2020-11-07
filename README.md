@@ -10,3 +10,4 @@ with Lua, so sadly, it only works on NeoVim.
 - [ ] Add the ability to stop jobs.
 - [ ] Add the ability to remove jobs from history.
 - [ ] Add support to add the output of a job to the quickfix or locallist.
+- [ ] Fix the problem where the buffer lines are not updated when the focus is lost.

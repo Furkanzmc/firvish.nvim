@@ -188,6 +188,16 @@ M.list_jobs = function()
     vim.api.nvim_buf_set_keymap(
         bufnr,
         'n',
+        'dd',
+        "<cmd>execute 'lua " .. 'require"firvish.job_control"' .. ".delete_job_from_history()'<CR>", opts)
+    vim.api.nvim_buf_set_keymap(
+        bufnr,
+        'n',
+        'S',
+        "<cmd>execute 'lua " .. 'require"firvish.job_control"' .. ".stop_job()'<CR>", opts)
+    vim.api.nvim_buf_set_keymap(
+        bufnr,
+        'n',
         '<S-p>',
         "<cmd>execute 'lua " .. 'require"firvish.job_control"' .. ".preview_job_output(' ."
         .. "b:firvish_job_list_additional_lines[line('.') - 1].job_id . ')'<CR>", opts)
@@ -230,10 +240,42 @@ M.preview_job_output = function(job_id)
   vim.api.nvim_command("augroup END")
 end
 
-M.stop_job = function(job_id)
+M.stop_job = function()
+  assert(vim.wo.previewwindow)
+
+  local bufnr = vim.fn.bufnr()
+  local linenr = vim.fn.line(".")
+
+  local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
+  local info = additional_lines[linenr]
+  local job_info = jobs[info.job_id]
+  if not job_info.running then
+    return
+  end
+
+  vim.fn.jobstop(info.job_id)
+  M.list_jobs()
 end
 
-M.delete_job_from_history = function(job_id)
+M.delete_job_from_history = function()
+  assert(vim.wo.previewwindow)
+
+  local bufnr = vim.fn.bufnr()
+  local linenr = vim.fn.line(".")
+
+  local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
+  local info = additional_lines[linenr]
+  local job_info = jobs[info.job_id]
+  if job_info.running then
+    utils.log_error("Job is still running.")
+    return
+  end
+
+  additional_lines[linenr] = nil
+  jobs[info.job_id] = nil
+  vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", additional_lines)
+
+  M.list_jobs()
 end
 
 -- Event Handlers {{{
