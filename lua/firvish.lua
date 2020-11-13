@@ -20,7 +20,7 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd)
   local command_lines = {}
   for index,line in pairs(lines)
   do
-    command_lines[index] = string.gsub(cmd, "{}", line)
+    command_lines[index] = string.gsub(cmd, "{}", '"' .. line .. '"')
   end
 
   vim.api.nvim_buf_set_option(".", "modifiable", true)
@@ -33,7 +33,7 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd)
   vim.api.nvim_buf_set_keymap(
     bufnr,
     'n',
-    'Z!',
+    'E!',
     "<cmd>silent write<Bar>execute 'lua require\"firvish\".run_commands(vim.fn.bufnr())'<CR>", opts)
 
   utils.set_lines(bufnr, command_lines)
