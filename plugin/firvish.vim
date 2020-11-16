@@ -80,9 +80,9 @@ command! -bang -complete=shellcmd -nargs=* FRun
                   \ true
                   \ )')
 
-command! -nargs=* -complete=shellcmd -range -bang Fhdo
+command! -nargs=* -complete=shellcmd -bang -range Fhdo
                   \ lua require'firvish'.open_linedo_buffer(
-                  \     <line1>, <line2>, vim.fn.bufnr(), <q-args>)
+                  \     <line1>, <line2>, vim.fn.bufnr(), <q-args>, "<bang>" != "!")
 
 command! FirvishJobs lua require'firvish.job_control'.list_jobs()
 
