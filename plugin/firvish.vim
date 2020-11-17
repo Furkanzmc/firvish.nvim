@@ -8,6 +8,9 @@ nnoremap <silent> <Plug>(firvish_history) :<C-U>lua require'firvish.history'.ope
 nmap <nowait> <leader>b <Plug>(firvish_buffers)
 nmap <nowait> <leader>h <Plug>(firvish_history)
 
+command! Buffers lua require'firvish.buffers'.open_buffers()<CR>
+command! History lua require'firvish.history'.open_history()<CR>
+
 if !exists("g:firvish_shell")
   let g:firvish_shell = &shell
 endif
@@ -82,7 +85,7 @@ command! -bang -complete=shellcmd -nargs=* FRun
 
 command! -nargs=* -complete=shellcmd -bang -range Fhdo
                   \ lua require'firvish'.open_linedo_buffer(
-                  \     <line1>, <line2>, vim.fn.bufnr(), <q-args>, "<bang>" != "!")
+                  \     <line1>, <line2>, vim.fn.bufnr(), <q-args>, "<bang>" ~= "!")
 
 command! FirvishJobs lua require'firvish.job_control'.list_jobs()
 

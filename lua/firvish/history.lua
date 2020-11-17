@@ -29,7 +29,7 @@ M.close_history = function()
     if previous_bufnr ~= nil then
         vim.api.nvim_command("buffer " .. previous_bufnr)
     else
-        vim.api.nvim_command("bdelete! " .. open_bufnr)
+        vim.api.nvim_command("bwipeout! " .. open_bufnr)
         open_bufnr = nil
     end
 

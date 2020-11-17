@@ -62,6 +62,7 @@ function on_exit(job_id, exit_code, event)
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
     if not job_info.is_listed then
         jobs[job_id] = nil
+        M.list_jobs()
         return
     end
 
@@ -180,27 +181,8 @@ M.list_jobs = function()
 
     local bufnr = utils.show_previw_window("Firvish Jobs", lines)
     preview_bufnr = bufnr
+    vim.api.nvim_buf_set_option(bufnr, "filetype", "firvish-job-list")
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", additional_lines)
-
-    local opts = { noremap=true, silent=true }
-    vim.api.nvim_buf_set_keymap(
-        bufnr, 'n', '<S-r>', "<Cmd>lua require'firvish.job_control'.list_jobs()<CR>", opts)
-    vim.api.nvim_buf_set_keymap(
-        bufnr,
-        'n',
-        'dd',
-        "<cmd>execute 'lua " .. 'require"firvish.job_control"' .. ".delete_job_from_history()'<CR>", opts)
-    vim.api.nvim_buf_set_keymap(
-        bufnr,
-        'n',
-        'S',
-        "<cmd>execute 'lua " .. 'require"firvish.job_control"' .. ".stop_job()'<CR>", opts)
-    vim.api.nvim_buf_set_keymap(
-        bufnr,
-        'n',
-        '<S-p>',
-        "<cmd>execute 'lua " .. 'require"firvish.job_control"' .. ".preview_job_output(' ."
-        .. "b:firvish_job_list_additional_lines[line('.') - 1].job_id . ')'<CR>", opts)
 
     vim.api.nvim_command("augroup firvish_job_list_preview")
     vim.api.nvim_command("autocmd!")
@@ -257,7 +239,7 @@ M.stop_job = function()
     M.list_jobs()
 end
 
-M.delete_job_from_history = function()
+M.delete_job_from_history = function(stop_job)
     assert(vim.wo.previewwindow)
 
     local bufnr = vim.fn.bufnr()
@@ -266,13 +248,19 @@ M.delete_job_from_history = function()
     local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
     local info = additional_lines[linenr]
     local job_info = jobs[info.job_id]
-    if job_info.running then
+    if job_info.running and not stop_job then
         utils.log_error("Job is still running.")
         return
     end
 
+    if job_info.running then
+        job_info.is_listed = false
+        vim.fn.jobstop(info.job_id)
+    else
+        jobs[info.job_id] = nil
+    end
+
     additional_lines[linenr] = nil
-    jobs[info.job_id] = nil
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", additional_lines)
 
     M.list_jobs()

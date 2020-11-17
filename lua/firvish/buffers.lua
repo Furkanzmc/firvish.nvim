@@ -62,6 +62,8 @@ end
 M.close_buffers = function()
     if previous_bufnr ~= nil then
         vim.api.nvim_command("buffer " .. previous_bufnr)
+    else
+        vim.api.nvim_command("bwipeout! " .. open_bufnr)
     end
 
     previous_bufnr = nil
