@@ -104,20 +104,15 @@ Example: >
 
 :[range]FhFilter[!] {pattern}                                        *:FhFilter*
 
-This is a convenienve command around |:g|. If <bang> is used, it removes the
+This is a convenience command around |:g|. If <bang> is used, it removes the
 lines that do not match {pattern}, otherwise removes the lines that match the
 {pattern}.
 
 Example: >
-    :Fhdo Write-Host {}
-
-Use the following command to run git pull on one or multiple
-directories: >
-    :Fhdo Write-Host "Updating {}" && Push-Location {}
-        \ && git pull && Pop-Location
+    :FhFilter firvish
 
 Example: >
-    :FRun! echo {}
+    :FhFilter! NeoVim
 
 :FirvishJobs                                                      *:FirvishJobs*
 
