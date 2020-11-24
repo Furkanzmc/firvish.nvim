@@ -141,4 +141,26 @@ M.open_file_under_cursor = function(nav_direction, preview, reuse_window, vertic
     end
 end
 
+M.set_qflist = function(line1, line2, replace, loclist)
+    local lines = vim.api.nvim_buf_get_lines(0, line1 - 1, line2 + 1, false)
+    local efm = vim.o.errorformat
+    if not efm and vim.bo.errorformat then
+        efm = efm .. "," .. vim.bo.errorformat
+    end
+
+    local parsed_entries = vim.fn.getqflist({lines=lines, efm=efm})
+    if parsed_entries.items then
+        local action = "a"
+        if replace then
+            action = "r"
+        end
+
+        if not loclist then
+            vim.fn.setqflist(parsed_entries.items, action)
+        else
+            vim.fn.setloclist(0, parsed_entries.items, action)
+        end
+    end
+end
+
 return M

@@ -127,6 +127,23 @@ Some jobs can be started to not be persisted in this list. However, they will
 still show up as long as they are running. |:Rg|, |:Ug|, and |:Fd| are run in
 such way.
 
+:[range]FhQf[!]                                                          *:FhQf*
+
+Processes the the lines in [range] according to |errorformat| and sets the
+quickfix list to the processed output. If <bang> is provided, the existing
+quickfic items are replaces, otherwise the new list is appended.
+
+Example: >
+    :3,30FhQf firvish
+
+Example: >
+    :3,30FhQf! firvish
+
+
+:[range]Fhllist[!]                                                    *:Fhllist*
+
+Works exactly as |:FhQf| but uses the |loclist|.
+
 Buffer-local (filetype=firvish-buffers) ~
 
 :[range]Bufdo {cmd}                                                     *:Bufdo*

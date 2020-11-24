@@ -17,6 +17,10 @@ function on_stdout(job_id, data, name)
         return
     end
 
+    for index,line in pairs(data) do
+        data[index] = string.gsub(line, "\r", "")
+    end
+
     if #data > 1 and data[#data] == "" then
         data[#data] = nil
     end
@@ -141,11 +145,10 @@ end
 -- }}}
 
 M.list_jobs = function()
-    local lines = {}
-    local additional_lines = {}
+    local job_list = {}
 
     for job_id,value in pairs(jobs) do
-        local line = "[" .. job_id .. "]"
+        local line = "[" .. job_id .. "] " .. value.start_time .. ":"
         if value.is_background_job then
             line = line .. " [B]"
         end
@@ -169,20 +172,26 @@ M.list_jobs = function()
         cmdString = string.gsub(cmdString, "^ ", "")
         line = line .. ' "' .. cmdString .. '"'
 
-        table.insert(lines, line)
-
         -- These are the optional line that will be echoed on cursor hold.
         local additonal = 'Started: "' .. value.start_time .. '"'
         if not value.running then
             additonal = additonal .. ' Finished: "' .. value.finish_time .. '"'
         end
-        table.insert(additional_lines, {echo=additonal, job_id=job_id})
+
+        table.insert(job_list, {echo=additonal, job_id=job_id, line=line})
     end 
+
+    table.sort(job_list, function(a, b) return a.job_id > b.job_id end)
+
+    local lines = {}
+    for _,value in pairs(job_list) do
+        table.insert(lines, value.line)
+    end
 
     local bufnr = utils.show_previw_window("Firvish Jobs", lines)
     preview_bufnr = bufnr
     vim.api.nvim_buf_set_option(bufnr, "filetype", "firvish-job-list")
-    vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", additional_lines)
+    vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", job_list)
 
     vim.api.nvim_command("augroup firvish_job_list_preview")
     vim.api.nvim_command("autocmd!")

@@ -92,6 +92,12 @@ command! FirvishJobs lua require'firvish.job_control'.list_jobs()
 command! -bang -nargs=* -range FhFilter :lua require"firvish".filter_lines(
                   \ <line1>, <line2>, "<bang>" ~= "!", <q-args>)
 
+command! -bang -range FhQf :lua require"firvish".set_qflist(
+                  \ <line1>, <line2>, "<bang>" == "!", false)
+
+command! -bang -range Fhllist :lua require"firvish".set_qflist(
+                  \ <line1>, <line2>, "<bang>" == "!", true)
+
 augroup neovim_firvish_buffer
   autocmd!
   autocmd BufDelete,BufWipeout,BufAdd * lua require'firvish.buffers'.mark_dirty()
