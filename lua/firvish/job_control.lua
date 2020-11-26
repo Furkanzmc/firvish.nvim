@@ -6,7 +6,7 @@ local jobs = {}
 local job_count = 1
 local opened_buffers = {}
 local job_output_preview_bufnr = -1
-local preview_bufnr = -1
+local s_preview_bufnr = -1
 local auto_close_preview_window = true
 
 -- Job Control {{{
@@ -66,7 +66,10 @@ function on_exit(job_id, exit_code, event)
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
     if not job_info.is_listed then
         jobs[job_id] = nil
-        M.list_jobs()
+        if s_preview_bufnr ~= -1 then
+            M.list_jobs()
+        end
+
         return
     end
 
@@ -189,7 +192,7 @@ M.list_jobs = function()
     end
 
     local bufnr = utils.show_previw_window("Firvish Jobs", lines)
-    preview_bufnr = bufnr
+    s_preview_bufnr = bufnr
     vim.api.nvim_buf_set_option(bufnr, "filetype", "firvish-job-list")
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", job_list)
 
@@ -316,7 +319,7 @@ M.on_preview_bufleave = function()
 
     vim.api.nvim_command("bdelete")
     vim.api.nvim_command("echomsg ''")
-    preview_bufnr = -1
+    s_preview_bufnr = -1
 end
 
 M.on_job_output_preview_bufleave = function()
