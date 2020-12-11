@@ -1,6 +1,7 @@
 local vim = vim
 local M = {}
 local utils = require'firvish.utils'
+local firvish = require'firvish'
 
 local jobs = {}
 local job_count = 1
@@ -28,6 +29,10 @@ function on_stdout(job_id, data, name)
     utils.merge_table(job_info.stdout, data)
     utils.merge_table(job_info.output, data)
 
+    if job_info.output_qf == true then
+        utils.set_qflist(data, "a")
+    end
+
     if not job_info.is_background_job then
         vim.api.nvim_buf_set_lines(job_info.bufnr, 0, -1, true, job_info.output)
     end
@@ -52,6 +57,10 @@ function on_stderr(job_id, data, name)
     utils.merge_table(job_info.stderr, error_lines)
     utils.merge_table(job_info.output, error_lines)
 
+    if job_info.output_qf == true then
+        utils.set_qflist(data, "a")
+    end
+
     if not job_info.is_background_job then
         vim.api.nvim_buf_set_lines(job_info.bufnr, 0, -1, true, job_info.output)
     end
@@ -61,6 +70,10 @@ function on_exit(job_id, exit_code, event)
     local job_info = jobs[job_id]
     if not job_info.is_background_job then
         vim.api.nvim_buf_set_lines(job_info.bufnr, vim.fn.line("$"), -1, true, {"[firvish] Job Finished..."})
+    end
+
+    if job_info.output_qf == true then
+        utils.set_qflist({"[firvish] Job Finished..."}, "a")
     end
 
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
@@ -85,7 +98,16 @@ function close_job_output_preview()
     job_output_preview_bufnr = -1
 end
 
-M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job, listed)
+M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job, listed, output_qf)
+    if output_qf then
+        for _,value in pairs(jobs) do
+            if value.output_qf and value.running then
+                utils.log_error("There's already a job running with quickfix.")
+                return
+            end
+        end
+    end
+
     local buf_title = "firvish [" .. title .. "-" .. job_count .. "]"
     local bufnr = -1
 
@@ -107,6 +129,10 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
 
     if not use_last_buffer and not is_background_job then
         vim.api.nvim_command("buffer " .. bufnr)
+    end
+
+    if output_qf then
+        utils.set_qflist({}, "r")
     end
 
     local job_id = vim.fn.jobstart(cmd, {
@@ -141,7 +167,8 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
         start_time=vim.fn.strftime('%b %d %A %H:%M'),
         finish_time="",
         exit_code=nil,
-        is_listed=listed
+        is_listed=listed,
+        output_qf=output_qf
     }
 end
 
@@ -333,3 +360,5 @@ end
 -- }}}
 
 return M
+
+-- vim: foldmethod=marker

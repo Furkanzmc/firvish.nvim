@@ -81,7 +81,9 @@ M.is_window_visible = function(tabnr, bufnr)
 end
 
 M.log_error = function(message)
-    vim.api.nvim_command("echohl ErrorMsg | echo '[firvish] " .. message .. "' | echohl Normal")
+    vim.api.nvim_command("echohl ErrorMsg")
+    vim.api.nvim_command('echo "[firvish] ' .. message .. '"')
+    vim.api.nvim_command("echohl Normal")
 end
 
 
@@ -102,6 +104,22 @@ M.merge_table = function(target, source)
     end 
 
     return target
+end
+
+M.set_qflist = function(lines, action)
+    local efm = vim.o.errorformat
+    if not efm and vim.bo.errorformat then
+        efm = efm .. "," .. vim.bo.errorformat
+    end
+
+    local parsed_entries = vim.fn.getqflist({lines=lines, efm=efm})
+    if parsed_entries.items then
+        if not loclist then
+            vim.fn.setqflist(parsed_entries.items, action)
+        else
+            vim.fn.setloclist(0, parsed_entries.items, action)
+        end
+    end
 end
 
 return M

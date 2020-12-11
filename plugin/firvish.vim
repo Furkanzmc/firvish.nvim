@@ -35,7 +35,8 @@ if executable("rg")
         \ "rg",
         \ "<bang>" == "!",
         \ false,
-        \ false
+        \ false,
+        \ fals,
         \ )') | let b:firvish_repeat_job_command="Rg!"
 endif
 
@@ -54,6 +55,7 @@ if executable("ugrep")
         \ "ugrep",
         \ "<bang>" == "!",
         \ false,
+        \ false,
         \ false
         \ )') | let b:firvish_repeat_job_command="Ug!"
 endif
@@ -67,6 +69,7 @@ if executable("fd")
         \ "firvish-dir",
         \ "fd",
         \ "<bang>" == "!",
+        \ false,
         \ false,
         \ false
         \ )') | let b:firvish_repeat_job_command="Fd!"
@@ -92,10 +95,10 @@ command! FirvishJobs lua require'firvish.job_control'.list_jobs()
 command! -bang -nargs=* -range FhFilter :lua require"firvish".filter_lines(
                   \ <line1>, <line2>, "<bang>" ~= "!", <q-args>)
 
-command! -bang -range FhQf :lua require"firvish".set_qflist(
+command! -bang -range FhQf :lua require"firvish".set_lines_to_qf(
                   \ <line1>, <line2>, "<bang>" == "!", false)
 
-command! -bang -range Fhllist :lua require"firvish".set_qflist(
+command! -bang -range Fhllist :lua require"firvish".set_lines_to_qf(
                   \ <line1>, <line2>, "<bang>" == "!", true)
 
 augroup neovim_firvish_buffer
