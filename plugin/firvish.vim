@@ -96,7 +96,7 @@ command! -bang -nargs=* -range FhFilter :lua require"firvish".filter_lines(
                   \ <line1>, <line2>, "<bang>" ~= "!", <q-args>)
 
 command! -bang -range FhQf :lua require"firvish".set_lines_to_qf(
-                  \ <line1>, <line2>, "<bang>" == "!", false)
+                  \ <line1>, <line2> - 1, "<bang>" == "!", false)
 
 command! -bang -range Fhllist :lua require"firvish".set_lines_to_qf(
                   \ <line1>, <line2>, "<bang>" == "!", true)
