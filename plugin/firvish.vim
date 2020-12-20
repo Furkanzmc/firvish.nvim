@@ -36,8 +36,8 @@ if executable("rg")
         \ "<bang>" == "!",
         \ false,
         \ false,
-        \ fals,
-        \ )') | let b:firvish_repeat_job_command="Rg!"
+        \ false
+        \ )')
 endif
 
 if executable("ugrep")
@@ -57,7 +57,7 @@ if executable("ugrep")
         \ false,
         \ false,
         \ false
-        \ )') | let b:firvish_repeat_job_command="Ug!"
+        \ )')
 endif
 
 if executable("fd")
@@ -72,7 +72,7 @@ if executable("fd")
         \ false,
         \ false,
         \ false
-        \ )') | let b:firvish_repeat_job_command="Fd!"
+        \ )')
 endif
 
 command! -bang -complete=shellcmd -nargs=* FRun
