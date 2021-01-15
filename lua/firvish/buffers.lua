@@ -2,9 +2,8 @@ local vim = vim
 local M = {}
 local utils = require'firvish.utils'
 
-local open_bufnr = nil
-local cached_buffers = nil
-local is_buffers_dirty = false
+local s_open_bufnr = nil
+local s_is_buffers_dirty = false
 
 function create_buffer_list(predicate)
     local buffer_information = vim.fn.getbufinfo()
@@ -12,9 +11,8 @@ function create_buffer_list(predicate)
     local all_buffers = vim.fn.range(1, vim.fn.bufnr('$'))
     local buf_num_length = #tostring(#all_buffers)
 
-    for key,bufnr in ipairs(all_buffers) 
-    do
-        if vim.fn.buflisted(bufnr) == 1 and bufnr ~= open_bufnr 
+    for key,bufnr in ipairs(all_buffers) do
+        if vim.fn.buflisted(bufnr) == 1 and bufnr ~= s_open_bufnr
             and (predicate == nil or (predicate ~= nil and predicate(bufnr) == true)) then
             local bufnr_str = "[" .. bufnr .. "]"
             local line = bufnr_str
@@ -40,37 +38,26 @@ function create_buffer_list(predicate)
         end
     end
 
-    is_buffers_dirty = false
+    s_is_buffers_dirty = false
     return buffers
 
 end
 
 M.on_buf_delete = function()
-    open_bufnr = nil
+    s_open_bufnr = nil
 end
 
 M.on_buf_enter = function()
-    if is_buffers_dirty == true then
+    if s_is_buffers_dirty == true then
         M.refresh_buffers()
     end
 end
 
 M.on_buf_leave = function()
-    previous_bufnr = nil
-end
-
-M.close_buffers = function()
-    if previous_bufnr ~= nil then
-        vim.api.nvim_command("buffer " .. previous_bufnr)
-    else
-        vim.api.nvim_command("bwipeout! " .. open_bufnr)
-    end
-
-    previous_bufnr = nil
 end
 
 M.mark_dirty = function()
-    is_buffers_dirty = true
+    s_is_buffers_dirty = true
 end
 
 function get_bufnr(linenr)
@@ -108,31 +95,24 @@ end
 
 M.open_buffers = function()
     local tabnr = vim.fn.tabpagenr()
-    previous_bufnr = vim.fn.bufnr()
 
-    if open_bufnr == nil then
-        open_bufnr = utils.open_firvish_buffer("firvish [buffers]", "firvish-buffers", nil)
-        vim.api.nvim_command("augroup neovim_firvish_buffer_local")
-        vim.api.nvim_command("autocmd! * <buffer>")
-        vim.api.nvim_command("autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()")
-        vim.api.nvim_command("autocmd BufDelete,BufWipeout,BufUnload <buffer> lua require'firvish.buffers'.on_buf_delete()")
-        vim.api.nvim_command("autocmd BufLeave <buffer> lua require'firvish.buffers'.on_buf_leave()")
-        vim.api.nvim_command("augroup END")
-    elseif utils.is_window_visible(tabnr, open_bufnr) then
-        vim.api.nvim_command(vim.fn.bufwinnr(open_bufnr) .. "wincmd w")
+    if s_open_bufnr == nil then
+        vim.api.nvim_command("e firvish://buffers")
+        s_open_bufnr = vim.fn.bufnr()
+        M.refresh_buffers()
+    elseif utils.is_window_visible(tabnr, s_open_bufnr) then
+        vim.api.nvim_command(vim.fn.bufwinnr(s_open_bufnr) .. "wincmd w")
+        M.refresh_buffers()
+    else
+        vim.api.nvim_command("buffer " .. s_open_bufnr)
+        M.refresh_buffers()
     end
-
-    vim.api.nvim_command("buffer " .. open_bufnr)
-    vim.api.nvim_command("syntax clear | syntax on")
-
-    local buffers = create_buffer_list()
-    utils.set_lines(open_bufnr, buffers)
 end
 
 M.refresh_buffers = function()
     local lines = create_buffer_list()
     local cursor = vim.api.nvim_win_get_cursor(0)
-    utils.set_lines(open_bufnr, lines)
+    utils.set_lines(s_open_bufnr, lines)
     if cursor[1] > #lines then
         cursor[1] = #lines - 1
     end
@@ -169,7 +149,7 @@ M.filter_buffers = function(mode)
         assert(false, "Unsupported filter type: " .. mode)
     end
 
-    utils.set_lines(open_bufnr, buffers)
+    utils.set_lines(s_open_bufnr, buffers)
 end
 
 M.buf_do = function(start_line, end_line, cmd)
@@ -177,7 +157,7 @@ M.buf_do = function(start_line, end_line, cmd)
     local end_buffer = get_bufnr(end_line)
 
     vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bufdo " .. cmd)
-    vim.api.nvim_command("buffer " .. open_bufnr)
+    vim.api.nvim_command("buffer " .. s_open_bufnr)
 end
 
 M.buf_delete = function(start_line, end_line, force)

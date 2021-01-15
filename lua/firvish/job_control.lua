@@ -224,7 +224,7 @@ M.list_jobs = function()
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", job_list)
 
     vim.api.nvim_command("augroup firvish_job_list_preview")
-    vim.api.nvim_command("autocmd!")
+    vim.api.nvim_command("autocmd! * <buffer>")
     vim.api.nvim_command(
         "autocmd CursorHold <buffer> lua require'firvish.job_control'.on_preview_cursorhold()")
     vim.api.nvim_command(
