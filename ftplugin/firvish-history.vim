@@ -25,6 +25,7 @@ augroup neovim_firvish_history
     autocmd BufDelete <buffer> lua require'firvish.history'.on_buf_delete()
     autocmd BufWipeout <buffer> lua require'firvish.history'.on_buf_delete()
     autocmd BufLeave <buffer> lua require'firvish.history'.on_buf_leave()
+    autocmd BufWinEnter <buffer> file firvish-history
 augroup END
 
 let b:did_firvish_history = 1

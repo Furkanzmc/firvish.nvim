@@ -23,6 +23,7 @@ command! -buffer -bang -nargs=* -range Bdelete :lua require'firvish.buffers'.buf
 augroup neovim_firvish_buffer_local
     autocmd! * <buffer>
     autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()
+    autocmd BufWinEnter <buffer> file firvish-buffers
     autocmd BufDelete,BufWipeout,BufUnload <buffer> lua require'firvish.buffers'.on_buf_delete()
     autocmd BufLeave <buffer> lua require'firvish.buffers'.on_buf_leave()
 augroup END
