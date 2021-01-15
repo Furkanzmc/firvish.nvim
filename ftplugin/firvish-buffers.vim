@@ -4,7 +4,7 @@ endif
 
 setlocal cursorline
 setlocal modifiable
-setlocal nobuflisted
+setlocal buflisted
 setlocal syntax=firvish-buffers
 setlocal buftype=nofile
 setlocal bufhidden=wipe

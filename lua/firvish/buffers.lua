@@ -3,7 +3,6 @@ local M = {}
 local utils = require'firvish.utils'
 
 local s_open_bufnr = nil
-local s_is_buffers_dirty = false
 
 function create_buffer_list(predicate)
     local buffer_information = vim.fn.getbufinfo()
@@ -38,7 +37,6 @@ function create_buffer_list(predicate)
         end
     end
 
-    s_is_buffers_dirty = false
     return buffers
 
 end
@@ -48,16 +46,14 @@ M.on_buf_delete = function()
 end
 
 M.on_buf_enter = function()
-    if s_is_buffers_dirty == true then
-        M.refresh_buffers()
-    end
+    M.refresh_buffers()
 end
 
 M.on_buf_leave = function()
 end
 
 M.mark_dirty = function()
-    s_is_buffers_dirty = true
+    s_s_is_buffers_dirty = true
 end
 
 function get_bufnr(linenr)
@@ -97,8 +93,12 @@ M.open_buffers = function()
     local tabnr = vim.fn.tabpagenr()
 
     if s_open_bufnr == nil then
-        vim.api.nvim_command("e firvish://buffers")
-        s_open_bufnr = vim.fn.bufnr()
+        s_open_bufnr = vim.fn.bufnr("firvish://buffers")
+        if s_open_bufnr == -1 then
+            vim.api.nvim_command("e firvish://buffers")
+            s_open_bufnr = vim.fn.bufnr()
+        end
+
         M.refresh_buffers()
     elseif utils.is_window_visible(tabnr, s_open_bufnr) then
         vim.api.nvim_command(vim.fn.bufwinnr(s_open_bufnr) .. "wincmd w")
@@ -113,11 +113,15 @@ M.refresh_buffers = function()
     local lines = create_buffer_list()
     local cursor = vim.api.nvim_win_get_cursor(0)
     utils.set_lines(s_open_bufnr, lines)
+
     if cursor[1] > #lines then
         cursor[1] = #lines - 1
     end
 
-    vim.api.nvim_win_set_cursor(0, cursor)
+    if cursor[1] > 0 then
+        vim.api.nvim_win_set_cursor(0, cursor)
+    end
+
     vim.api.nvim_command("syntax clear | syntax on")
 end
 
