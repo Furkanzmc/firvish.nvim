@@ -41,25 +41,20 @@ M.open_history = function()
     previous_bufnr = vim.fn.bufnr()
 
     if open_bufnr == nil then
-        open_bufnr = utils.open_firvish_buffer("firvish [history]", "firvish-history", nil)
-        vim.api.nvim_command("augroup neovim_firvish_history")
-        vim.api.nvim_command("autocmd! * <buffer>")
-        vim.api.nvim_command("autocmd BufDelete <buffer> lua require'firvish.history'.on_buf_delete()")
-        vim.api.nvim_command("autocmd BufWipeout <buffer> lua require'firvish.history'.on_buf_delete()")
-        vim.api.nvim_command("autocmd BufLeave <buffer> lua require'firvish.history'.on_buf_leave()")
-        vim.api.nvim_command("augroup END")
+        vim.api.nvim_command("e firvish://history")
+        open_bufnr = vim.fn.bufnr()
+        M.refresh_history()
     elseif utils.is_window_visible(tabnr, open_bufnr) then
         vim.api.nvim_command(vim.fn.bufwinnr(open_bufnr) .. "wincmd w")
+        M.refresh_history()
+    else
+        vim.api.nvim_command("buffer " .. open_bufnr)
+        M.refresh_history()
     end
-
-    vim.api.nvim_command("buffer " .. open_bufnr)
-
-    local history = get_history(nil)
-    utils.set_lines(open_bufnr, history)
 end
 
 M.refresh_history = function()
-    M.open_history()
+    utils.set_lines(open_bufnr, get_history(nil))
 end
 
 M.open_file = function()

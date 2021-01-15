@@ -1,3 +1,7 @@
+if exists("b:did_firvish_buffers")
+  finish
+endif
+
 setlocal cursorline
 setlocal modifiable
 setlocal nobuflisted
@@ -24,3 +28,5 @@ augroup neovim_firvish_buffer_local
 augroup END
 
 lua require'firvish.buffers'.open_buffers()
+
+let b:did_firvish_buffers = 1
