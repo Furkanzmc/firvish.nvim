@@ -27,9 +27,13 @@ These commands are available in any buffer.
 It opens a new buffer and shows the list of buffers.  Within this buffer,
 there's available commands and mappings to manipulate the buffer list.
 
+Alternatively, you can open `firvish://buffers` to view the list of buffers.
+
 :History                                                              *:History*
 
 It opens a new buffer and shows the list of file history.
+
+Alternatively, you can open `firvish://history` to view the history.
 
 
 :Rg {args}                                                                 *:Rg*
