@@ -7,7 +7,7 @@ let s:sep = exists('+shellslash') && !&shellslash ? '\\' : '/'
 syntax match FirvishBufNr '^\[[0-9]\+\]'
 
 for s:p in argv()
-  exe 'syntax match FirvishArg ,' . fnamemodify(s:p, ':p:~:.') . ', contains=FirvishBufNr'
+  exe 'syntax match FirvishArg ,' . escape(fnamemodify(s:p, ':p:~:.'), '[,*.^$~\') . '$, contains=FirvishBufNr'
 endfor
 
 highlight default link FirvishBufNr Number
