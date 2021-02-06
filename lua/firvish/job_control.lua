@@ -1,4 +1,5 @@
 local vim = vim
+local fn = vim.fn
 local M = {}
 local utils = require'firvish.utils'
 local firvish = require'firvish'
@@ -69,7 +70,7 @@ end
 function on_exit(job_id, exit_code, event)
     local job_info = jobs[job_id]
     if not job_info.is_background_job then
-        vim.api.nvim_buf_set_lines(job_info.bufnr, vim.fn.line("$"), -1, true, {"[firvish] Job Finished..."})
+        vim.api.nvim_buf_set_lines(job_info.bufnr, fn.line("$"), -1, true, {"[firvish] Job Finished..."})
     end
 
     if job_info.output_qf == true then
@@ -88,7 +89,7 @@ function on_exit(job_id, exit_code, event)
 
     job_info.running = false
     job_info.exit_code = exit_code
-    job_info.finish_time = vim.fn.strftime('%b %d %A %H:%M')
+    job_info.finish_time = fn.strftime('%b %d %A %H:%M')
 end
 
 function close_job_output_preview()
@@ -98,7 +99,7 @@ function close_job_output_preview()
     job_output_preview_bufnr = -1
 end
 
-M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job, listed, output_qf)
+M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job, listed, output_qf, cwd)
     if output_qf then
         for _,value in pairs(jobs) do
             if value.output_qf and value.running then
@@ -112,12 +113,12 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
     local bufnr = -1
 
     if use_last_buffer and vim.api.nvim_buf_get_option(0, "filetype") == filetype then
-        bufnr = vim.fn.bufnr()
+        bufnr = fn.bufnr()
     elseif use_last_buffer and opened_buffers[filetype] ~= nil then
         bufnr = opened_buffers[filetype]
     end
 
-    if (bufnr == -1 or vim.fn.bufexists(bufnr) == 0) and not is_background_job then
+    if (bufnr == -1 or fn.bufexists(bufnr) == 0) and not is_background_job then
         bufnr = utils.open_firvish_buffer(
             buf_title, filetype, {buflisted=true}
             )
@@ -135,13 +136,19 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
         utils.set_qflist({}, "r")
     end
 
-    local job_id = vim.fn.jobstart(cmd, {
+    if cwd == nil then
+        cwd = fn.getcwd()
+    else
+        cwd = fn.expand(cwd)
+    end
+
+    local job_id = fn.jobstart(cmd, {
             on_stderr=on_stderr,
             on_stdout=on_stdout,
             on_exit=on_exit,
             stderr_buffered=false,
             stdout_buffered=false,
-            cwd=vim.fn.getcwd(),
+            cwd=cwd,
             detach=false,
         })
 
@@ -164,7 +171,7 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
         output={},
         running=true,
         is_background_job=is_background_job,
-        start_time=vim.fn.strftime('%b %d %A %H:%M'),
+        start_time=fn.strftime('%b %d %A %H:%M'),
         finish_time="",
         exit_code=nil,
         is_listed=listed,
@@ -264,8 +271,8 @@ end
 M.stop_job = function()
     assert(vim.wo.previewwindow)
 
-    local bufnr = vim.fn.bufnr()
-    local linenr = vim.fn.line(".")
+    local bufnr = fn.bufnr()
+    local linenr = fn.line(".")
 
     local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
     local info = additional_lines[linenr]
@@ -274,15 +281,15 @@ M.stop_job = function()
         return
     end
 
-    vim.fn.jobstop(info.job_id)
+    fn.jobstop(info.job_id)
     M.list_jobs()
 end
 
 M.delete_job_from_history = function(stop_job)
     assert(vim.wo.previewwindow)
 
-    local bufnr = vim.fn.bufnr()
-    local linenr = vim.fn.line(".")
+    local bufnr = fn.bufnr()
+    local linenr = fn.line(".")
 
     local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
     local info = additional_lines[linenr]
@@ -294,7 +301,7 @@ M.delete_job_from_history = function(stop_job)
 
     if job_info.running then
         job_info.is_listed = false
-        vim.fn.jobstop(info.job_id)
+        fn.jobstop(info.job_id)
     else
         jobs[info.job_id] = nil
     end
@@ -308,10 +315,10 @@ end
 -- Event Handlers {{{
 
 M.on_preview_cursormoved = function()
-    local bufnr = vim.fn.bufnr()
-    local linenr = vim.fn.line('.')
+    local bufnr = fn.bufnr()
+    local linenr = fn.line('.')
     local previous_line = -1
-    if vim.fn.exists("b:firvish_current_line") == 1 then
+    if fn.exists("b:firvish_current_line") == 1 then
         previous_line = vim.api.nvim_buf_get_var(bufnr, "firvish_current_line")
     end
 
@@ -324,10 +331,10 @@ end
 
 M.on_preview_cursorhold = function()
     assert(vim.wo.previewwindow == true)
-    local bufnr = vim.fn.bufnr()
-    local linenr = vim.fn.line(".")
+    local bufnr = fn.bufnr()
+    local linenr = fn.line(".")
 
-    if vim.fn.exists("b:firvish_current_line") == 1 and vim.api.nvim_buf_get_var(bufnr, "firvish_current_line") == linenr then
+    if fn.exists("b:firvish_current_line") == 1 and vim.api.nvim_buf_get_var(bufnr, "firvish_current_line") == linenr then
         return
     end
 
