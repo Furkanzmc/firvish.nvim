@@ -73,8 +73,9 @@ function on_exit(job_id, exit_code, event)
         vim.api.nvim_buf_set_lines(job_info.bufnr, fn.line("$"), -1, true, {"[firvish] Job Finished..."})
     end
 
+    job_info.finish_time = fn.strftime('%H:%M')
     if job_info.output_qf == true then
-        utils.set_qflist({"[firvish] Job Finished..."}, "a")
+        utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time}, "a")
     end
 
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
@@ -89,7 +90,6 @@ function on_exit(job_id, exit_code, event)
 
     job_info.running = false
     job_info.exit_code = exit_code
-    job_info.finish_time = fn.strftime('%b %d %A %H:%M')
 end
 
 function close_job_output_preview()
@@ -171,12 +171,15 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
         output={},
         running=true,
         is_background_job=is_background_job,
-        start_time=fn.strftime('%b %d %A %H:%M'),
+        start_time=fn.strftime('%H:%M'),
         finish_time="",
         exit_code=nil,
         is_listed=listed,
         output_qf=output_qf
     }
+    if output_qf then
+        utils.set_qflist({"[firvish] Job Started at " .. jobs[job_id].start_time}, "a")
+    end
 end
 
 -- }}}
