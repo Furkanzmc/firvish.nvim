@@ -189,6 +189,11 @@ M.list_jobs = function()
 
     for job_id,value in pairs(jobs) do
         local line = "[" .. job_id .. "] " .. value.start_time .. ":"
+
+        if value.output_qf then
+            line = line .. " [QF]"
+        end
+
         if value.is_background_job then
             line = line .. " [B]"
         end
@@ -210,7 +215,7 @@ M.list_jobs = function()
             cmdString = cmdString .. " " .. word
         end
         cmdString = string.gsub(cmdString, "^ ", "")
-        line = line .. ' "' .. cmdString .. '"'
+        line = line .. ' ' .. cmdString
 
         -- These are the optional line that will be echoed on cursor hold.
         local additonal = 'Started: "' .. value.start_time .. '"'
@@ -219,7 +224,7 @@ M.list_jobs = function()
         end
 
         table.insert(job_list, {echo=additonal, job_id=job_id, line=line})
-    end 
+    end
 
     table.sort(job_list, function(a, b) return a.job_id > b.job_id end)
 
