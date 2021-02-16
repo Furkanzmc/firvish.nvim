@@ -3,7 +3,7 @@ if 'firvish-job-list' !=# get(b:, 'current_syntax', 'firvish-job-list')
 endif
 
 syntax match FirvishJobNr '^\[[0-9]\+\]'
-syntax match FirvishJobTime '[0-9]\+:[0-9]\+'
+syntax match FirvishJobTime '[0-9]\+:[0-9]\+:[0-9]\+'
 syntax match FirvishJobQuickFix '\[QF\]'
 syntax match FirvishJobBackground '\[B\]'
 syntax match FirvishJobRunning '\[R\]'

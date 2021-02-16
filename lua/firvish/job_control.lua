@@ -73,7 +73,7 @@ function on_exit(job_id, exit_code, event)
         vim.fn.appendbufline(job_info.bufnr, "$", {"[firvish] Job Finished..."})
     end
 
-    job_info.finish_time = fn.strftime('%H:%M')
+    job_info.finish_time = fn.strftime('%H:%M:%S')
     if job_info.output_qf == true then
         utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time}, "a")
     end
@@ -171,7 +171,7 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
         output={},
         running=true,
         is_background_job=is_background_job,
-        start_time=fn.strftime('%H:%M'),
+        start_time=fn.strftime('%H:%M:%S'),
         finish_time="",
         exit_code=nil,
         is_listed=listed,
