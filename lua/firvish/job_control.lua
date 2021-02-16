@@ -35,7 +35,7 @@ function on_stdout(job_id, data, name)
     end
 
     if not job_info.is_background_job then
-        vim.api.nvim_buf_set_lines(job_info.bufnr, 0, -1, true, job_info.output)
+        vim.fn.appendbufline(job_info.bufnr, "$", data)
     end
 end
 
@@ -63,14 +63,14 @@ function on_stderr(job_id, data, name)
     end
 
     if not job_info.is_background_job then
-        vim.api.nvim_buf_set_lines(job_info.bufnr, 0, -1, true, job_info.output)
+        vim.fn.appendbufline(job_info.bufnr, "$", data)
     end
 end
 
 function on_exit(job_id, exit_code, event)
     local job_info = jobs[job_id]
     if not job_info.is_background_job then
-        vim.api.nvim_buf_set_lines(job_info.bufnr, fn.line("$"), -1, true, {"[firvish] Job Finished..."})
+        vim.fn.appendbufline(job_info.bufnr, "$", {"[firvish] Job Finished..."})
     end
 
     job_info.finish_time = fn.strftime('%H:%M')
@@ -188,7 +188,13 @@ M.list_jobs = function()
     local job_list = {}
 
     for job_id,value in pairs(jobs) do
-        local line = "[" .. job_id .. "] " .. value.start_time .. ":"
+        local line = "[" .. job_id .. "] " .. value.start_time .. " -> "
+
+        if value.finish_time == "" then
+            line = line .. "?"
+        else
+            line = line .. value.finish_time
+        end
 
         if value.output_qf then
             line = line .. " [QF]"

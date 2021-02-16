@@ -26,5 +26,3 @@ See the documentation for more details.
 # TODO
 
 - [ ] Improve the `I` mapping.
-- [ ] Add support to add the output of a job to the quickfix or locallist.
-- [ ] Fix the problem where the buffer lines are not updated when the focus is lost.

@@ -43,7 +43,7 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
         'E!',
         mapping_command, opts)
 
-    utils.set_lines(bufnr, command_lines)
+    utils.set_buf_lines(bufnr, command_lines)
     vim.api.nvim_command("write")
 
     return bufnr

@@ -54,7 +54,7 @@ M.open_history = function()
 end
 
 M.refresh_history = function()
-    utils.set_lines(open_bufnr, get_history(nil))
+    utils.set_buf_lines(open_bufnr, get_history(nil))
 end
 
 M.open_file = function()

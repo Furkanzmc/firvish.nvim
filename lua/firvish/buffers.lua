@@ -112,7 +112,7 @@ end
 M.refresh_buffers = function()
     local lines = create_buffer_list()
     local cursor = vim.api.nvim_win_get_cursor(0)
-    utils.set_lines(s_open_bufnr, lines)
+    utils.set_buf_lines(s_open_bufnr, lines)
 
     if cursor[1] > #lines then
         cursor[1] = #lines - 1
@@ -153,7 +153,7 @@ M.filter_buffers = function(mode)
         assert(false, "Unsupported filter type: " .. mode)
     end
 
-    utils.set_lines(s_open_bufnr, buffers)
+    utils.set_buf_lines(s_open_bufnr, buffers)
 end
 
 M.buf_do = function(start_line, end_line, cmd)

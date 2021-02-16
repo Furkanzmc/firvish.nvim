@@ -3,13 +3,15 @@ if 'firvish-job-list' !=# get(b:, 'current_syntax', 'firvish-job-list')
 endif
 
 syntax match FirvishJobNr '^\[[0-9]\+\]'
-syntax match FirvishJobTime '[0-9]\+:[0-9]\+:'
+syntax match FirvishJobTime '[0-9]\+:[0-9]\+'
 syntax match FirvishJobQuickFix '\[QF\]'
 syntax match FirvishJobBackground '\[B\]'
 syntax match FirvishJobRunning '\[R\]'
 syntax match FirvishJobFinished '\[F\]'
-syntax match FirvishJobError '\[E:[0-9]\]'
-syntax match FirvishJobWarning '\[W:[0-9]\]'
+syntax match FirvishJobError '\[E:[1-9]\+\]'
+syntax match FirvishJobNoError '\[E:[0-0]\]'
+syntax match FirvishJobWarning '\[W:[1-9]\+\]'
+syntax match FirvishJobNoWarning '\[W:[0-0]\]'
 syntax match FirvishJobCommand '[a-zA]\+.*$'
 
 highlight default link FirvishJobNr Number
@@ -19,7 +21,9 @@ highlight default link FirvishJobBackground Type
 highlight default link FirvishJobRunning Operator
 highlight default link FirvishJobFinished Function
 highlight default link FirvishJobError ErrorMsg
+highlight default link FirvishJobNoError Todo
 highlight default link FirvishJobWarning WarningMsg
+highlight default link FirvishJobNoWarning Todo
 highlight default link FirvishJobCommand String
 
 let b:current_syntax = 'firvish-job-list'

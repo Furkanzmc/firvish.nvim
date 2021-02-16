@@ -40,7 +40,7 @@ M.show_previw_window = function(title, lines)
     return bufnr
 end
 
-M.set_lines = function(bufnr, lines)
+M.set_buf_lines = function(bufnr, lines)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
 end
 
