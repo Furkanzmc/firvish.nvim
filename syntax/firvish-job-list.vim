@@ -19,7 +19,7 @@ highlight default link FirvishJobTime Delimiter
 highlight default link FirvishJobQuickFix Define
 highlight default link FirvishJobBackground Type
 highlight default link FirvishJobRunning Operator
-highlight default link FirvishJobFinished Function
+highlight default link FirvishJobFinished Label
 highlight default link FirvishJobError ErrorMsg
 highlight default link FirvishJobNoError Todo
 highlight default link FirvishJobWarning WarningMsg
