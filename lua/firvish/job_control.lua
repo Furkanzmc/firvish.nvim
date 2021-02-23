@@ -250,7 +250,6 @@ M.list_jobs = function()
         "autocmd CursorHold <buffer> lua require'firvish.job_control'.on_preview_cursorhold()")
     vim.api.nvim_command(
         "autocmd CursorMoved <buffer> lua require'firvish.job_control'.on_preview_cursormoved()")
-    vim.api.nvim_command("autocmd BufLeave <buffer> :lua require'firvish.job_control'.on_preview_bufleave()")
     vim.api.nvim_command("augroup END")
 end
 
