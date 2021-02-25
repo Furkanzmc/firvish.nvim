@@ -4,7 +4,7 @@ local utils = require'firvish.utils'
 
 local s_open_bufnr = nil
 
-function create_buffer_list(predicate)
+local function create_buffer_list(predicate)
     local buffer_information = vim.fn.getbufinfo()
     local buffers = {}
     local all_buffers = vim.fn.range(1, vim.fn.bufnr('$'))
@@ -38,25 +38,9 @@ function create_buffer_list(predicate)
     end
 
     return buffers
-
 end
 
-M.on_buf_delete = function()
-    s_open_bufnr = nil
-end
-
-M.on_buf_enter = function()
-    M.refresh_buffers()
-end
-
-M.on_buf_leave = function()
-end
-
-M.mark_dirty = function()
-    s_s_is_buffers_dirty = true
-end
-
-function get_bufnr(linenr)
+local function get_bufnr(linenr)
     local line = vim.fn.getline(linenr)
     local bufnr = vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g")
     if bufnr ~= "" then
@@ -73,6 +57,20 @@ function get_bufnr(linenr)
     end
 
     return tonumber(bufnr)
+end
+
+M.on_buf_delete = function()
+    s_open_bufnr = nil
+end
+
+M.on_buf_enter = function()
+    M.refresh_buffers()
+end
+
+M.on_buf_leave = function()
+end
+
+M.mark_dirty = function()
 end
 
 M.jump_to_buffer = function()
