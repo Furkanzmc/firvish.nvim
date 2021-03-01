@@ -20,22 +20,21 @@ M.open_firvish_buffer = function(title, filetype, options)
     return bufnr
 end
 
-M.show_previw_window = function(title, lines)
+M.create_preview_window = function(title, lines)
     vim.api.nvim_command("silent execute 'pedit " .. title .. "'")
     vim.api.nvim_command("wincmd P")
+
     local bufnr = vim.fn.bufnr()
 
-    vim.api.nvim_buf_set_option(".", "modifiable", true)
+    vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
-    vim.api.nvim_buf_set_option(".", "modifiable", false)
+    vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
 
-    vim.api.nvim_buf_set_option(".", "readonly", true)
-    vim.api.nvim_command("setlocal cursorline")
+    vim.api.nvim_buf_set_option(bufnr, "readonly", true)
+    vim.api.nvim_buf_set_option(bufnr, "buflisted", false)
 
-    vim.api.nvim_buf_set_option(".", "buflisted", false)
-
-    vim.api.nvim_buf_set_option(".", "buftype", "nofile")
-    vim.api.nvim_buf_set_option(".", "bufhidden", "wipe")
+    vim.api.nvim_buf_set_option(bufnr, "buftype", "nofile")
+    vim.api.nvim_buf_set_option(bufnr, "bufhidden", "wipe")
 
     return bufnr
 end
