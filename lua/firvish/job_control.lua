@@ -165,7 +165,7 @@ local function on_exit(job_id, exit_code, event)
 
     vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", -1)
 
-    if job_info.is_listed then
+    if job_info.is_listed == true then
         job_info.running = false
         job_info.exit_code = exit_code
         M.refresh_job_preview_window()
