@@ -20,7 +20,7 @@ if !exists("g:firvish_interactive_window_height")
 endif
 
 if executable("rg")
-  command! -bang -complete=file -nargs=* Rg call luaeval('require"firvish.job_control".start_job({
+  command! -bang -complete=file -nargs=* Rg call luaeval('require"firvish.job_control".start_job({cmd={
         \ "rg",
         \ "--column",
         \ "--line-number",
@@ -31,17 +31,15 @@ if executable("rg")
         \ "--block-buffered",
         \ <f-args>,
         \ },
-        \ "firvish-dir",
-        \ "rg",
-        \ "<bang>" == "!",
-        \ false,
-        \ false,
-        \ false
+        \ filetype="firvish-dir",
+        \ title="rg",
+        \ use_last_buffer="<bang>" == "!"
+        \ }
         \ )')
 endif
 
 if executable("ugrep")
-  command! -bang -complete=file -nargs=* Ug call luaeval('require"firvish.job_control".start_job({
+  command! -bang -complete=file -nargs=* Ug call luaeval('require"firvish.job_control".start_job({cmd={
         \ "ugrep",
         \ "--column-number",
         \ "--line-number",
@@ -51,39 +49,36 @@ if executable("ugrep")
         \ "-J1",
         \ <f-args>,
         \ },
-        \ "firvish-dir",
-        \ "ugrep",
-        \ "<bang>" == "!",
-        \ false,
-        \ false,
-        \ false
+        \ filetype="firvish-dir",
+        \ title="ugrep",
+        \ use_last_buffer="<bang>" == "!"
+        \ }
         \ )')
 endif
 
 if executable("fd")
-  command! -bang -complete=file -nargs=* Fd call luaeval('require"firvish.job_control".start_job({
+  command! -bang -complete=file -nargs=* Fd call luaeval('require"firvish.job_control".start_job({cmd={
         \ "fd",
         \ "--color=never",
         \ <f-args>,
         \ },
-        \ "firvish-dir",
-        \ "fd",
-        \ "<bang>" == "!",
-        \ false,
-        \ false,
-        \ false
+        \ filetype="firvish-dir",
+        \ title="fd",
+        \ use_last_buffer="<bang>" == "!"
+        \ }
         \ )')
 endif
 
 command! -bang -complete=shellcmd -nargs=* FRun
-                  \ call luaeval('require"firvish.job_control".start_job({
+                  \ call luaeval('require"firvish.job_control".start_job({cmd={
                   \     <f-args>,
                   \ },
-                  \ "firvish-job",
-                  \ "job",
-                  \ false,
-                  \ "<bang>" == "!",
-                  \ true
+                  \ filetype="firvish-job",
+                  \ title="job",
+                  \ use_last_buffer=false,
+                  \ is_background_job="<bang>" == "!",
+                  \ listed=true
+                  \ }
                   \ )')
 
 command! -nargs=* -complete=shellcmd -bang -range Fhdo

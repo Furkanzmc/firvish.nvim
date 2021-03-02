@@ -100,7 +100,7 @@ end
 M.merge_table = function(target, source)
     for _,v in ipairs(source) do
         table.insert(target, v)
-    end 
+    end
 
     return target
 end

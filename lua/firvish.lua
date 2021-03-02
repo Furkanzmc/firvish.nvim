@@ -63,14 +63,14 @@ M.run_commands = function(bufnr, sh_mode)
         end
 
         table.insert(cmd, vim.fn.expand("%"))
-        require"firvish.job_control".start_job(
-            cmd,
-            "firvish-job",
-            "fhdo",
-            false,
-            "<bang>" == "!",
-            true
-            )
+        require"firvish.job_control".start_job({
+            cmd=cmd,
+            filetype="firvish-job",
+            title="fhdo",
+            use_last_buffer=false,
+            is_background_job="<bang>" == "!",
+            listed=true
+            })
         vim.api.nvim_command("bwipeout! " .. bufnr)
     else
         local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)

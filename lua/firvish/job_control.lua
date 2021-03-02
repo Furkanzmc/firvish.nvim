@@ -11,6 +11,8 @@ local job_output_preview_bufnr = -1
 local s_preview_bufnr = -1
 local auto_close_preview_window = true
 
+-- Locals {{{
+
 local function create_job_list_window(lines, job_list)
     s_preview_bufnr = utils.create_preview_window("Firvish Jobs", lines)
     vim.api.nvim_buf_set_option(s_preview_bufnr, "filetype", "firvish-job-list")
@@ -84,6 +86,8 @@ local function get_jobs_preview_data()
         job_list=job_list
     }
 end
+
+-- }}}
 
 -- Job Control {{{
 
@@ -170,8 +174,20 @@ local function close_job_output_preview()
     job_output_preview_bufnr = -1
 end
 
-M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job, listed, output_qf, cwd)
-    if output_qf then
+M.start_job = function(opts)
+    assert(opts ~= nil)
+    assert(opts.cmd ~= nil)
+    assert(opts.filetype ~= nil)
+    assert(opts.title ~= nil)
+
+    opts.use_last_buffer = opts.use_last_buffer or false
+    opts.is_background_job = opts.is_background_job or false
+    opts.listed = opts.listed or false
+    opts.output_qf = opts.output_qf or false
+    opts.cwd = opts.cwd or fn.getcwd()
+    opts.cwd = fn.expand(opts.cwd)
+
+    if opts.output_qf then
         for _,value in pairs(jobs) do
             if value.output_qf and value.running then
                 utils.log_error("There's already a job running with quickfix.")
@@ -180,46 +196,40 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
         end
     end
 
-    local buf_title = "firvish [" .. title .. "-" .. job_count .. "]"
+    local buf_title = "firvish [" .. opts.title .. "-" .. job_count .. "]"
     local bufnr = -1
 
-    if use_last_buffer and vim.api.nvim_buf_get_option(0, "filetype") == filetype then
+    if opts.use_last_buffer and vim.api.nvim_buf_get_option(0, "filetype") == opts.filetype then
         bufnr = fn.bufnr()
-    elseif use_last_buffer and opened_buffers[filetype] ~= nil then
-        bufnr = opened_buffers[filetype]
+    elseif opts.use_last_buffer and opened_buffers[opts.filetype] ~= nil then
+        bufnr = opened_buffers[opts.filetype]
     end
 
-    if (bufnr == -1 or fn.bufexists(bufnr) == 0) and not is_background_job then
+    if (bufnr == -1 or fn.bufexists(bufnr) == 0) and not opts.is_background_job then
         bufnr = utils.open_firvish_buffer(
-            buf_title, filetype, {buflisted=true}
+            buf_title, opts.filetype, {buflisted=true}
             )
-        opened_buffers[filetype] = bufnr
+        opened_buffers[opts.filetype] = bufnr
         assert(bufnr ~= -1)
     end
 
     job_count = job_count + 1
 
-    if not use_last_buffer and not is_background_job then
+    if not opts.use_last_buffer and not opts.is_background_job then
         vim.api.nvim_command("buffer " .. bufnr)
     end
 
-    if output_qf then
+    if opts.output_qf then
         utils.set_qflist({}, "r")
     end
 
-    if cwd == nil then
-        cwd = fn.getcwd()
-    else
-        cwd = fn.expand(cwd)
-    end
-
-    local job_id = fn.jobstart(cmd, {
+    local job_id = fn.jobstart(opts.cmd, {
             on_stderr=on_stderr,
             on_stdout=on_stdout,
             on_exit=on_exit,
             stderr_buffered=false,
             stdout_buffered=false,
-            cwd=cwd,
+            cwd=opts.cwd,
             detach=false,
         })
 
@@ -229,26 +239,26 @@ M.start_job = function(cmd, filetype, title, use_last_buffer, is_background_job,
         utils.log_error("Command or 'shell' is not executable.")
     end
 
-    if not is_background_job then
+    if not opts.is_background_job then
         vim.api.nvim_buf_set_var(bufnr, "firvish_job_id", job_id)
     end
 
     jobs[job_id] = {
         bufnr=bufnr,
-        cmd=cmd,
+        cmd=opts.cmd,
         title=buf_title,
         stdout={},
         stderr={},
         output={},
         running=true,
-        is_background_job=is_background_job,
+        is_background_job=opts.is_background_job,
         start_time=fn.strftime('%H:%M:%S'),
         finish_time="",
         exit_code=nil,
-        is_listed=listed,
-        output_qf=output_qf
+        is_listed=opts.listed,
+        output_qf=opts.output_qf
     }
-    if output_qf then
+    if opts.output_qf then
         utils.set_qflist({"[firvish] Job Started at " .. jobs[job_id].start_time}, "a")
     end
 end
