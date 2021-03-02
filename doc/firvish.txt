@@ -6,17 +6,18 @@ INTRODUCTION                                                      *firvish.nvim*
 
 This plug-in was heavily inspired by vim-dirvish.
 
-firvish.nvim is a buffer centric job control plug-in. It provides mappings
-for handling buffer list, history, NeoVim and external commands. All the
-output of these commands are streamed to a dedicated buffer.
+firvish.nvim is a buffer centric job control plug-in. It provides mappings for
+handling buffer list, history, NeoVim and external commands. All the output of
+these commands are streamed to a dedicated buffer.
 
 The main goal of firvish.nvim is to provide a single way of interacting with
-external commands, and internal commands of NeoVim: Buffers. They are used
-to interact with the output of commands, and the input is sent to external
-commands to interactively communicate with them.
+external commands, and internal commands of NeoVim: Buffers. They are used to
+interact with the output of commands, and the input is sent to external commands
+to interactively communicate with them.
+
 
 COMMANDS                                                      *firvish-commands*
-==============================================================================
+================================================================================
 
 Global ~
 
@@ -160,8 +161,8 @@ one works over the [range] in the buffer.
 Deletes the buffers in [range]. If <bang> is given, the command is equivelant to
 |:bdelete!|.
 
-==============================================================================
 MAPPINGS                                                      *firvish-mappings*
+================================================================================
 
 Global ~
     <Plug>(firvish_buffers)
@@ -219,9 +220,49 @@ Buffer-local (filetype=firvish-fhdo) ~
     E!          Run the commands in the buffer. This mapping is available when
                 |:Fhdo| command is used.
 
-==============================================================================
+LUA                                                                *firvish-lua*
+================================================================================
+
+start_job({opts})                                *firvish.job_control.start_job*
+    Starts a job with the given options. This is the main function used to
+    spawn processes. |:FRun| and the other process related commands use this
+    function to create new jobs. You can use this function to create your own
+    commands and launch new processes in different ways.
+
+    The following parameters desceibe the fields in {opts}.
+
+    Parameters: ~
+        {cmd} (table): The shell command to start.
+
+        {filetype} (string): The associated file type for this job. This will
+        be used when the job result is output to a buffer.  You can use this
+        filetype to customize how to interact with the output.
+
+        {title} (string): The title used for the buffer when the command
+        output is displayed.
+
+        {use_last_buffer} (optional, boolean): If this is set to `true`, then
+        the same buffer will be used for the consequitve calls to the same
+        job. Defaults to `false`.
+
+        {is_background_job} (optional, boolean): If set to `truw`, the job's
+        output will not be immediately output to a buffer. When this is set,
+        `listed` is implied. Defaults to `false`.
+
+        {listed} (optional, boolean): When set to `true`, the job's output is
+        cached in the job list. You can use |:FirvishJobs| to later retrive
+        the results. Defaults to `false`.
+
+        {output_qf} (optional, boolean): When set to `true`, the job's output
+        will be sent to the |quickfix| window. There can only be one job
+        running with this option set to `true`. Defaults to `false`.
+
+        {cwd} (optional, string): Specifies the working directory for the
+        command. Defaults to the buffer's working directory.
+
 
 ABOUT                                                            *firvish-about*
+================================================================================
 
 Grab the latest version or report a bug on GitHub:
 

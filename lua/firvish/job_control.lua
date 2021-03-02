@@ -87,6 +87,13 @@ local function get_jobs_preview_data()
     }
 end
 
+local function close_job_output_preview()
+    assert(job_output_preview_bufnr ~= -1)
+
+    vim.api.nvim_command("bdelete " .. job_output_preview_bufnr)
+    job_output_preview_bufnr = -1
+end
+
 -- }}}
 
 -- Job Control {{{
@@ -167,12 +174,9 @@ local function on_exit(job_id, exit_code, event)
     end
 end
 
-local function close_job_output_preview()
-    assert(job_output_preview_bufnr ~= -1)
+-- }}}
 
-    vim.api.nvim_command("bdelete " .. job_output_preview_bufnr)
-    job_output_preview_bufnr = -1
-end
+-- Public API {{{
 
 M.start_job = function(opts)
     assert(opts ~= nil)
@@ -263,8 +267,6 @@ M.start_job = function(opts)
     end
 end
 
--- }}}
-
 M.refresh_job_preview_window = function()
     if s_preview_bufnr ~= -1 then
         M.show_jobs_list()
@@ -304,6 +306,10 @@ M.preview_job_output = function(job_id)
         "autocmd BufLeave <buffer=" .. bufnr .. "> lua require'firvish.job_control'.on_job_output_preview_bufleave()")
     vim.api.nvim_command("augroup END")
 end
+
+-- }}}
+
+-- Internal {{{
 
 M.stop_job = function()
     assert(vim.wo.previewwindow)
@@ -362,6 +368,8 @@ M.on_job_output_preview_bufleave = function()
 
     auto_close_preview_window = true
 end
+
+-- }}}
 
 -- }}}
 

@@ -13,6 +13,8 @@
 :Ug	firvish.txt	/*:Ug*
 firvish-about	firvish.txt	/*firvish-about*
 firvish-commands	firvish.txt	/*firvish-commands*
+firvish-lua	firvish.txt	/*firvish-lua*
 firvish-mappings	firvish.txt	/*firvish-mappings*
+firvish.job_control.start_job	firvish.txt	/*firvish.job_control.start_job*
 firvish.nvim	firvish.txt	/*firvish.nvim*
 firvish.txt	firvish.txt	/*firvish.txt*
