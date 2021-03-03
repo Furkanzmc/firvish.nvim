@@ -260,6 +260,8 @@ M.start_job = function(opts)
     if opts.output_qf then
         utils.set_qflist({"[firvish] Job Started at " .. jobs[job_id].start_time}, "a")
     end
+
+    M.refresh_job_preview_window()
 end
 
 M.refresh_job_preview_window = function()
