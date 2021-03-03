@@ -47,7 +47,11 @@ local function get_jobs_preview_data()
             line = line .. " [F]"
         end
 
-        line = line .. " [E:" .. value.exit_code .. "]"
+        if value.exit_code == nil then
+            line = line .. " [E:0]"
+        else
+            line = line .. " [E:" .. value.exit_code .. "]"
+        end
 
         local cmdString = ""
         for _, word in ipairs(value.cmd) do
