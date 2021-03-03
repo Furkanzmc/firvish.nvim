@@ -47,9 +47,9 @@ local function get_jobs_preview_data()
             line = line .. " [F]"
         end
 
-        if value.exit_code == nil then
+        if not value.running and value.exit_code == nil then
             line = line .. " [E:0]"
-        else
+        elseif not value.running then
             line = line .. " [E:" .. value.exit_code .. "]"
         end
 
