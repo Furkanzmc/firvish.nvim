@@ -28,9 +28,6 @@ M.create_preview_window = function(title, lines)
 
     vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
-    vim.api.nvim_buf_set_option(bufnr, "modifiable", false)
-
-    vim.api.nvim_buf_set_option(bufnr, "readonly", true)
     vim.api.nvim_buf_set_option(bufnr, "buflisted", false)
 
     vim.api.nvim_buf_set_option(bufnr, "buftype", "nofile")
