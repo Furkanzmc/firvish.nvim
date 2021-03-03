@@ -21,10 +21,10 @@ M.open_firvish_buffer = function(title, filetype, options)
 end
 
 M.create_preview_window = function(title, lines)
-    vim.api.nvim_command("silent execute 'pedit " .. title .. "'")
-    vim.api.nvim_command("wincmd P")
+    vim.api.nvim_command("pedit +:let\\ g:firvish_preview_window_bufnr=bufnr() " .. title)
 
-    local bufnr = vim.fn.bufnr()
+    local bufnr = vim.g.firvish_preview_window_bufnr
+    vim.api.nvim_command("unlet g:firvish_preview_window_bufnr")
 
     vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)

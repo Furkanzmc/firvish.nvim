@@ -14,16 +14,11 @@ local auto_close_preview_window = true
 -- Locals {{{
 
 local function create_job_list_window(lines, job_list)
-    s_preview_bufnr = utils.create_preview_window("Firvish Jobs", lines)
-    vim.api.nvim_buf_set_option(s_preview_bufnr, "filetype", "firvish-job-list")
-    vim.api.nvim_buf_set_var(s_preview_bufnr, "firvish_job_list_additional_lines", job_list)
+    local bufnr = utils.create_preview_window("Firvish Jobs", lines)
+    vim.api.nvim_buf_set_option(bufnr, "filetype", "firvish-job-list")
+    vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", job_list)
 
-    vim.api.nvim_command("augroup firvish_job_list_preview")
-    vim.api.nvim_command("autocmd! * <buffer>")
-    vim.api.nvim_command(
-        "autocmd BufDelete <buffer> lua require'firvish.job_control'.on_preview_buf_delete()"
-    )
-    vim.api.nvim_command("augroup END")
+    return bufnr
 end
 
 local function get_jobs_preview_data()
@@ -52,11 +47,7 @@ local function get_jobs_preview_data()
             line = line .. " [F]"
         end
 
-        if not value.running and #value.stderr > 0 then
-            line = line .. " [W:" .. value.exit_code .. "]"
-        elseif not value.running and value.exit_code ~= 1 then
-            line = line .. " [E:" .. value.exit_code .. "]"
-        end
+        line = line .. " [E:" .. value.exit_code .. "]"
 
         local cmdString = ""
         for _, word in ipairs(value.cmd) do
@@ -269,8 +260,16 @@ end
 
 M.refresh_job_preview_window = function()
     if s_preview_bufnr ~= -1 then
+        local cursor = nil
+        if vim.fn.bufnr() == s_preview_bufnr then
+            cursor = vim.api.nvim_win_get_cursor(0)
+        end
+
         M.show_jobs_list()
-        vim.api.nvim_command("wincmd p")
+
+        if cursor ~= nil then
+            vim.api.nvim_win_set_cursor(0, cursor)
+        end
     end
 end
 
