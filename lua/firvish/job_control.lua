@@ -157,14 +157,13 @@ local function on_exit(job_id, exit_code, event)
     local job_info = s_jobs[job_id]
     if not job_info.is_background_job then
         vim.fn.appendbufline(job_info.bufnr, "$", {"[firvish] Job Finished..."})
+        vim.api.nvim_buf_set_var(job_info.bufnr, "firvish_job_id", -1)
     end
 
     job_info.finish_time = fn.strftime('%H:%M:%S')
     if job_info.output_qf == true then
         utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time}, "a")
     end
-
-    vim.api.nvim_buf_set_var(job_info.bufnr, "firvish_job_id", -1)
 
     if job_info.is_listed == true then
         job_info.running = false
