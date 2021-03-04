@@ -16,4 +16,9 @@ endfunction
 nmap <buffer> <silent> gb :call <SID>go_back()<CR>
 nmap <buffer> <silent> gq :pclose<CR>
 
+augroup firvish_job_output_preview
+    autocmd! * <buffer>
+    autocmd BufDelete,BufWipeout,WinClosed <buffer> lua require'firvish.job_control'.on_job_output_preview_bufdeleter()
+augroup END
+
 let b:firvish_job_output = 1

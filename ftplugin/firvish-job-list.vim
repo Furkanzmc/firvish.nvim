@@ -8,7 +8,7 @@ setlocal readonly
 
 augroup firvish_job_list_preview
     autocmd! * <buffer>
-    autocmd BufDelete,BufWipeout,WinClosed <buffer> lua require'firvish.job_control'.on_preview_buf_delete()
+    autocmd BufDelete,BufWipeout,WinClosed <buffer> lua require'firvish.job_control'.on_job_list_bufdelete()
 augroup END
 
 nmap <buffer> <silent> <S-r> :lua require'firvish.job_control'.refresh_job_list_window()<CR>
