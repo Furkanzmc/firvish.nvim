@@ -2,9 +2,9 @@ if exists("b:firvish_job_list")
   finish
 endif
 
-
 setlocal nomodifiable
 setlocal readonly
+setlocal cursorline
 
 augroup firvish_job_list_preview
     autocmd! * <buffer>
