@@ -301,8 +301,13 @@ M.preview_job_output = function(job_id)
         linenr = vim.fn.line(".")
     end
 
-    local title = create_job_list_item(job_id, job_info).line
-    s_job_output_preview_bufnr = utils.create_preview_window(title, job_info.output)
+    local cmdString = ""
+    for _, word in ipairs(s_jobs[job_id].cmd) do
+        cmdString = cmdString .. " " .. word
+    end
+    cmdString = string.gsub(cmdString, "^ ", "")
+
+    s_job_output_preview_bufnr = utils.create_preview_window(cmdString, job_info.output)
     vim.api.nvim_buf_set_var(s_job_output_preview_bufnr, "firvish_job_id", job_id)
     vim.api.nvim_buf_set_option(s_job_output_preview_bufnr, "filetype", "firvish-job-output")
 
