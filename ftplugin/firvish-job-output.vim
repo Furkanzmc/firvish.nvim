@@ -21,6 +21,5 @@ function! s:go_back()
 endfunction
 
 nmap <buffer> <silent> gb :call <SID>go_back()<CR>
-nmap <buffer> <silent> gq :pclose<CR>
 
 let b:firvish_job_output = 1
