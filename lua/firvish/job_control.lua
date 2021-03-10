@@ -200,7 +200,7 @@ M.start_job = function(opts)
         end
     end
 
-    local buf_title = "firvish [" .. opts.title .. "-" .. s_job_count .. "]"
+    local buf_title = "firvish " .. opts.title .. "-" .. s_job_count
     local bufnr = -1
 
     if opts.use_last_buffer and vim.api.nvim_buf_get_option(0, "filetype") == opts.filetype then
