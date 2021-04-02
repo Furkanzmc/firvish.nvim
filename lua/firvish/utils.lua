@@ -40,12 +40,10 @@ M.set_buf_lines = function(bufnr, lines)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
 end
 
-
 M.jump_to_window = function(tab, window)
     vim.api.nvim_command(tab .. 'tabnext')
     vim.api.nvim_command(window .. 'wincmd w')
 end
-
 
 M.find_open_window = function(buffer)
     local current_tab = vim.fn.tabpagenr()

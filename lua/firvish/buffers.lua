@@ -2,7 +2,7 @@ local vim = vim
 local M = {}
 local utils = require 'firvish.utils'
 
-local s_open_bufnr = nil
+local s_open_bufnr = -1
 local s_buffer_list_dirty = true
 local s_cached_buffers = {}
 
@@ -61,7 +61,7 @@ local function get_bufnr(linenr)
     return tonumber(bufnr)
 end
 
-M.on_buf_delete = function() s_open_bufnr = nil end
+M.on_buf_delete = function() s_open_bufnr = -1 end
 
 M.on_buf_enter = function() M.refresh_buffers() end
 
@@ -84,7 +84,7 @@ end
 M.open_buffers = function()
     local tabnr = vim.fn.tabpagenr()
 
-    if s_open_bufnr == nil then
+    if vim.fn.bufexists(s_open_bufnr) == 0 then
         s_open_bufnr = vim.fn.bufnr("firvish://buffers")
         if s_open_bufnr == -1 then
             vim.api.nvim_command("e firvish://buffers")
