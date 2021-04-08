@@ -89,6 +89,67 @@ end
 
 -- }}}
 
+-- Internal {{{
+
+M.stop_job = function()
+    assert(vim.wo.previewwindow)
+
+    local bufnr = fn.bufnr()
+    local linenr = fn.line(".")
+
+    local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
+    local info = additional_lines[linenr]
+    local job_info = s_jobs[info.job_id]
+    if not job_info.running then
+        return
+    end
+
+    fn.jobstop(info.job_id)
+    M.refresh_job_list_window()
+end
+
+M.delete_job_from_history = function(stop_job)
+    assert(vim.wo.previewwindow)
+
+    local bufnr = fn.bufnr()
+    local linenr = fn.line(".")
+
+    local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
+    local info = additional_lines[linenr]
+    local job_info = s_jobs[info.job_id]
+    if job_info.running and not stop_job then
+        utils.log_error("Job is still running.")
+        return
+    end
+
+    if job_info.running then
+        job_info.is_listed = false
+        fn.jobstop(info.job_id)
+    else
+        s_jobs[info.job_id] = nil
+    end
+
+    additional_lines[linenr] = nil
+    vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", additional_lines)
+
+    M.refresh_job_list_window()
+end
+
+-- Event Handlers {{{
+
+M.on_job_list_bufdelete = function()
+    s_job_list_bufnr = -1
+end
+
+M.on_job_output_preview_bufdeleter = function()
+    s_job_output_preview_bufnr = -1
+end
+
+
+-- }}}
+
+-- }}}
+
 -- Job Control {{{
 
 local function on_stdout(job_id, data, name)
@@ -316,66 +377,23 @@ M.preview_job_output = function(job_id)
     end
 end
 
--- }}}
-
--- Internal {{{
-
-M.stop_job = function()
-    assert(vim.wo.previewwindow)
-
-    local bufnr = fn.bufnr()
-    local linenr = fn.line(".")
-
-    local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
-    local info = additional_lines[linenr]
-    local job_info = s_jobs[info.job_id]
-    if not job_info.running then
+function M.echo_job_output(job_id, line)
+    local job_info = s_jobs[job_id]
+    if job_info == nil then
+        utils.log_error("Job does not exist: " .. job_id)
         return
     end
 
-    fn.jobstop(info.job_id)
-    M.refresh_job_list_window()
-end
-
-M.delete_job_from_history = function(stop_job)
-    assert(vim.wo.previewwindow)
-
-    local bufnr = fn.bufnr()
-    local linenr = fn.line(".")
-
-    local additional_lines = vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
-    local info = additional_lines[linenr]
-    local job_info = s_jobs[info.job_id]
-    if job_info.running and not stop_job then
-        utils.log_error("Job is still running.")
-        return
+    if line == 0 then
+        line = 1
     end
 
-    if job_info.running then
-        job_info.is_listed = false
-        fn.jobstop(info.job_id)
-    else
-        s_jobs[info.job_id] = nil
+    if line < 0 then
+        line = #job_info.output - ((line + 1) * -1)
     end
 
-    additional_lines[linenr] = nil
-    vim.api.nvim_buf_set_var(bufnr, "firvish_job_list_additional_lines", additional_lines)
-
-    M.refresh_job_list_window()
+    vim.cmd("echo " .. fn.shellescape(job_info.output[line]))
 end
-
--- Event Handlers {{{
-
-M.on_job_list_bufdelete = function()
-    s_job_list_bufnr = -1
-end
-
-M.on_job_output_preview_bufdeleter = function()
-    s_job_output_preview_bufnr = -1
-end
-
-
--- }}}
 
 -- }}}
 

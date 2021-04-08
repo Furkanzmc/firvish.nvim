@@ -18,4 +18,7 @@ nmap <buffer> <silent> S :lua require'firvish.job_control'.stop_job()<CR>
 nmap <buffer> <silent> <S-p> :execute "lua require'firvish.job_control'.preview_job_output("
             \ . b:firvish_job_list_additional_lines[line(".") - 1].job_id . ")"<CR>
 
+nmap <buffer> <silent> <S-e> :<C-U>execute "lua require'firvish.job_control'.echo_job_output("
+            \ . b:firvish_job_list_additional_lines[line(".") - 1].job_id . ", " . max([v:count, 1]) * -1 . ")"<CR>
+
 let b:firvish_job_list = 1

@@ -216,6 +216,7 @@ Buffer-local (filetype=firvish-job-list) ~
     S           Stop the job under the cursor.
     P           Preview the output of the job under the cursor in the preview
                 window.
+    [count]E    Echo the [count]th line of the job output without opening it.
 
 Buffer-local (filetype=firvish-job-output) ~
     gb           Go back to the job list.
