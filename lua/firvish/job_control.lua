@@ -169,7 +169,7 @@ local function on_stdout(job_id, data, name)
     utils.merge_table(job_info.stdout, data)
     utils.merge_table(job_info.output, data)
 
-    if job_info.output_qf == true or job_info.output_qf == 1 then
+    if job_info.output_qf then
         utils.set_qflist(data, "a")
     end
 
@@ -202,7 +202,7 @@ local function on_stderr(job_id, data, name)
     utils.merge_table(job_info.stderr, data)
     utils.merge_table(job_info.output, data)
 
-    if job_info.output_qf == true then
+    if job_info.output_qf then
         utils.set_qflist(data, "a")
     end
 
@@ -223,7 +223,7 @@ local function on_exit(job_id, exit_code, event)
     end
 
     job_info.finish_time = fn.strftime('%H:%M:%S')
-    if job_info.output_qf == true then
+    if job_info.output_qf then
         utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time}, "a")
     end
 
@@ -250,6 +250,12 @@ M.start_job = function(opts)
     opts.is_background_job = opts.is_background_job or false
     opts.listed = opts.listed or false
     opts.output_qf = opts.output_qf or false
+    if opts.output_qf == 1 then
+        opts.output_qf = true
+    elseif opts.output_qf == 0 then
+        opts.output_qf = false
+    end
+
     opts.cwd = opts.cwd or fn.getcwd()
     opts.cwd = fn.expand(opts.cwd)
 
