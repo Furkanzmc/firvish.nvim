@@ -169,11 +169,12 @@ local function on_stdout(job_id, data, name)
     utils.merge_table(job_info.stdout, data)
     utils.merge_table(job_info.output, data)
 
-    if job_info.output_qf == true then
+    if job_info.output_qf == true or job_info.output_qf == 1 then
         utils.set_qflist(data, "a")
     end
 
     if not job_info.is_background_job then
+        assert(job_info.bufnr > 0)
         vim.fn.appendbufline(job_info.bufnr, "$", data)
     end
 
