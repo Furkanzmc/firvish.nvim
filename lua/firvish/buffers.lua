@@ -85,23 +85,25 @@ M.open_buffers = function()
     local tabnr = vim.fn.tabpagenr()
 
     if vim.fn.bufexists(s_open_bufnr) == 0 then
-        s_open_bufnr = vim.fn.bufnr("firvish://buffers")
-        if s_open_bufnr == -1 then
-            vim.api.nvim_command("e firvish://buffers")
-            s_open_bufnr = vim.fn.bufnr()
-        end
+        vim.api.nvim_command("e firvish://buffers")
+        s_open_bufnr = vim.fn.bufnr()
+
+        print("A", s_open_bufnr)
 
         M.refresh_buffers()
     elseif utils.is_window_visible(tabnr, s_open_bufnr) then
+        print("B", s_open_bufnr)
         vim.api.nvim_command(vim.fn.bufwinnr(s_open_bufnr) .. "wincmd w")
         M.refresh_buffers()
     else
+        print("C", s_open_bufnr)
         vim.api.nvim_command("buffer " .. s_open_bufnr)
         M.refresh_buffers()
     end
 end
 
 M.refresh_buffers = function()
+    s_buffer_list_dirty = true
     local lines = create_buffer_list()
     local cursor = vim.api.nvim_win_get_cursor(0)
     utils.set_buf_lines(s_open_bufnr, lines)
@@ -113,6 +115,7 @@ end
 
 M.filter_buffers = function(mode)
     local buffers = nil
+    s_buffer_list_dirty = true
     if mode == "modified" then
         buffers = create_buffer_list(function(bufnr)
             return vim.api.nvim_buf_get_option(bufnr, "modified")
