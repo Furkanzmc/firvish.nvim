@@ -2,6 +2,8 @@ local vim = vim
 local utils = require'firvish.utils'
 local M = {}
 
+require'vimrc.options'.register_option("alwayspreview", "bool", false, "firvish")
+
 M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
     local lines = vim.fn.getline(line1, line2)
     local shell = vim.api.nvim_get_var("firvish_shell")

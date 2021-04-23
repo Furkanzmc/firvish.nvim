@@ -1,8 +1,11 @@
 local vim = vim
 local fn = vim.fn
+local cmd = vim.cmd
 local M = {}
+
 local utils = require'firvish.utils'
 local firvish = require'firvish'
+local options = require'vimrc.options'
 
 local s_jobs = {}
 local s_job_count = 1
@@ -144,7 +147,6 @@ end
 M.on_job_output_preview_bufdeleter = function()
     s_job_output_preview_bufnr = -1
 end
-
 
 -- }}}
 
@@ -335,6 +337,9 @@ M.start_job = function(opts)
     end
 
     M.refresh_job_list_window()
+    if (s_job_list_bufnr ~= -1 or s_job_output_preview_bufnr ~= -1) and options.get_option("alwayspreview") == true then
+        M.preview_job_output(job_id)
+    end
 end
 
 M.refresh_job_list_window = function()
@@ -382,6 +387,11 @@ M.preview_job_output = function(job_id)
     if linenr ~= -1 then
         vim.api.nvim_buf_set_var(s_job_output_preview_bufnr, "firvish_job_list_linenr", linenr)
     end
+
+    cmd[["augroup firvish_job_preview"]]
+        cmd("autocmd! * <buffer=" .. s_job_output_preview_bufnr .. ">")
+        cmd[[autocmd BufDelete,BufWipeout,WinClosed <buffer> lua require'firvish.job_control'.on_job_output_preview_bufdeleter()]]
+    cmd[[augroup END]]
 end
 
 function M.echo_job_output(job_id, line)
