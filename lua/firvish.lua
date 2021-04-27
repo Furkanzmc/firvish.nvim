@@ -2,7 +2,7 @@ local vim = vim
 local utils = require'firvish.utils'
 local M = {}
 
-require'vimrc.options'.register_option("alwayspreview", "bool", false, "firvish")
+require'vimrc.options'.register_option({name="alwayspreview", type_info="bool", default=false, source="firvish", global=true})
 
 M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
     local lines = vim.fn.getline(line1, line2)
