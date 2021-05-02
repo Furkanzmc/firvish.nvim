@@ -88,15 +88,11 @@ M.open_buffers = function()
         vim.api.nvim_command("e firvish://buffers")
         s_open_bufnr = vim.fn.bufnr()
 
-        print("A", s_open_bufnr)
-
         M.refresh_buffers()
     elseif utils.is_window_visible(tabnr, s_open_bufnr) then
-        print("B", s_open_bufnr)
         vim.api.nvim_command(vim.fn.bufwinnr(s_open_bufnr) .. "wincmd w")
         M.refresh_buffers()
     else
-        print("C", s_open_bufnr)
         vim.api.nvim_command("buffer " .. s_open_bufnr)
         M.refresh_buffers()
     end
