@@ -33,7 +33,8 @@ if executable("rg")
         \ },
         \ filetype="firvish-dir",
         \ title="rg",
-        \ use_last_buffer="<bang>" == "!"
+        \ use_last_buffer="<bang>" == "!",
+        \ listed=true
         \ }
         \ )')
 endif
@@ -51,7 +52,8 @@ if executable("ugrep")
         \ },
         \ filetype="firvish-dir",
         \ title="ugrep",
-        \ use_last_buffer="<bang>" == "!"
+        \ use_last_buffer="<bang>" == "!",
+        \ listed=true
         \ }
         \ )')
 endif
@@ -64,7 +66,8 @@ if executable("fd")
         \ },
         \ filetype="firvish-dir",
         \ title="fd",
-        \ use_last_buffer="<bang>" == "!"
+        \ use_last_buffer="<bang>" == "!",
+        \ listed=true
         \ }
         \ )')
 endif
