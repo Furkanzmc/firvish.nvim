@@ -294,7 +294,7 @@ M.start_job = function(opts)
     end
 
     if opts.output_qf then
-        utils.set_qflist({}, "r")
+        utils.set_qflist({}, " ")
     end
 
     local job_id = fn.jobstart(opts.cmd, {
