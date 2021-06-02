@@ -100,10 +100,21 @@ M.merge_table = function(target, source)
     return target
 end
 
-M.set_qflist = function(lines, action)
-    local efm = vim.o.errorformat
-    if not efm and vim.bo.errorformat then
-        efm = efm .. "," .. vim.bo.errorformat
+M.set_qflist = function(lines, action, bufnr)
+    local result, efm = pcall(vim.api.nvim_get_option, "errorformat")
+    if efm == nil then
+        efm = ""
+    end
+
+    local localefm = nil
+    if bufnr ~= nil then
+        result, localefm = pcall(vim.api.nvim_buf_get_option, bufnr, "errorformat")
+    end
+
+    if efm ~= "" and localefm ~= nil then
+        efm = efm .. "," .. localefm
+    elseif localefm ~= nil then
+        efm = localefm
     end
 
     local parsed_entries = vim.fn.getqflist({lines=lines, efm=efm})

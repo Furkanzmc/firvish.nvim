@@ -172,7 +172,7 @@ local function on_stdout(job_id, data, name)
     utils.merge_table(job_info.output, data)
 
     if job_info.output_qf then
-        utils.set_qflist(data, "a")
+        utils.set_qflist(data, "a", job_info.bufnr)
     end
 
     if not job_info.is_background_job then
@@ -205,7 +205,7 @@ local function on_stderr(job_id, data, name)
     utils.merge_table(job_info.output, data)
 
     if job_info.output_qf then
-        utils.set_qflist(data, "a")
+        utils.set_qflist(data, "a", job_info.bufnr)
     end
 
     if not job_info.is_background_job then
@@ -226,7 +226,7 @@ local function on_exit(job_id, exit_code, event)
 
     job_info.finish_time = fn.strftime('%H:%M:%S')
     if job_info.output_qf then
-        utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time}, "a")
+        utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time}, "a", job_info.bufnr)
     end
 
     if job_info.is_listed == true then
@@ -330,10 +330,11 @@ M.start_job = function(opts)
         finish_time="",
         exit_code=nil,
         is_listed=opts.listed,
-        output_qf=opts.output_qf
+        output_qf=opts.output_qf,
+        bufnr=vim.api.nvim_get_current_buf()
     }
     if opts.output_qf then
-        utils.set_qflist({"[firvish] Job Started at " .. s_jobs[job_id].start_time}, "a")
+        utils.set_qflist({"[firvish] Job Started at " .. s_jobs[job_id].start_time}, "a", s_jobs[job_id].bufnr)
     end
 
     M.refresh_job_list_window()
