@@ -21,7 +21,8 @@ M.open_firvish_buffer = function(title, filetype, options)
 end
 
 M.create_preview_window = function(title, lines)
-    vim.api.nvim_command("pedit +:let\\ g:firvish_preview_window_bufnr=bufnr() " .. title)
+    vim.api.nvim_command(
+        "pedit +:let\\ g:firvish_preview_window_bufnr=bufnr() " .. title)
 
     local bufnr = vim.g.firvish_preview_window_bufnr
     vim.api.nvim_command("unlet g:firvish_preview_window_bufnr")
@@ -48,28 +49,21 @@ end
 M.find_open_window = function(buffer)
     local current_tab = vim.fn.tabpagenr()
     local last_tab = vim.fn.tabpagenr('$')
-    for tabnr=1,last_tab,1
-    do
+    for tabnr = 1, last_tab, 1 do
         local buffers = vim.fn.tabpagebuflist(tabnr)
-        for winnr,bufnr in ipairs(buffers)
-        do
+        for winnr, bufnr in ipairs(buffers) do
             if buffer == bufnr then
-                return {tabnr=tabnr, winnr=winnr}
+                return {tabnr = tabnr, winnr = winnr}
             end
         end
     end
 
-    return {tabnr=-1, winnr=-1}
+    return {tabnr = -1, winnr = -1}
 end
 
 M.is_window_visible = function(tabnr, bufnr)
     local buffers = vim.fn.tabpagebuflist(tabnr)
-    for _,win in pairs(buffers)
-    do
-        if win == bufnr then
-            return true
-        end
-    end
+    for _, win in pairs(buffers) do if win == bufnr then return true end end
 
     return false
 end
@@ -80,35 +74,28 @@ M.log_error = function(message)
     vim.api.nvim_command("echohl Normal")
 end
 
-
 M.any_of = function(items, predicate)
-    for _,value in pairs(items)
-    do
-        if predicate(value) == true then
-            return true
-        end
+    for _, value in pairs(items) do
+        if predicate(value) == true then return true end
     end
 
     return false
 end
 
 M.merge_table = function(target, source)
-    for _,v in ipairs(source) do
-        table.insert(target, v)
-    end
+    for _, v in ipairs(source) do table.insert(target, v) end
 
     return target
 end
 
 M.set_qflist = function(lines, action, bufnr)
     local result, efm = pcall(vim.api.nvim_get_option, "errorformat")
-    if efm == nil then
-        efm = ""
-    end
+    if efm == nil then efm = "" end
 
     local localefm = nil
     if bufnr ~= nil then
-        result, localefm = pcall(vim.api.nvim_buf_get_option, bufnr, "errorformat")
+        result, localefm = pcall(vim.api.nvim_buf_get_option, bufnr,
+                                 "errorformat")
     end
 
     if efm ~= "" and localefm ~= nil then
@@ -117,13 +104,27 @@ M.set_qflist = function(lines, action, bufnr)
         efm = localefm
     end
 
-    local parsed_entries = vim.fn.getqflist({lines=lines, efm=efm})
+    local parsed_entries = vim.fn.getqflist({lines = lines, efm = efm})
     if parsed_entries.items then
         if not loclist then
             vim.fn.setqflist(parsed_entries.items, action)
         else
             vim.fn.setloclist(0, parsed_entries.items, action)
         end
+    end
+end
+
+function M.map(mode, lhs, rhs, opts)
+    local options = {noremap = true}
+    if opts then options = vim.tbl_extend('force', options, opts) end
+    if opts.buffer ~= nil then
+        assert(type(opts.buffer) == "number")
+
+        local bufnr = opts.buffer
+        options.buffer = nil
+        vim.api.nvim_buf_set_keymap(bufnr, mode, lhs, rhs, options)
+    else
+        vim.api.nvim_set_keymap(mode, lhs, rhs, options)
     end
 end
 

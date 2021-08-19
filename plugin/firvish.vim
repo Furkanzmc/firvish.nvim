@@ -1,4 +1,4 @@
-if exists('g:loaded_firvish') || &cp || v:version < 700 || &cpo =~# 'C'
+if exists('g:loaded_firvish')
   finish
 endif
 
