@@ -28,6 +28,8 @@ map("n", "P",
     ":execute \":lua require'firvish.job_control'.preview_job_output(\" . b:firvish_job_list_additional_lines[line(\".\") - 1].job_id . \")\"<CR>",
     {silent = true, buffer = bufnr})
 
-map("n", "E", "<CR>", {silent = true, buffer = bufnr})
+map("n", "E",
+    ":execute \"lua require'firvish.job_control'.echo_job_output(\" . b:firvish_job_list_additional_lines[line(\".\") - 1].job_id . \", \" . max([v:count, 1]) * -1 . \")\"<CR>",
+    {silent = true, buffer = bufnr})
 
 vim.b.did_firvish_job_list = true

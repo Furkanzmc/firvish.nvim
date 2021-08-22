@@ -76,7 +76,7 @@ if fn.executable("fd") == 1 then
         })
     end
 
-    cmd [[command! -bang -complete=file -nargs=* Fd :lua _G.run_firvish_ug({<f-args>}, "<bang>" == "!")]]
+    cmd [[command! -bang -complete=file -nargs=* Fd :lua _G.run_firvish_fd({<f-args>}, "<bang>" == "!")]]
 end
 
 function _G.call_firvish_frun(args, is_background_job)
