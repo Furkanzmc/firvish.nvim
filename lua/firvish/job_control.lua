@@ -390,6 +390,18 @@ function M.echo_job_output(job_id, line)
     vim.cmd("echo " .. fn.shellescape(job_info.output[line]))
 end
 
+function M.go_back_from_job_output()
+    assert(b.did_firvish_output ~= nil)
+    if b.firvish_job_list_linenr ~= nil then
+        local bufnr = b.firvish_job_list_linenr
+        fn.execute("FirvishJobs")
+        fn.execute("wincmd P")
+        fn.execute("normal " .. bufnr .. "G")
+    else
+        fn.execute("FirvishJobs")
+    end
+end
+
 -- }}}
 
 return M

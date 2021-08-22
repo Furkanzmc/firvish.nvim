@@ -1,16 +1,17 @@
 if vim.b.did_firvish_buffers == true then return end
 
 local map = require"firvish.utils".map
-
-vim.opt_local.cursorline = true
-vim.opt_local.modifiable = true
-vim.opt_local.buflisted = true
-vim.opt_local.syntax = "firvish-buffers"
-vim.opt_local.buftype = "nofile"
-vim.opt_local.bufhidden = "wipe"
-vim.opt_local.swapfile = false
-
+local cmd = vim.cmd
+local opt_local = vim.opt_local
 local bufnr = vim.api.nvim_get_current_buf()
+local buffers = require 'firvish.buffers'
+
+opt_local.cursorline = true
+opt_local.modifiable = true
+opt_local.buflisted = true
+opt_local.syntax = "firvish-buffers"
+opt_local.buftype = "nofile"
+opt_local.swapfile = false
 
 map("n", "<enter>", ":lua require'firvish.buffers'.jump_to_buffer()<CR>",
     {silent = true, buffer = bufnr})
@@ -28,22 +29,19 @@ map("n", "fa", 'lua require"firvish.buffers".filter_buffers("args")<CR>',
 map("n", "<s-R>", 'lua require"firvish.buffers".refresh_buffers()<CR>',
     {silent = true, buffer = bufnr})
 
-vim.cmd [[command! -buffer -nargs=* -range Bufdo :lua require'firvish.buffers'.buf_do(<line1>, <line2>, <q-args>)]]
+map("n", "-", ':edit firvish://<CR>', {silent = true, buffer = bufnr})
 
-vim.cmd [[command! -buffer -bang -nargs=* -range Bdelete :lua require'firvish.buffers'.buf_delete(<line1>, <line2>, "<bang>" == "!")]]
+cmd [[command! -buffer -nargs=* -range Bufdo :lua require'firvish.buffers'.buf_do(<line1>, <line2>, <q-args>)]]
 
-vim.cmd [[augroup neovim_firvish_buffer_local]]
-vim.cmd [[autocmd! * <buffer>]]
-vim.cmd [[autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()]]
-vim.cmd [[autocmd BufDelete,BufWipeout <buffer> lua require'firvish.buffers'.on_buf_delete()]]
-vim.cmd [[autocmd BufLeave <buffer> lua require'firvish.buffers'.on_buf_leave()]]
-vim.cmd [[augroup END]]
+cmd [[command! -buffer -bang -nargs=* -range Bdelete :lua require'firvish.buffers'.buf_delete(<line1>, <line2>, "<bang>" == "!")]]
 
-if vim.fn.mapcheck("-", "n") ~= "" and
-    vim.fn.hasmapto('<Plug>(dirvish_up)', 'n') == 1 then
-    map("n", "-", ':edit firvish://<CR>', {silent = true, buffer = bufnr})
-end
+buffers.open_buffers()
 
-require'firvish.buffers'.open_buffers()
+cmd [[augroup neovim_firvish_buffer_local]]
+cmd [[autocmd! * <buffer>]]
+cmd [[autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()]]
+cmd [[autocmd BufDelete,BufWipeout <buffer> lua require'firvish.buffers'.on_buf_delete()]]
+cmd [[autocmd BufLeave <buffer> lua require'firvish.buffers'.on_buf_leave()]]
+cmd [[augroup END]]
 
 vim.b.did_firvish_buffers = true
