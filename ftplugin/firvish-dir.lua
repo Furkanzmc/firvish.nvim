@@ -1,6 +1,6 @@
 if vim.b.did_firvish_dir == true then return end
 
-vim.opt_loca.cursorline = true
+vim.opt_local.cursorline = true
 
 require'firvish'.configure_buffer_preview_keymaps()
 

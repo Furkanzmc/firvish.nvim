@@ -128,4 +128,10 @@ function M.map(mode, lhs, rhs, opts)
     end
 end
 
+function table.extend(source, target)
+    for _, v in ipairs(target) do table.insert(source, v) end
+
+    return source
+end
+
 return M
