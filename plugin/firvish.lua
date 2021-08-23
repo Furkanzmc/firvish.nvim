@@ -7,6 +7,8 @@ local cmd = vim.cmd
 local fn = vim.fn
 local opt_local = vim.opt_local
 
+require"firvish.settings".init()
+
 map("n", "<leader>b", ":lua require'firvish.buffers'.open_buffers()<CR>",
     {silent = true, nowait = true})
 

@@ -4,7 +4,6 @@ local map = require"firvish.utils".map
 local cmd = vim.cmd
 local opt_local = vim.opt_local
 local bufnr = vim.api.nvim_get_current_buf()
-local buffers = require 'firvish.buffers'
 
 opt_local.cursorline = true
 opt_local.modifiable = true
@@ -26,16 +25,12 @@ map("n", "ft",
 map("n", "fa", 'lua require"firvish.buffers".filter_buffers("args")<CR>',
     {silent = true, buffer = bufnr})
 
-map("n", "<s-R>", 'lua require"firvish.buffers".refresh_buffers()<CR>',
+map("n", "R", ':lua require"firvish.buffers".refresh_buffers()<CR>',
     {silent = true, buffer = bufnr})
-
-map("n", "-", ':edit firvish://<CR>', {silent = true, buffer = bufnr})
 
 cmd [[command! -buffer -nargs=* -range Bufdo :lua require'firvish.buffers'.buf_do(<line1>, <line2>, <q-args>)]]
 
 cmd [[command! -buffer -bang -nargs=* -range Bdelete :lua require'firvish.buffers'.buf_delete(<line1>, <line2>, "<bang>" == "!")]]
-
-buffers.open_buffers()
 
 cmd [[augroup neovim_firvish_buffer_local]]
 cmd [[autocmd! * <buffer>]]

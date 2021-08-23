@@ -63,7 +63,7 @@ end
 
 M.on_buf_delete = function() s_open_bufnr = -1 end
 
-M.on_buf_enter = function() M.refresh_buffers() end
+M.on_buf_enter = function() M.open_buffers() end
 
 M.on_buf_leave = function() end
 
@@ -99,6 +99,7 @@ M.open_buffers = function()
 end
 
 M.refresh_buffers = function()
+    assert(s_open_bufnr ~= -1)
     s_buffer_list_dirty = true
     local lines = create_buffer_list()
     local cursor = vim.api.nvim_win_get_cursor(0)
@@ -159,6 +160,11 @@ M.buf_delete = function(start_line, end_line, force)
     end
 
     M.refresh_buffers()
+end
+
+M.buf_count = function()
+    local buffers = create_buffer_list()
+    return #buffers
 end
 
 return M

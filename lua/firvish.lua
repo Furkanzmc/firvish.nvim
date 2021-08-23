@@ -2,7 +2,7 @@ local vim = vim
 local utils = require 'firvish.utils'
 local M = {}
 
-require'vimrc.options'.register_option({
+require'options'.register_option({
     name = "alwayspreview",
     type_info = "bool",
     default = false,

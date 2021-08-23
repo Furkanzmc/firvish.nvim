@@ -1,7 +1,6 @@
 if vim.b.did_firvish_history == true then return end
 
 local map = require'firvish.utils'.map
-local history = require 'firvish.history'
 local opt_local = vim.opt_local
 local cmd = vim.cmd
 local bufnr = vim.api.nvim_get_current_buf()
@@ -23,9 +22,6 @@ map("n", "R", ":lua require'firvish.history'.refresh_history()<CR>",
     {silent = true, buffer = bufnr})
 
 map("n", "-", ":edit firvish://<CR>", {silent = true, buffer = bufnr})
-
-history.configure_buffer_preview_keymaps()
-history.open_history()
 
 cmd [[augroup neovim_firvish_history]]
 cmd [[autocmd! * <buffer>]]

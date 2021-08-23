@@ -7,7 +7,7 @@ local M = {}
 
 local utils = require 'firvish.utils'
 local firvish = require 'firvish'
-local options = require 'vimrc.options'
+local options = require 'options'
 
 local s_jobs = {}
 local s_job_count = 1
