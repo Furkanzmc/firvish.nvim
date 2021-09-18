@@ -26,7 +26,11 @@ local function create_job_list_item(job_id, job)
         line = line .. job.finish_time
     end
 
-    if job.output_qf then line = line .. " [QF]" end
+    if job.output_qf then
+        line = line .. " [QF]"
+    elseif job.output_lqf then
+        line = line .. " [LOC]"
+    end
 
     if job.is_background_job then line = line .. " [B]" end
 
@@ -79,6 +83,47 @@ local function get_jobs_preview_data()
     for _, value in pairs(job_list) do table.insert(lines, value.line) end
 
     return {lines = lines, job_list = job_list}
+end
+
+local function check_start_job_args(opts)
+    assert(opts ~= nil)
+    assert(opts.cmd ~= nil)
+    assert(opts.filetype ~= nil)
+    assert(opts.title ~= nil)
+
+    opts.use_last_buffer = opts.use_last_buffer or false
+    opts.is_background_job = opts.is_background_job or false
+    opts.listed = opts.listed or false
+    opts.output_qf = opts.output_qf or false
+    opts.output_lqf = opts.output_lqf or false
+    opts.efm = opts.efm or {}
+    if opts.output_qf == 1 then
+        opts.output_qf = true
+    elseif opts.output_qf == 0 then
+        opts.output_qf = false
+    end
+
+    opts.cwd = opts.cwd or fn.getcwd()
+    opts.cwd = fn.expand(opts.cwd)
+
+    if opts.output_qf then
+        for _, value in pairs(s_jobs) do
+            if value.output_qf and value.running then
+                utils.log_error("There's already a job running with quickfix.")
+                return
+            end
+        end
+    elseif opts.output_lqf then
+        for _, value in pairs(s_jobs) do
+            if value.output_lqf and value.running then
+                utils.log_error(
+                    "There's already a job running with local-list window.")
+                return
+            end
+        end
+    end
+
+    return opts
 end
 
 -- }}}
@@ -156,7 +201,11 @@ local function on_stdout(job_id, data, name)
     utils.merge_table(job_info.stdout, data)
     utils.merge_table(job_info.output, data)
 
-    if job_info.output_qf then utils.set_qflist(data, "a", job_info.bufnr) end
+    if job_info.output_qf then
+        utils.set_qflist(data, "a", job_info.bufnr, job_info.efm, false)
+    elseif job_info.output_lqf then
+        utils.set_qflist(data, "a", job_info.bufnr, job_info.efm, true)
+    end
 
     if not job_info.is_background_job then
         assert(job_info.bufnr > 0)
@@ -184,7 +233,11 @@ local function on_stderr(job_id, data, name)
     utils.merge_table(job_info.stderr, data)
     utils.merge_table(job_info.output, data)
 
-    if job_info.output_qf then utils.set_qflist(data, "a", job_info.bufnr) end
+    if job_info.output_qf then
+        utils.set_qflist(data, "a", job_info.bufnr, job_info.efm, false)
+    elseif job_info.output_lqf then
+        utils.set_qflist(data, "a", job_info.bufnr, job_info.efm, true)
+    end
 
     if not job_info.is_background_job then
         vim.fn.appendbufline(job_info.bufnr, "$", data)
@@ -208,6 +261,9 @@ local function on_exit(job_id, exit_code, event)
     if job_info.output_qf then
         utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time},
                          "a", job_info.bufnr)
+    elseif job_info.output_lqf then
+        utils.set_qflist({"[firvish] Job Finished at " .. job_info.finish_time},
+                         "a", job_info.bufnr, {}, true)
     end
 
     if job_info.is_listed == true then
@@ -224,32 +280,7 @@ end
 -- Public API {{{
 
 M.start_job = function(opts)
-    assert(opts ~= nil)
-    assert(opts.cmd ~= nil)
-    assert(opts.filetype ~= nil)
-    assert(opts.title ~= nil)
-
-    opts.use_last_buffer = opts.use_last_buffer or false
-    opts.is_background_job = opts.is_background_job or false
-    opts.listed = opts.listed or false
-    opts.output_qf = opts.output_qf or false
-    if opts.output_qf == 1 then
-        opts.output_qf = true
-    elseif opts.output_qf == 0 then
-        opts.output_qf = false
-    end
-
-    opts.cwd = opts.cwd or fn.getcwd()
-    opts.cwd = fn.expand(opts.cwd)
-
-    if opts.output_qf then
-        for _, value in pairs(s_jobs) do
-            if value.output_qf and value.running then
-                utils.log_error("There's already a job running with quickfix.")
-                return
-            end
-        end
-    end
+    opts = check_start_job_args(opts)
 
     local buf_title = "firvish " .. opts.title .. "-" .. s_job_count
     local bufnr = -1
@@ -274,7 +305,11 @@ M.start_job = function(opts)
         api.nvim_command("buffer " .. bufnr)
     end
 
-    if opts.output_qf then utils.set_qflist({}, " ") end
+    if opts.output_qf then
+        utils.set_qflist({}, " ")
+    elseif opts.output_qf then
+        utils.set_qflist({}, " ", nil, {}, true)
+    end
 
     local job_id = fn.jobstart(opts.cmd, {
         on_stderr = on_stderr,
@@ -310,12 +345,18 @@ M.start_job = function(opts)
         exit_code = nil,
         is_listed = opts.listed,
         output_qf = opts.output_qf,
-        bufnr = api.nvim_get_current_buf()
+        output_lqf = opts.output_lqf,
+        bufnr = api.nvim_get_current_buf(),
+        efm = opts.efm
     }
     if opts.output_qf then
         utils.set_qflist({
             "[firvish] Job Started at " .. s_jobs[job_id].start_time
         }, "a", s_jobs[job_id].bufnr)
+    elseif opts.output_lqf then
+        utils.set_qflist({
+            "[firvish] Job Started at " .. s_jobs[job_id].start_time
+        }, "a", s_jobs[job_id].bufnr, {}, true)
     end
 
     M.refresh_job_list_window()

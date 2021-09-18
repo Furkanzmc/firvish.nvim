@@ -88,28 +88,31 @@ M.merge_table = function(target, source)
     return target
 end
 
-M.set_qflist = function(lines, action, bufnr)
+M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
     local result, efm = pcall(vim.api.nvim_get_option, "errorformat")
     if efm == nil then efm = "" end
 
-    local localefm = nil
+    extra_efm = extra_efm or {}
+    local local_efm = nil
     if bufnr ~= nil then
-        result, localefm = pcall(vim.api.nvim_buf_get_option, bufnr,
-                                 "errorformat")
+        result, local_efm = pcall(vim.api.nvim_buf_get_option, bufnr,
+                                  "errorformat")
     end
 
-    if efm ~= "" and localefm ~= nil then
-        efm = efm .. "," .. localefm
-    elseif localefm ~= nil then
-        efm = localefm
+    if efm ~= "" and local_efm ~= nil then
+        efm = efm .. "," .. local_efm
+    elseif local_efm ~= nil then
+        efm = local_efm
     end
+
+    efm = efm .. "," .. table.concat(extra_efm, ",")
 
     local parsed_entries = vim.fn.getqflist({lines = lines, efm = efm})
     if parsed_entries.items then
-        if not loclist then
-            vim.fn.setqflist(parsed_entries.items, action)
+        if use_loclist then
+            vim.fn.setloclist(bufnr, parsed_entries.items, action)
         else
-            vim.fn.setloclist(0, parsed_entries.items, action)
+            vim.fn.setqflist(parsed_entries.items, action)
         end
     end
 end

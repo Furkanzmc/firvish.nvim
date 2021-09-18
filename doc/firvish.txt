@@ -37,7 +37,7 @@ It opens a new buffer and shows the list of file history.
 Alternatively, you can open `firvish://history` to view the history.
 
 
-:Rg {args}                                                                 *:Rg*
+:Rg[!] {args}                                                              *:Rg*
 
 If ripgrep is installed on your system, you can use this command to search in a
 given directory. The output of the search will be streamed to a dedicated
@@ -45,29 +45,71 @@ buffer. The file type of the opened buffer is set to `firvish-dir`.
 
 Any arguments that you pass will be passed on to the `rg` executable.
 
-For example: >
-    :Rg --vimgrep firvish ./lua
+Example: >
+    :Rg firvish ./lua
+
+:Crg {args}                                                               *:Crg*
+
+Like |:Rg| but the output is directed to |quickfix| window.
+
+Example: >
+    :Crg firvish ./lua
+
+:Lrg {args}                                                               *:Lrg*
+
+Like |:Rg| but the output is directed to |location-list| window.
+
+Example: >
+    :Lrg firvish ./lua
 
 
-:Ug {args}                                                                 *:Ug*
+:Ug[!] {args}                                                              *:Ug*
 
 If ugrep is installed on your system, you can use this command to search in a
 directory. It works similar to the |:Rg| command. The file type of the opened
 buffer is set to `firvish-dir`.
 
-For example: >
+Example: >
     :Ug firvish ./lua
 
+:Cug {args}                                                               *:Cug*
 
-:Fd {args}                                                                 *:Fd*
+Like |:Ug| but the output is directed to |quickfix| window.
+
+Example: >
+    :Cug firvish ./lua
+
+:Lug {args}                                                               *:Lug*
+
+Like |:Ug| but the output is directed to |location-list| window.
+
+Example: >
+    :Lug firvish ./lua
+
+
+:Fd[!] {args}                                                              *:Fd*
 
 If fd is installed on your system, you can use this command to search
 files/folders in a given directory.  The output of the search will be streamed
 to a dedicated buffer. Any arguments that you pass will be passed on to the `fd`
 executable. The file type of the opened buffer is set to `firvish-dir`.
 
-For example: >
+Example: >
     :Fd firvish -e lua
+
+:Cfd {args}                                                               *:Cfd*
+
+Like |:Fd| but the output is directed to |quickfix| window.
+
+Example: >
+    :Cfd firvish -e lua
+
+:Lfd {args}                                                               *:Lfd*
+
+Like |:Fd| but the output is directed to |location-list| window.
+
+Example: >
+    :Lfd firvish -e lua
 
 
 :FRun[!] {args}                                                          *:FRun*
@@ -79,11 +121,25 @@ If <bang> is used, then a buffer is not automatically opened. The command runs
 in the background. You can use |:FirvishJobs| to see the list of jobs that are
 running.
 
-For example: >
+Example: >
     :FRun git log -3
 
-For example: >
+Example: >
     :FRun! git log -3
+
+:Cfrun {args}                                                           *:Cfrun*
+
+Like |:FRun| but the output is directed to |quickfix| window.
+
+Example: >
+    :Cfrun git log -3
+
+:Lfrun {args}                                                           *:Lfrun*
+
+Like |:FRun| but the output is directed to |location-list| window.
+
+Example: >
+    :Lfrun firvish -e lua
 
 
 :[range]Fhdo[!] {args}                                                   *:Fhdo*
@@ -251,7 +307,7 @@ start_job({opts})                                *firvish.job_control.start_job*
         the same buffer will be used for the consequitve calls to the same
         job. Defaults to `false`.
 
-        {is_background_job} (optional, boolean): If set to `truw`, the job's
+        {is_background_job} (optional, boolean): If set to `true`, the job's
         output will not be immediately output to a buffer. When this is set,
         `listed` is implied. Defaults to `false`.
 
@@ -263,8 +319,15 @@ start_job({opts})                                *firvish.job_control.start_job*
         will be sent to the |quickfix| window. There can only be one job
         running with this option set to `true`. Defaults to `false`.
 
+        {output_lqf} (optional, boolean): When set to `true`, the job's output
+        will be sent to the |location-list| window. There can only be one job
+        running with this option set to `true`. Defaults to `false`.
+
         {cwd} (optional, string): Specifies the working directory for the
         command. Defaults to the buffer's working directory.
+
+        {efm} (optional, table): Adds extra |errorformat| entries when
+        |output_qf| or |output_lqf| is used.
 
 
 ABOUT                                                            *firvish-about*
