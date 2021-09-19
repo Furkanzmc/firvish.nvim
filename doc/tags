@@ -1,6 +1,10 @@
 :Bdelete	firvish.txt	/*:Bdelete*
 :Bufdo	firvish.txt	/*:Bufdo*
 :Buffers	firvish.txt	/*:Buffers*
+:Cfd	firvish.txt	/*:Cfd*
+:Cfrun	firvish.txt	/*:Cfrun*
+:Crg	firvish.txt	/*:Crg*
+:Cug	firvish.txt	/*:Cug*
 :FRun	firvish.txt	/*:FRun*
 :Fd	firvish.txt	/*:Fd*
 :FhFilter	firvish.txt	/*:FhFilter*
@@ -9,6 +13,10 @@
 :Fhllist	firvish.txt	/*:Fhllist*
 :FirvishJobs	firvish.txt	/*:FirvishJobs*
 :History	firvish.txt	/*:History*
+:Lfd	firvish.txt	/*:Lfd*
+:Lfrun	firvish.txt	/*:Lfrun*
+:Lrg	firvish.txt	/*:Lrg*
+:Lug	firvish.txt	/*:Lug*
 :Rg	firvish.txt	/*:Rg*
 :Ug	firvish.txt	/*:Ug*
 firvish-about	firvish.txt	/*firvish-about*

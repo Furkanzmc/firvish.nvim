@@ -110,7 +110,7 @@ local function check_start_job_args(opts)
         for _, value in pairs(s_jobs) do
             if value.output_qf and value.running then
                 utils.log_error("There's already a job running with quickfix.")
-                return
+                return nil
             end
         end
     elseif opts.output_lqf then
@@ -118,7 +118,7 @@ local function check_start_job_args(opts)
             if value.output_lqf and value.running then
                 utils.log_error(
                     "There's already a job running with local-list window.")
-                return
+                return nil
             end
         end
     end
@@ -281,6 +281,9 @@ end
 
 M.start_job = function(opts)
     opts = check_start_job_args(opts)
+    if opts == nil then
+        return
+    end
 
     local buf_title = "firvish " .. opts.title .. "-" .. s_job_count
     local bufnr = -1
