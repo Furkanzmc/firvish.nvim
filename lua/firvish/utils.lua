@@ -121,7 +121,7 @@ function M.map(mode, lhs, rhs, opts)
     local options = {noremap = true}
     if opts then options = vim.tbl_extend('force', options, opts) end
     if opts.buffer ~= nil then
-        assert(type(opts.buffer) == "number")
+        assert(type(opts.buffer) == "number", "buffer must be a number.")
 
         local bufnr = opts.buffer
         options.buffer = nil

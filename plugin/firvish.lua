@@ -109,7 +109,7 @@ function _G.firvish_call_frun(args, is_background_job, qf, loc)
         listed = true,
         output_qf = qf,
         output_lqf = loc,
-        is_background_job = qf or loc
+        is_background_job = qf or loc or is_background_job
     })
 end
 

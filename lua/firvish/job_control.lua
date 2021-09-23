@@ -86,10 +86,10 @@ local function get_jobs_preview_data()
 end
 
 local function check_start_job_args(opts)
-    assert(opts ~= nil)
-    assert(opts.cmd ~= nil)
-    assert(opts.filetype ~= nil)
-    assert(opts.title ~= nil)
+    assert(opts ~= nil, "opts cannot be nil.")
+    assert(opts.cmd ~= nil, "cmd is required.")
+    assert(opts.filetype ~= nil, "filetype is required.")
+    assert(opts.title ~= nil, "title is required.")
 
     opts.use_last_buffer = opts.use_last_buffer or false
     opts.is_background_job = opts.is_background_job or false
@@ -131,7 +131,7 @@ end
 -- Internal {{{
 
 M.stop_job = function()
-    assert(vim.wo.previewwindow)
+    assert(vim.wo.previewwindow, "Cannot called when not in preview window.")
 
     local bufnr = fn.bufnr()
     local linenr = fn.line(".")
@@ -147,7 +147,7 @@ M.stop_job = function()
 end
 
 M.delete_job_from_history = function(stop_job)
-    assert(vim.wo.previewwindow)
+    assert(vim.wo.previewwindow, "Cannot called when not in preview window.")
 
     local bufnr = fn.bufnr()
     local linenr = fn.line(".")
@@ -208,7 +208,7 @@ local function on_stdout(job_id, data, name)
     end
 
     if not job_info.is_background_job then
-        assert(job_info.bufnr > 0)
+        assert(job_info.bufnr > 0, "Invalid bufnr.")
         vim.fn.appendbufline(job_info.bufnr, "$", data)
     end
 
@@ -253,6 +253,8 @@ end
 local function on_exit(job_id, exit_code, event)
     local job_info = s_jobs[job_id]
     if not job_info.is_background_job then
+        assert(job_info.bufnr > 0, "bufnr is invalid.")
+
         vim.fn.appendbufline(job_info.bufnr, "$", {"[firvish] Job Finished..."})
         api.nvim_buf_set_var(job_info.bufnr, "firvish_job_id", -1)
     end
@@ -281,9 +283,7 @@ end
 
 M.start_job = function(opts)
     opts = check_start_job_args(opts)
-    if opts == nil then
-        return
-    end
+    if opts == nil then return end
 
     local buf_title = "firvish " .. opts.title .. "-" .. s_job_count
     local bufnr = -1
@@ -299,7 +299,7 @@ M.start_job = function(opts)
         bufnr = utils.open_firvish_buffer(buf_title, opts.filetype,
                                           {buflisted = true})
         s_opened_buffers[opts.filetype] = bufnr
-        assert(bufnr ~= -1)
+        assert(bufnr ~= -1, "Invalid bufnr")
     end
 
     s_job_count = s_job_count + 1
@@ -435,7 +435,7 @@ function M.echo_job_output(job_id, line)
 end
 
 function M.go_back_from_job_output()
-    assert(b.did_firvish_output ~= nil)
+    assert(b.did_firvish_output ~= nil, "b:did_firvish_output must be set.")
     if b.firvish_job_list_linenr ~= nil then
         local bufnr = b.firvish_job_list_linenr
         fn.execute("FirvishJobs")

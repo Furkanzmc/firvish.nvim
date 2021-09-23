@@ -99,7 +99,7 @@ M.open_buffers = function()
 end
 
 M.refresh_buffers = function()
-    assert(s_open_bufnr ~= -1)
+    assert(s_open_bufnr ~= -1, "s_open_bufnr must be valid.")
     s_buffer_list_dirty = true
     local lines = create_buffer_list()
     local cursor = vim.api.nvim_win_get_cursor(0)

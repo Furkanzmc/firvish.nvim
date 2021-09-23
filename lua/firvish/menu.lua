@@ -75,7 +75,7 @@ function M.open()
 end
 
 function M.refresh_menu()
-    assert(s_open_bufnr ~= -1)
+    assert(s_open_bufnr ~= -1, "s_open_bufnr must be valid.")
 
     local lines = get_menu_items()
     local cursor = vim.api.nvim_win_get_cursor(0)
@@ -88,7 +88,7 @@ function M.refresh_menu()
 end
 
 function M.open_item(linenr)
-    assert(s_open_bufnr ~= -1)
+    assert(s_open_bufnr ~= -1, "s_open_bufnr must be valid.")
 
     local lines = api.nvim_buf_get_lines(s_open_bufnr, linenr - 1, linenr, true)
     local menu = get_menu(lines[1])
