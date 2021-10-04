@@ -4,7 +4,7 @@ local M = {}
 
 require'options'.register_option({
     name = "alwayspreview",
-    type_info = "bool",
+    type_info = "boolean",
     default = false,
     source = "firvish",
     global = true
