@@ -6,6 +6,7 @@ local jobs = require "firvish.job_control"
 local cmd = vim.cmd
 local fn = vim.fn
 local opt_local = vim.opt_local
+local opt = vim.opt
 
 require"firvish.settings".init()
 
