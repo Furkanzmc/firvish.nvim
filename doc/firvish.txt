@@ -227,6 +227,9 @@ Global ~
     <Plug>(firvish_history)
     <leader>h   Opens the history buffer. Same as |:History|
 
+    Note: the leader mappings are available only if you set
+    g:firvish_use_default_mappings to a non 0 value.
+
 Buffer-local (filetype=firvish-buffers) ~
     <enter>     Jumps to the buffer under the cursor. If the buffer is visible
                 in any window, swtiches to that one. Otherwise opens it in the
