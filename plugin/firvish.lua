@@ -95,7 +95,7 @@ if fn.executable("fd") == 1 then
         })
     end
 
-    cmd [[command! -bang -complete=file -nargs=* Fd :lua _G.firvish_run_fd({<f-args>}, "<bang>" == "!", {"%f"}, false, false)]]
+    cmd [[command! -bang -complete=file -nargs=* Fd  :lua _G.firvish_run_fd({<f-args>}, "<bang>" == "!", false, false)]]
     cmd [[command! -complete=file -nargs=* Cfd :lua _G.firvish_run_fd({<f-args>}, false, true, false)]]
     cmd [[command! -complete=file -nargs=* Lfd :lua _G.firvish_run_fd({<f-args>}, false, false, true)]]
 end
