@@ -1,4 +1,4 @@
-if vim.b.did_firvish_history == true then return end
+if vim.b.did_ftp == true then return end
 
 local map = require'firvish.utils'.map
 local opt_local = vim.opt_local
@@ -30,5 +30,3 @@ cmd [[autocmd BufDelete <buffer> lua require'firvish.history'.on_buf_delete()]]
 cmd [[autocmd BufWipeout <buffer> lua require'firvish.history'.on_buf_delete()]]
 cmd [[autocmd BufLeave <buffer> lua require'firvish.history'.on_buf_leave()]]
 cmd [[augroup END]]
-
-vim.b.did_firvish_history = true

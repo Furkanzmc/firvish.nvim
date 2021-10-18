@@ -1,4 +1,4 @@
-if vim.b.did_firvish_output == true then return end
+if vim.b.did_ftp == true then return end
 
 local map = require"firvish.utils".map
 local cmd = vim.cmd
@@ -15,5 +15,3 @@ cmd [[augroup END]]
 map("n", "gb",
     ':lua require"firvish.job_control".go_back_from_job_output()<CR>',
     {silent = true, buffer = bufnr})
-
-vim.b.did_firvish_output = true

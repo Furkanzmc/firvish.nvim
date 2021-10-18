@@ -1,4 +1,4 @@
-if vim.b.did_firvish_job_list == true then return end
+if vim.b.did_ftp == true then return end
 
 local map = require"firvish.utils".map
 local cmd = vim.cmd
@@ -31,5 +31,3 @@ map("n", "P",
 map("n", "E",
     ":execute \"lua require'firvish.job_control'.echo_job_output(\" . b:firvish_job_list_additional_lines[line(\".\") - 1].job_id . \", \" . max([v:count, 1]) * -1 . \")\"<CR>",
     {silent = true, buffer = bufnr})
-
-vim.b.did_firvish_job_list = true

@@ -1,4 +1,4 @@
-if vim.b.did_firvish == true then return end
+if vim.b.did_ftp == true then return end
 
 local map = require'firvish.utils'.map
 local cmd = vim.cmd
@@ -27,5 +27,3 @@ cmd [[autocmd BufDelete,BufWipeout <buffer> lua require'firvish.menu'.on_buf_del
 cmd [[augroup END]]
 
 menu.open()
-
-vim.b.did_firvish = true
