@@ -13,7 +13,7 @@ if options then
     options.register_option({
         name = "alwayspreview",
         type_info = "boolean",
-        description = "When set to true,",
+        description = "When set to true, the output of the running job will be shown in previewwindow.",
         default = false,
         source = "firvish",
         global = true
