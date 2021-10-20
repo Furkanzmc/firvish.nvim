@@ -192,7 +192,7 @@ such way.
 
 Processes the the lines in [range] according to |errorformat| and sets the
 quickfix list to the processed output. If <bang> is provided, the existing
-quickfic items are replaces, otherwise the new list is appended.
+quickfix items are replaces, otherwise the new list is appended.
 
 Example: >
     :3,30FhQf firvish
