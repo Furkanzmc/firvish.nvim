@@ -1,17 +1,15 @@
-if vim.g.loaded_firvish == true then return end
-
 local utils = require "firvish.utils"
 local map = utils.map
 local jobs = require "firvish.job_control"
 local cmd = vim.cmd
 local fn = vim.fn
 local opt_local = vim.opt_local
+local g = vim.g
 local opt = vim.opt
 
 require"firvish.settings".init()
 
-if vim.g.firvish_use_default_mappings ~= nil and
-    vim.g.firvish_use_default_mappings ~= 0 then
+if g.firvish_use_default_mappings ~= nil and g.firvish_use_default_mappings ~= 0 then
     map("n", "<leader>b", ":lua require'firvish.buffers'.open_buffers()<CR>",
         {silent = true, nowait = true})
 
@@ -22,10 +20,10 @@ end
 cmd [[command! Buffers lua require'firvish.buffers'.open_buffers()<CR>]]
 cmd [[command! History lua require'firvish.history'.open_history()<CR>]]
 
-if vim.g.firvish_shell == nil then vim.g.firvish_shell = opt.shell:get() end
+if g.firvish_shell == nil then g.firvish_shell = opt.shell:get() end
 
-if vim.g.firvish_interactive_window_height == nil then
-    vim.g.firvish_interactive_window_height = 3
+if g.firvish_interactive_window_height == nil then
+    g.firvish_interactive_window_height = 3
 end
 
 if fn.executable("rg") == 1 then
@@ -135,5 +133,3 @@ cmd [[augroup neovim_firvish_buffer]]
 cmd [[autocmd!]]
 cmd [[autocmd BufDelete,BufWipeout,BufAdd * lua require'firvish.buffers'.mark_dirty()]]
 cmd [[augroup END]]
-
-vim.g.loaded_firvish = true
