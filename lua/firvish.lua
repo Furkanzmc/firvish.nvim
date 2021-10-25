@@ -69,7 +69,7 @@ end
 M.run_commands = function(bufnr, sh_mode)
     if sh_mode == true then
         local shell = vim.api.nvim_get_var("firvish_shell")
-        cmd = {shell}
+        local cmd = {shell}
         if string.match(shell, "powershell") ~= nil or
             string.match(shell, "pwsh") ~= nil then
             table.insert(cmd, "-NoLogo")
