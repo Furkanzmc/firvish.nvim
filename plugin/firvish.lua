@@ -7,8 +7,6 @@ local opt_local = vim.opt_local
 local g = vim.g
 local opt = vim.opt
 
-require"firvish.settings".init()
-
 if g.firvish_use_default_mappings ~= nil and g.firvish_use_default_mappings ~= 0 then
     map("n", "<leader>b", ":lua require'firvish.buffers'.open_buffers()<CR>",
         {silent = true, nowait = true})
