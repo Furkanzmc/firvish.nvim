@@ -21,7 +21,7 @@ if options then
 end
 
 M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
-    local lines = vim.fn.getline(line1, line2)
+    local lines = vim.api.nvim_buf_get_lines(source_buffer, line1, line2, true)
     local shell = vim.api.nvim_get_var("firvish_shell")
     local extension = "sh"
 
