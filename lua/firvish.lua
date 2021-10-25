@@ -151,12 +151,14 @@ M.open_file_under_cursor = function(nav_direction, preview, reuse_window,
     end
 end
 
-M.set_lines_to_qf = function(line1, line2, replace, loclist)
+M.set_buf_lines_to_qf = function(line1, line2, replace, loclist)
     local lines = vim.api.nvim_buf_get_lines(0, line1 - 1, line2 + 1, false)
+    local bufnr = vim.api.nvim_get_current_buf()
+
     if replace then
-        utils.set_qflist(lines, "r")
+        utils.set_qflist(lines, "r", bufnr, {}, loclist)
     else
-        utils.set_qflist(lines, "a")
+        utils.set_qflist(lines, "a", bufnr, {}, loclist)
     end
 end
 

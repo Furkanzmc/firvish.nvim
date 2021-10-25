@@ -127,9 +127,9 @@ cmd [[command! -bar FirvishJobs lua require'firvish.job_control'.show_jobs_list(
 
 cmd [[command! -bang -nargs=* -range FhFilter :lua require"firvish".filter_lines( <line1>, <line2>, "<bang>" ~= "!", <q-args>)]]
 
-cmd [[command! -bang -range FhQf :lua require"firvish".set_lines_to_qf( <line1>, <line2> - 1, "<bang>" == "!", false)]]
+cmd [[command! -bang -range FhQf :lua require"firvish".set_buf_lines_to_qf( <line1>, <line2> - 1, "<bang>" == "!", false)]]
 
-cmd [[command! -bang -range Fhllist :lua require"firvish".set_lines_to_qf( <line1>, <line2>, "<bang>" == "!", true)]]
+cmd [[command! -bang -range Fhllist :lua require"firvish".set_buf_lines_to_qf( <line1>, <line2>, "<bang>" == "!", true)]]
 
 cmd [[augroup neovim_firvish_buffer]]
 cmd [[autocmd!]]
