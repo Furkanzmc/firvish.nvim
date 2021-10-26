@@ -7,8 +7,9 @@ list, history, NeoVim and external commands. All the output of these commands ar
 dedicated buffer.
 
 The main goal of firvish.nvim is to provide a single way of interacting with external commands, and
-internal commands of NeoVim: Buffers. They are used to interact with the output of commands, and
-the input is sent to external commands to interactively communicate with them.
+internal commands of NeoVim through the use of buffers.
+They are used to interact with the output of commands, and the input is sent to external commands
+to interactively communicate with them.
 
 See the documentation for more details.
 
