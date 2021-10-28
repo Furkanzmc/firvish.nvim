@@ -43,9 +43,10 @@ local function create_buffer_list(predicate)
 end
 
 local function get_bufnr(linenr)
-    local line = vim.fn.getline(linenr)
+    local line = vim.fn.getbufline(s_open_bufnr, linenr)[1]
     local bufnr = vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"),
                                     "\\(\\[\\|\\]\\)", "", "g")
+
     if bufnr ~= "" then return tonumber(bufnr) end
 
     local buffer_name = string.sub(line,
@@ -142,10 +143,11 @@ M.filter_buffers = function(mode)
 end
 
 M.buf_do = function(start_line, end_line, cmd)
-    local start_buffer = get_bufnr(start_line)
-    local end_buffer = get_bufnr(end_line)
+    for linenr = start_line, end_line, 1 do
+        vim.api.nvim_command("buffer " .. get_bufnr(linenr))
+        vim.api.nvim_command(cmd)
+    end
 
-    vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bufdo " .. cmd)
     vim.api.nvim_command("buffer " .. s_open_bufnr)
 end
 
