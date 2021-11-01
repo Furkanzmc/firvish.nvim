@@ -13,9 +13,15 @@ to interactively communicate with them.
 
 See the documentation for more details.
 
-## Example Use Cases
+# Installation
 
-### Use as an asynchronous git command
+Install using your favoriate plugin manager. There's no required dependancies. Optionally, you can
+install [option.nvim](https://github.com/furkanzmc/options.nvim) for customization. If it's not
+installed, you'll see a warning but you can ignore it.
+
+# Example Use Cases
+
+## Use as an asynchronous git command
 
 ```vim
 lua << EOF
@@ -36,7 +42,7 @@ EOF
 command! -bang -complete=customlist,fugitive#Complete -nargs=* -range FGit :lua _G.run_git(<q-args>, <q-bang> ~= '!')
 ```
 
-### Set up a CMake build system
+## Set up a CMake build system
 
 ```lua
 function G.setup_cmake(opts)
@@ -157,7 +163,7 @@ Now you can run any of the following commands:
 
 The output of each command will be redirected to the quickfix list.
 
-### Run the server for a Django project
+## Run the server for a Django project
 
 ```vim
 command! RunServer :lua require"firvish.job_control".start_job({

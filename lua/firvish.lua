@@ -9,7 +9,7 @@ if not options_loaded then
         "options.nvim is not installed. See `:help firvish.txt` for disabled features.")
 end
 
-if options then
+if options_loaded then
     options.register_option({
         name = "alwayspreview",
         type_info = "boolean",
