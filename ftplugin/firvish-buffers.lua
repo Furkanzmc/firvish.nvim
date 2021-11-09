@@ -22,7 +22,7 @@ map("n", "ft",
     ':lua require"firvish.buffers".filter_buffers("current_tab")<CR>',
     {silent = true, buffer = bufnr})
 
-map("n", "fa", 'lua require"firvish.buffers".filter_buffers("args")<CR>',
+map("n", "fa", ':lua require"firvish.buffers".filter_buffers("args")<CR>',
     {silent = true, buffer = bufnr})
 
 map("n", "R", ':lua require"firvish.buffers".refresh_buffers()<CR>',
