@@ -53,12 +53,12 @@ local function create_job_list_item(job_id, job)
     line = line .. ' ' .. cmdString
 
     -- These are the optional line that will be echoed on cursor hold.
-    local additonal = 'Started: "' .. job.start_time .. '"'
+    local additional = 'Started: "' .. job.start_time .. '"'
     if not job.running then
-        additonal = additonal .. ' Finished: "' .. job.finish_time .. '"'
+        additional = additional .. ' Finished: "' .. job.finish_time .. '"'
     end
 
-    return {echo = additonal, job_id = job_id, line = line}
+    return {echo = additional, job_id = job_id, line = line}
 end
 
 local function create_job_list_window(lines, job_list)
@@ -73,7 +73,7 @@ local function get_jobs_preview_data()
     local job_list = {}
 
     for job_id, value in pairs(s_jobs) do
-        line = create_job_list_item(job_id, value)
+        local line = create_job_list_item(job_id, value)
 
         table.insert(job_list, line)
     end
@@ -104,6 +104,8 @@ local function check_start_job_args(opts)
     elseif opts.output_qf == 0 then
         opts.output_qf = false
     end
+    opts.open_qf = opts.output_qf and opts.open_qf or false
+    opts.open_lqf = opts.output_lqf and opts.open_lqf or false
 
     opts.cwd = opts.cwd or fn.getcwd()
     opts.cwd = fn.expand(opts.cwd)
@@ -286,6 +288,12 @@ local function on_exit(job_id, exit_code, event)
     else
         s_jobs[job_id] = nil
     end
+
+    if job_info.open_qf then
+      cmd [[copen]]
+    elseif job_info.open_lqf then
+      cmd [[lopen]]
+    end
 end
 
 -- }}}
@@ -345,25 +353,18 @@ M.start_job = function(opts)
         api.nvim_buf_set_var(bufnr, "firvish_job_id", job_id)
     end
 
-    s_jobs[job_id] = {
-        bufnr = bufnr,
-        cmd = opts.cmd,
-        title = buf_title,
-        stdout = {},
-        stderr = {},
-        output = {},
-        running = true,
-        is_background_job = opts.is_background_job,
-        start_time = fn.strftime('%H:%M:%S'),
-        finish_time = "",
-        exit_code = nil,
-        is_listed = opts.listed,
-        output_qf = opts.output_qf,
-        output_lqf = opts.output_lqf,
-        bufnr = api.nvim_get_current_buf(),
-        efm = opts.efm,
-        notify = opts.notify
+    local job_info = {
+      bufnr = api.nvim_get_current_buf(),
+      title = buf_title,
+      stdout = {},
+      stderr = {},
+      output = {},
+      running = true,
+      start_time = fn.strftime('%H:%M:%S'),
+      finish_time = "",
+      exit_code = nil,
     }
+    s_jobs[job_id] = vim.tbl_extend("keep", job_info, opts)
     if opts.output_qf then
         utils.set_qflist({
             "[firvish] Job Started at " .. s_jobs[job_id].start_time
