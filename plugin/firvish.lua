@@ -25,7 +25,7 @@ if g.firvish_interactive_window_height == nil then
 end
 
 if fn.executable("rg") == 1 then
-    function _G.firvish_run_rg(args, use_last_buffer, qf, loc)
+    function _G.firvish_run_rg(args, use_last_buffer, qf, loc, open)
         local command = {
             "rg", "--column", "--line-number", "--no-heading", "--vimgrep",
             "--color=never", "--smart-case", "--block-buffered"
@@ -40,14 +40,16 @@ if fn.executable("rg") == 1 then
             listed = true,
             efm = {"%f:%l:%c:%m"},
             output_qf = qf,
+            open_qf = open,
             output_lqf = loc,
-            is_background_job = qf or loc
+            open_lqf = open,
+            is_background_job = qf or loc,
         })
     end
 
     cmd [[command! -bang -complete=file -nargs=* Rg :lua _G.firvish_run_rg({<f-args>}, "<bang>" == "!")]]
-    cmd [[command! -complete=file -nargs=* Crg :lua _G.firvish_run_rg({<f-args>}, false, true, false)]]
-    cmd [[command! -complete=file -nargs=* Lrg :lua _G.firvish_run_rg({<f-args>}, false, false, true)]]
+    cmd [[command! -bang -complete=file -nargs=* Crg :lua _G.firvish_run_rg({<f-args>}, false, true, false, "<bang>" == "!")]]
+    cmd [[command! -bang -complete=file -nargs=* Lrg :lua _G.firvish_run_rg({<f-args>}, false, false, true, "<bang>" == "!")]]
 end
 
 if fn.executable("ugrep") == 1 then
