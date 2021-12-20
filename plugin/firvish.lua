@@ -8,43 +8,51 @@ local g = vim.g
 local opt = vim.opt
 
 if g.firvish_use_default_mappings ~= nil and g.firvish_use_default_mappings ~= 0 then
-    map("n", "<leader>b", ":lua require'firvish.buffers'.open_buffers()<CR>",
-        {silent = true, nowait = true})
+    map("n", "<leader>b", ":lua require'firvish.buffers'.open_buffers()<CR>", { silent = true, nowait = true })
 
-    map("n", "<leader>h", ":lua require'firvish.history'.open_history()<CR>",
-        {silent = true, nowait = true})
+    map("n", "<leader>h", ":lua require'firvish.history'.open_history()<CR>", { silent = true, nowait = true })
 end
 
 cmd [[command! Buffers lua require'firvish.buffers'.open_buffers()<CR>]]
 cmd [[command! History lua require'firvish.history'.open_history()<CR>]]
 
-if g.firvish_shell == nil then g.firvish_shell = opt.shell:get() end
+if g.firvish_shell == nil then
+    g.firvish_shell = opt.shell:get()
+end
 
 if g.firvish_interactive_window_height == nil then
     g.firvish_interactive_window_height = 3
 end
 
-if fn.executable("rg") == 1 then
+if fn.executable "rg" == 1 then
     function _G.firvish_run_rg(args, use_last_buffer, qf, loc, open)
         local command = {
-            "rg", "--column", "--line-number", "--no-heading", "--vimgrep",
-            "--color=never", "--smart-case", "--block-buffered"
+            "rg",
+            "--column",
+            "--line-number",
+            "--no-heading",
+            "--vimgrep",
+            "--color=never",
+            "--smart-case",
+            "--block-buffered",
         }
-        if args then command = table.extend(command, args) end
+        if args then
+            command = table.extend(command, args)
+        end
 
-        jobs.start_job({
+        jobs.start_job {
             cmd = command,
             filetype = "firvish-dir",
             title = "rg",
             use_last_buffer = use_last_buffer,
             listed = true,
-            efm = {"%f:%l:%c:%m"},
+            efm = { "%f:%l:%c:%m" },
             output_qf = qf,
             open_qf = open,
             output_lqf = loc,
             open_lqf = open,
             is_background_job = qf or loc,
-        })
+        }
     end
 
     cmd [[command! -bang -complete=file -nargs=* Rg :lua _G.firvish_run_rg({<f-args>}, "<bang>" == "!")]]
@@ -52,25 +60,32 @@ if fn.executable("rg") == 1 then
     cmd [[command! -bang -complete=file -nargs=* Lrg :lua _G.firvish_run_rg({<f-args>}, false, false, true, "<bang>" == "!")]]
 end
 
-if fn.executable("ugrep") == 1 then
+if fn.executable "ugrep" == 1 then
     function _G.firvish_run_ug(args, use_last_buffer, qf, loc)
         local command = {
-            "ugrep", "--column-number", "--line-number", "--color=never",
-            "--smart-case", "--line-buffered", "-J1"
+            "ugrep",
+            "--column-number",
+            "--line-number",
+            "--color=never",
+            "--smart-case",
+            "--line-buffered",
+            "-J1",
         }
-        if args then command = table.extend(command, args) end
+        if args then
+            command = table.extend(command, args)
+        end
 
-        jobs.start_job({
+        jobs.start_job {
             cmd = command,
             filetype = "firvish-dir",
             title = "ugrep",
             use_last_buffer = use_last_buffer,
             listed = true,
             output_qf = qf,
-            efm = {"%f:%l:%c:%m"},
+            efm = { "%f:%l:%c:%m" },
             output_lqf = loc,
-            is_background_job = qf or loc
-        })
+            is_background_job = qf or loc,
+        }
     end
 
     cmd [[command! -bang -complete=file -nargs=* Ug :lua _G.firvish_run_ug({<f-args>}, "<bang>" == "!")]]
@@ -78,41 +93,44 @@ if fn.executable("ugrep") == 1 then
     cmd [[command! -complete=file -nargs=* Lug :lua _G.firvish_run_ug({<f-args>}, false, false, true)]]
 end
 
-if fn.executable("fd") == 1 then
-    function _G.firvish_run_fd(args, use_last_buffer, qf, loc)
-        local command = {"fd", "--color=never"}
-        if args then command = table.extend(command, args) end
+if fn.executable "fd" == 1 then
+    function _G.firvish_run_fd(args, use_last_buffer, qf, loc, open)
+        local command = { "fd", "--color=never" }
+        if args then
+            command = table.extend(command, args)
+        end
 
-        jobs.start_job({
+        jobs.start_job {
             cmd = command,
             filetype = "firvish-dir",
             title = "fd",
             use_last_buffer = use_last_buffer,
             listed = true,
-            efm = {"%f"},
+            efm = { "%f" },
             output_qf = qf,
+            open_qf = open,
             output_lqf = loc,
-            is_background_job = qf or loc
-        })
+            open_lqf = open,
+            is_background_job = qf or loc,
+        }
     end
 
     cmd [[command! -bang -complete=file -nargs=* Fd  :lua _G.firvish_run_fd({<f-args>}, "<bang>" == "!", false, false)]]
-    cmd [[command! -complete=file -nargs=* Cfd :lua _G.firvish_run_fd({<f-args>}, false, true, false)]]
-    cmd [[command! -complete=file -nargs=* Lfd :lua _G.firvish_run_fd({<f-args>}, false, false, true)]]
+    cmd [[command! -bang -complete=file -nargs=* Cfd :lua _G.firvish_run_fd({<f-args>}, false, true, false, "<bang>" == "!")]]
+    cmd [[command! -bang -complete=file -nargs=* Lfd :lua _G.firvish_run_fd({<f-args>}, false, false, true, "<bang>" == "!")]]
 end
 
 function _G.firvish_call_frun(args, is_background_job, qf, loc)
-    jobs.start_job({
+    jobs.start_job {
         cmd = args,
         filetype = "firvish-job",
         title = "job",
         use_last_buffer = false,
-        is_background_job = is_background_job,
         listed = true,
         output_qf = qf,
         output_lqf = loc,
-        is_background_job = qf or loc or is_background_job
-    })
+        is_background_job = qf or loc or is_background_job,
+    }
 end
 
 cmd [[command! -bang -complete=file -nargs=* FRun :lua _G.firvish_call_frun({<f-args>}, "<bang>" == "!")]]

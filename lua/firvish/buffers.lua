@@ -1,32 +1,38 @@
 local vim = vim
 local M = {}
-local utils = require 'firvish.utils'
+local utils = require "firvish.utils"
 
 local s_open_bufnr = -1
 local s_buffer_list_dirty = true
 local s_cached_buffers = {}
 
 local function create_buffer_list(predicate)
-    if s_buffer_list_dirty == false then return s_cached_buffers end
+    if s_buffer_list_dirty == false then
+        return s_cached_buffers
+    end
 
     local buffer_information = vim.fn.getbufinfo()
     local buffers = {}
-    local all_buffers = vim.fn.range(1, vim.fn.bufnr('$'))
+    local all_buffers = vim.fn.range(1, vim.fn.bufnr "$")
     local buf_num_length = #tostring(#all_buffers)
 
     for key, bufnr in ipairs(all_buffers) do
-        if vim.fn.buflisted(bufnr) == 1 and bufnr ~= s_open_bufnr and
-            (predicate == nil or (predicate ~= nil and predicate(bufnr) == true)) then
+        if
+            vim.fn.buflisted(bufnr) == 1
+            and bufnr ~= s_open_bufnr
+            and (predicate == nil or (predicate ~= nil and predicate(bufnr) == true))
+        then
             local bufnr_str = "[" .. bufnr .. "]"
             local line = bufnr_str
             local modified = vim.api.nvim_buf_get_option(bufnr, "modified")
             local bufname = vim.fn.bufname(bufnr)
             bufname = vim.fn.fnamemodify(bufname, ":p:~:.")
 
-            if modified then line = line .. " +" end
+            if modified then
+                line = line .. " +"
+            end
 
-            line = line ..
-                       string.rep(" ", buf_num_length - (#bufnr_str - 2) + 1)
+            line = line .. string.rep(" ", buf_num_length - (#bufnr_str - 2) + 1)
             if bufname == "" then
                 line = line .. "[No Name]"
             else
@@ -44,35 +50,43 @@ end
 
 local function get_bufnr(linenr)
     local line = vim.fn.getbufline(s_open_bufnr, linenr)[1]
-    local bufnr = vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"),
-                                    "\\(\\[\\|\\]\\)", "", "g")
+    local bufnr = vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g")
 
-    if bufnr ~= "" then return tonumber(bufnr) end
+    if bufnr ~= "" then
+        return tonumber(bufnr)
+    end
 
-    local buffer_name = string.sub(line,
-                                   vim.fn.matchstrpos(line, "[A-Za-z]")[2], -1)
+    local buffer_name = string.sub(line, vim.fn.matchstrpos(line, "[A-Za-z]")[2], -1)
     local buffer_name = vim.fn.trim(buffer_name)
     bufnr = vim.fn.bufnr(buffer_name)
 
     if bufnr == -1 then
-        utils.log_error("Cannot read buffer number from the list.")
+        utils.log_error "Cannot read buffer number from the list."
         return -1
     end
 
     return tonumber(bufnr)
 end
 
-M.on_buf_delete = function() s_open_bufnr = -1 end
+M.on_buf_delete = function()
+    s_open_bufnr = -1
+end
 
-M.on_buf_enter = function() M.open_buffers() end
+M.on_buf_enter = function()
+    M.open_buffers()
+end
 
 M.on_buf_leave = function() end
 
-M.mark_dirty = function() s_buffer_list_dirty = true end
+M.mark_dirty = function()
+    s_buffer_list_dirty = true
+end
 
 M.jump_to_buffer = function()
-    local bufnr = get_bufnr(vim.fn.line("."))
-    if bufnr == -1 then return end
+    local bufnr = get_bufnr(vim.fn.line ".")
+    if bufnr == -1 then
+        return
+    end
 
     local jump_info = utils.find_open_window(bufnr)
     if jump_info.tabnr ~= -1 and jump_info.winnr ~= -1 then
@@ -86,7 +100,7 @@ M.open_buffers = function()
     local tabnr = vim.fn.tabpagenr()
 
     if vim.fn.bufexists(s_open_bufnr) == 0 then
-        vim.api.nvim_command("e firvish://buffers")
+        vim.api.nvim_command "e firvish://buffers"
         s_open_bufnr = vim.fn.bufnr()
 
         M.refresh_buffers()
@@ -106,9 +120,13 @@ M.refresh_buffers = function()
     local cursor = vim.api.nvim_win_get_cursor(0)
     utils.set_buf_lines(s_open_bufnr, lines)
 
-    if cursor[1] > #lines then cursor[1] = #lines - 1 end
+    if cursor[1] > #lines then
+        cursor[1] = #lines - 1
+    end
 
-    if cursor[1] > 0 then vim.api.nvim_win_set_cursor(0, cursor) end
+    if cursor[1] > 0 then
+        vim.api.nvim_win_set_cursor(0, cursor)
+    end
 end
 
 M.filter_buffers = function(mode)
