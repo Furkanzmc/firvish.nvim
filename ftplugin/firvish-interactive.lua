@@ -1,4 +1,6 @@
-if vim.b.did_ftp == true then return end
+if vim.b.did_ftp == true then
+  return
+end
 
 local opt_local = vim.opt_local
 
