@@ -21,11 +21,10 @@ M.open_firvish_buffer = function(title, filetype, options)
 end
 
 M.create_preview_window = function(title, lines)
-    vim.api.nvim_command(
-        "pedit +:let\\ g:firvish_preview_window_bufnr=bufnr() " .. title)
+    vim.api.nvim_command("pedit +:let\\ g:firvish_preview_window_bufnr=bufnr() " .. title)
 
     local bufnr = vim.g.firvish_preview_window_bufnr
-    vim.api.nvim_command("unlet g:firvish_preview_window_bufnr")
+    vim.api.nvim_command "unlet g:firvish_preview_window_bufnr"
 
     vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
@@ -42,61 +41,70 @@ M.set_buf_lines = function(bufnr, lines)
 end
 
 M.jump_to_window = function(tab, window)
-    vim.api.nvim_command(tab .. 'tabnext')
-    vim.api.nvim_command(window .. 'wincmd w')
+    vim.api.nvim_command(tab .. "tabnext")
+    vim.api.nvim_command(window .. "wincmd w")
 end
 
 M.find_open_window = function(buffer)
     local current_tab = vim.fn.tabpagenr()
-    local last_tab = vim.fn.tabpagenr('$')
+    local last_tab = vim.fn.tabpagenr "$"
     for tabnr = 1, last_tab, 1 do
         local buffers = vim.fn.tabpagebuflist(tabnr)
         for winnr, bufnr in ipairs(buffers) do
             if buffer == bufnr then
-                return {tabnr = tabnr, winnr = winnr}
+                return { tabnr = tabnr, winnr = winnr }
             end
         end
     end
 
-    return {tabnr = -1, winnr = -1}
+    return { tabnr = -1, winnr = -1 }
 end
 
 M.is_window_visible = function(tabnr, bufnr)
     local buffers = vim.fn.tabpagebuflist(tabnr)
-    for _, win in pairs(buffers) do if win == bufnr then return true end end
+    for _, win in pairs(buffers) do
+        if win == bufnr then
+            return true
+        end
+    end
 
     return false
 end
 
 M.log_error = function(message)
-    vim.api.nvim_command("echohl ErrorMsg")
+    vim.api.nvim_command "echohl ErrorMsg"
     vim.api.nvim_command('echo "[firvish] ' .. message .. '"')
-    vim.api.nvim_command("echohl Normal")
+    vim.api.nvim_command "echohl Normal"
 end
 
 M.any_of = function(items, predicate)
     for _, value in pairs(items) do
-        if predicate(value) == true then return true end
+        if predicate(value) == true then
+            return true
+        end
     end
 
     return false
 end
 
 M.merge_table = function(target, source)
-    for _, v in ipairs(source) do table.insert(target, v) end
+    for _, v in ipairs(source) do
+        table.insert(target, v)
+    end
 
     return target
 end
 
 M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
     local result, efm = pcall(vim.api.nvim_get_option, "errorformat")
-    if efm == nil then efm = "" end
+    if efm == nil then
+        efm = ""
+    end
 
     extra_efm = extra_efm or {}
     local local_efm = nil
     if bufnr ~= nil then
-        result, local_efm = pcall(vim.api.nvim_buf_get_option, bufnr,
-                                  "errorformat")
+        result, local_efm = pcall(vim.api.nvim_buf_get_option, bufnr, "errorformat")
     end
 
     if efm ~= "" and local_efm ~= nil then
@@ -107,7 +115,7 @@ M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
 
     efm = efm .. "," .. table.concat(extra_efm, ",")
 
-    local parsed_entries = vim.fn.getqflist({lines = lines, efm = efm})
+    local parsed_entries = vim.fn.getqflist { lines = lines, efm = efm }
     if parsed_entries.items then
         if use_loclist then
             vim.fn.setloclist(bufnr, parsed_entries.items, action)
@@ -118,8 +126,10 @@ M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
 end
 
 function M.map(mode, lhs, rhs, opts)
-    local options = {noremap = true}
-    if opts then options = vim.tbl_extend('force', options, opts) end
+    local options = { noremap = true }
+    if opts then
+        options = vim.tbl_extend("force", options, opts)
+    end
     if opts.buffer ~= nil then
         assert(type(opts.buffer) == "number", "buffer must be a number.")
 
@@ -132,7 +142,9 @@ function M.map(mode, lhs, rhs, opts)
 end
 
 function table.extend(source, target)
-    for _, v in ipairs(target) do table.insert(source, v) end
+    for _, v in ipairs(target) do
+        table.insert(source, v)
+    end
 
     return source
 end

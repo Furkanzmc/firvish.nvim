@@ -1,6 +1,8 @@
-if vim.b.did_ftp == true then return end
+if vim.b.did_ftp == true then
+    return
+end
 
-local map = require'firvish.utils'.map
+local map = require("firvish.utils").map
 local opt_local = vim.opt_local
 local cmd = vim.cmd
 local bufnr = vim.api.nvim_get_current_buf()
@@ -12,16 +14,13 @@ opt_local.syntax = "firvish-buffers"
 opt_local.buftype = "nofile"
 opt_local.swapfile = false
 
-map("n", "<enter>", ":lua require'firvish.history'.open_file()<CR>",
-    {silent = true, buffer = bufnr})
+map("n", "<enter>", ":lua require'firvish.history'.open_file()<CR>", { silent = true, buffer = bufnr })
 
-map("n", "gq", ":lua require'firvish.history'.close_history()<CR>",
-    {silent = true, buffer = bufnr})
+map("n", "gq", ":lua require'firvish.history'.close_history()<CR>", { silent = true, buffer = bufnr })
 
-map("n", "R", ":lua require'firvish.history'.refresh_history()<CR>",
-    {silent = true, buffer = bufnr})
+map("n", "R", ":lua require'firvish.history'.refresh_history()<CR>", { silent = true, buffer = bufnr })
 
-map("n", "-", ":edit firvish://<CR>", {silent = true, buffer = bufnr})
+map("n", "-", ":edit firvish://<CR>", { silent = true, buffer = bufnr })
 
 cmd [[augroup neovim_firvish_history]]
 cmd [[autocmd! * <buffer>]]
