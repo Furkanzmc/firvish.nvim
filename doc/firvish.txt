@@ -216,7 +216,7 @@ one works over the [range] in the buffer.
 
 :[range]Bdelete[!]                                                     *:Bdelete*
 
-Deletes the buffers in [range]. If <bang> is given, the command is equivelant to
+Deletes the buffers in [range]. If <bang> is given, the command is equivalent to
 |:bdelete!|.
 
 
@@ -304,13 +304,50 @@ Buffer-local (filetype=firvish-fhdo) ~
 LUA                                                                *firvish-lua*
 ================================================================================
 
+setup({opts})                                                    *firvish.setup*
+    Configures the plugin with the given options.
+
+    The following parameters describe the fields in {opts}.
+
+    Parameters: ~
+        {keymaps} (table): A mapping of firvish filetypes to mode mappings.
+        Keys are firvish filetypes (without the "firvish-" prefix):
+            - buffers -> filetype=firvish-buffers
+            - dir -> filetype=firvish-dir
+            - history -> filetype=firvish-history
+            - job -> filetype=firvish-job
+            - job-list -> filetype=firvish-job-list
+            - job-output -> filetype=firvish-job-output
+            - menu -> filetype=firvish-menu
+        Values are tables of mode mappings, where keys are the mode name
+        (see: |map-modes|, supported modes are [n,i,v,x,s,o]) and values are
+        a table of mode-specific mappings. For example:
+        >
+        firvish.setup {
+            keymaps = {
+                buffers = {
+                    n = {
+                        -- Make "o" open the buffer under the cursor
+                        o = {
+                            function()
+                                require("firvish.buffers.").jump_to_buffer()
+                            end,
+                        },
+                        -- Disable the builtin <enter> mapping for the same
+                        ["<enter>"] = false,
+                    }
+                }
+            }
+        }
+<
+    
 start_job({opts})                                *firvish.job_control.start_job*
     Starts a job with the given options. This is the main function used to
     spawn processes. |:FRun| and the other process related commands use this
     function to create new jobs. You can use this function to create your own
     commands and launch new processes in different ways.
 
-    The following parameters desceibe the fields in {opts}.
+    The following parameters describe the fields in {opts}.
 
     Parameters: ~
         {cmd} (table): The shell command to start.
@@ -331,7 +368,7 @@ start_job({opts})                                *firvish.job_control.start_job*
         `listed` is implied. Defaults to `false`.
 
         {listed} (optional, boolean): When set to `true`, the job's output is
-        cached in the job list. You can use |:FirvishJobs| to later retrive
+        cached in the job list. You can use |:FirvishJobs| to later retrieve
         the results. Defaults to `false`.
 
         {output_qf} (optional, boolean): When set to `true`, the job's output
