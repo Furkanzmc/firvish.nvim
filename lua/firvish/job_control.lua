@@ -3,11 +3,9 @@ local fn = vim.fn
 local cmd = vim.cmd
 local api = vim.api
 local b = vim.b
-local M = {}
 
 local utils = require "firvish.utils"
 local notifications = require "firvish.notifications"
-local firvish = require "firvish"
 local options_loaded, options = pcall(require, "options")
 
 local s_jobs = {}
@@ -141,6 +139,8 @@ end
 
 -- Internal {{{
 
+local M = {}
+
 M.stop_job = function()
     assert(vim.wo.previewwindow, "Cannot called when not in preview window.")
 
@@ -161,6 +161,8 @@ end
 M.delete_job_from_history = function(stop_job)
     assert(vim.wo.previewwindow, "Cannot called when not in preview window.")
 
+    local bufnr = fn.bufnr()
+    local linenr = fn.line "."
     local additional_lines = api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
     local info = additional_lines[linenr]
     local job_info = s_jobs[info.job_id]
@@ -470,7 +472,6 @@ function M.echo_job_output(job_id, line)
 end
 
 function M.go_back_from_job_output()
-    assert(b.did_firvish_output ~= nil, "b:did_firvish_output must be set.")
     if b.firvish_job_list_linenr ~= nil then
         local bufnr = b.firvish_job_list_linenr
         fn.execute "FirvishJobs"

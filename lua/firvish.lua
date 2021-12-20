@@ -1,5 +1,4 @@
 local vim = vim
-local nnoremap = vim.keymap.nnoremap
 local utils = require "firvish.utils"
 local log = require "firvish.log"
 local M = {}
@@ -47,16 +46,13 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
 
     vim.api.nvim_command "setlocal cursorline"
 
-    local opts = { noremap = true, silent = true }
-    local mapping_command = ""
-    if sh_mode then
-        mapping_command =
-            "<cmd>silent write<Bar>execute 'lua require\"firvish\".run_commands(vim.fn.bufnr(), true)'<CR>"
-    else
-        mapping_command =
-            "<cmd>silent write<Bar>execute 'lua require\"firvish\".run_commands(vim.fn.bufnr(), false)'<CR>"
-    end
-    vim.api.nvim_buf_set_keymap(bufnr, "n", "E!", mapping_command, opts)
+    require("firvish.keymap").nnoremap {
+        "E!",
+        function()
+            vim.cmd "silent write"
+            M.run_commands(vim.fn.bufnr(), sh_mode)
+        end,
+    }
 
     utils.set_buf_lines(bufnr, command_lines)
     vim.api.nvim_command "write"
@@ -111,15 +107,6 @@ M.filter_lines = function(start_line, end_line, matching, args)
     end
 end
 
-M.configure_buffer_preview_keymaps = function()
-    vim.api.nvim_command 'nmap <buffer> <silent> P <cmd>lua require"firvish".open_file_under_cursor("", true, true, true)<CR>'
-    vim.api.nvim_command 'nmap <buffer> <silent> a <cmd>lua require"firvish".open_file_under_cursor("", true, false, true)<CR>'
-    vim.api.nvim_command 'nmap <buffer> <silent> o <cmd>lua require"firvish".open_file_under_cursor("", true, false, false)<CR>'
-
-    vim.api.nvim_command 'nmap <buffer> <silent> <C-N> <cmd>lua require"firvish".open_file_under_cursor("down", true, true, true)<CR>'
-    vim.api.nvim_command 'nmap <buffer> <silent> <C-P> <cmd>lua require"firvish".open_file_under_cursor("up", true, true, true)<CR>'
-end
-
 M.open_file_under_cursor = function(nav_direction, preview, reuse_window, vertical)
     if reuse_window then
         local current_winnr = vim.fn.winnr()
@@ -155,6 +142,10 @@ M.set_buf_lines_to_qf = function(line1, line2, replace, loclist)
     else
         utils.set_qflist(lines, "a", bufnr, {}, loclist)
     end
+end
+
+M.setup = function(opts)
+    require("firvish.config").merge(opts or {})
 end
 
 return M

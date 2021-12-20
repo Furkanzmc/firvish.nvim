@@ -4,4 +4,4 @@ end
 
 vim.opt_local.cursorline = true
 
-require("firvish").configure_buffer_preview_keymaps()
+require("firvish.config").apply_mappings "dir"

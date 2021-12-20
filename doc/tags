@@ -25,6 +25,7 @@ firvish-lua	firvish.txt	/*firvish-lua*
 firvish-mappings	firvish.txt	/*firvish-mappings*
 firvish-options	firvish.txt	/*firvish-options*
 firvish-options-alwayspreview	firvish.txt	/*firvish-options-alwayspreview*
+firvish.setup	firvish.txt	/*firvish.setup*
 firvish.job_control.start_job	firvish.txt	/*firvish.job_control.start_job*
 firvish.notifications.notify	firvish.txt	/*firvish.notifications.notify*
 firvish.nvim	firvish.txt	/*firvish.nvim*
