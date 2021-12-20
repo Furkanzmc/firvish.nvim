@@ -166,7 +166,7 @@ M.delete_job_from_history = function(stop_job)
     end
 
     if job_info.running then
-        job_info.is_listed = false
+        job_info.listed = false
         fn.jobstop(info.job_id)
     else
         s_jobs[info.job_id] = nil
@@ -281,7 +281,7 @@ local function on_exit(job_id, exit_code, event)
         })
     end
 
-    if job_info.is_listed == true then
+    if job_info.listed == true then
         job_info.running = false
         job_info.exit_code = exit_code
         M.refresh_job_list_window()
