@@ -153,6 +153,8 @@ M.filter_buffers = function(mode)
                 return v == bufnr
             end)
         end)
+    elseif type(mode) == "function" then
+        buffers = create_buffer_list(mode)
     else
         assert(false, "Unsupported filter type: " .. mode)
     end
