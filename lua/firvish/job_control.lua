@@ -349,10 +349,16 @@ M.start_job = function(opts)
         utils.set_qflist({}, " ", nil, {}, true)
     end
 
+    if opts.on_exit then
+        opts.on_exit = utils.wrap(opts.on_exit, on_exit)
+    else
+        opts.on_exit = on_exit
+    end
+
     local job_id = fn.jobstart(opts.cmd, {
         on_stderr = on_stderr,
         on_stdout = on_stdout,
-        on_exit = on_exit,
+        on_exit = opts.on_exit,
         stderr_buffered = false,
         stdout_buffered = false,
         cwd = opts.cwd,
