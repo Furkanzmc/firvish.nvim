@@ -149,4 +149,11 @@ function table.extend(source, target)
     return source
 end
 
+function M.wrap(f0, f1)
+    return function(...)
+        f0(...)
+        f1(...)
+    end
+end
+
 return M
