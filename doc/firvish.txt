@@ -220,19 +220,6 @@ Deletes the buffers in [range]. If <bang> is given, the command is equivalent to
 |:bdelete!|.
 
 
-OPTIONS                                                        *firvish-options*
-================================================================================
-
-These options are only enabled if |options.nvim| is installed.
-See https://github.com/Furkanzmc/options.nvim for installation details.
-
-Global ~
-
-alwayspreview                                    *firvish-options-alwayspreview*
-
-When set to true, the output of the running job will be shown in
-|previewwindow|. Defaults to `false`.
-
 MAPPINGS                                                      *firvish-mappings*
 ================================================================================
 
@@ -340,7 +327,7 @@ setup({opts})                                                    *firvish.setup*
             }
         }
 <
-    
+
 start_job({opts})                                *firvish.job_control.start_job*
     Starts a job with the given options. This is the main function used to
     spawn processes. |:FRun| and the other process related commands use this

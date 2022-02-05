@@ -15,9 +15,7 @@ See the documentation for more details.
 
 # Installation
 
-Install using your favorite plugin manager. There's no required dependencies. Optionally, you can
-install [option.nvim](https://github.com/furkanzmc/options.nvim) for customization. If it's not
-installed, you'll see a warning but you can ignore it.
+Install using your favorite plugin manager. There's no required dependencies.
 
 # Example Use Cases
 
