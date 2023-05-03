@@ -5,6 +5,7 @@ local utils = require "firvish.utils"
 local s_open_bufnr = -1
 local s_buffer_list_dirty = true
 local s_cached_buffers = {}
+local s_buffers_filtered = false
 
 local function create_buffer_list(predicate)
     if s_buffer_list_dirty == false then
@@ -73,7 +74,9 @@ M.on_buf_delete = function()
 end
 
 M.on_buf_enter = function()
-    M.open_buffers()
+    if s_buffers_filtered then
+        M.open_buffers()
+    end
 end
 
 M.on_buf_leave = function() end
@@ -116,6 +119,7 @@ end
 M.refresh_buffers = function()
     assert(s_open_bufnr ~= -1, "s_open_bufnr must be valid.")
     s_buffer_list_dirty = true
+    s_buffers_filtered = false
     local lines = create_buffer_list()
     local cursor = vim.api.nvim_win_get_cursor(0)
     utils.set_buf_lines(s_open_bufnr, lines)
@@ -160,6 +164,7 @@ M.filter_buffers = function(mode)
     end
 
     utils.set_buf_lines(s_open_bufnr, buffers)
+    s_buffers_filtered = true
 end
 
 M.buf_do = function(start_line, end_line, cmd)
