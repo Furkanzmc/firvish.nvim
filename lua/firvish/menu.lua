@@ -4,8 +4,8 @@ local cmd = vim.cmd
 local fn = vim.api
 local M = {}
 
-local utils = require "firvish.utils"
-local buffers = require "firvish.buffers"
+local utils = require("firvish.utils")
+local buffers = require("firvish.buffers")
 
 local s_menu_data = {
     Buffers = {
@@ -71,7 +71,7 @@ function M.open()
     local tabnr = vim.fn.tabpagenr()
 
     if vim.fn.bufexists(s_open_bufnr) == 0 then
-        vim.api.nvim_command "e firvish://menu"
+        vim.api.nvim_command("e firvish://menu")
         s_open_bufnr = vim.fn.bufnr()
 
         M.refresh_menu()

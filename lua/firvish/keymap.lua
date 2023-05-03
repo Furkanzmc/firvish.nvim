@@ -41,8 +41,12 @@ local make_mapper = function(mode, defaults, opts)
         if map_opts.expr then
             mapping = string.format([[luaeval("require("firvish.keymap")._expr(%s)")]], func_id)
         else
-            assert(map_opts.noremap, "If `rhs` is a function and it's not an expr, `opts.noremap` must be true")
-            mapping = string.format([[<cmd>lua require("firvish.keymap")._execute(%s)<CR>]], func_id)
+            assert(
+                map_opts.noremap,
+                "If `rhs` is a function and it's not an expr, `opts.noremap` must be true"
+            )
+            mapping =
+                string.format([[<cmd>lua require("firvish.keymap")._execute(%s)<CR>]], func_id)
         end
     else
         error("Unexpected type for rhs:" .. tostring(rhs))

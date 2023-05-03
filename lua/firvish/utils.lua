@@ -24,7 +24,7 @@ M.create_preview_window = function(title, lines)
     vim.api.nvim_command("pedit +:let\\ g:firvish_preview_window_bufnr=bufnr() " .. title)
 
     local bufnr = vim.g.firvish_preview_window_bufnr
-    vim.api.nvim_command "unlet g:firvish_preview_window_bufnr"
+    vim.api.nvim_command("unlet g:firvish_preview_window_bufnr")
 
     vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
@@ -47,7 +47,7 @@ end
 
 M.find_open_window = function(buffer)
     local current_tab = vim.fn.tabpagenr()
-    local last_tab = vim.fn.tabpagenr "$"
+    local last_tab = vim.fn.tabpagenr("$")
     for tabnr = 1, last_tab, 1 do
         local buffers = vim.fn.tabpagebuflist(tabnr)
         for winnr, bufnr in ipairs(buffers) do
@@ -72,9 +72,9 @@ M.is_window_visible = function(tabnr, bufnr)
 end
 
 M.log_error = function(message)
-    vim.api.nvim_command "echohl ErrorMsg"
+    vim.api.nvim_command("echohl ErrorMsg")
     vim.api.nvim_command('echo "[firvish] ' .. message .. '"')
-    vim.api.nvim_command "echohl Normal"
+    vim.api.nvim_command("echohl Normal")
 end
 
 M.any_of = function(items, predicate)
@@ -115,7 +115,7 @@ M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
 
     efm = efm .. "," .. table.concat(extra_efm, ",")
 
-    local parsed_entries = vim.fn.getqflist { lines = lines, efm = efm }
+    local parsed_entries = vim.fn.getqflist({ lines = lines, efm = efm })
     if parsed_entries.items then
         if use_loclist then
             vim.fn.setloclist(bufnr, parsed_entries.items, action)

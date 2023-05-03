@@ -1,6 +1,6 @@
 local vim = vim
 local M = {}
-local utils = require "firvish.utils"
+local utils = require("firvish.utils")
 
 local s_open_bufnr = -1
 local s_buffer_list_dirty = true
@@ -14,7 +14,7 @@ local function create_buffer_list(predicate)
 
     local buffer_information = vim.fn.getbufinfo()
     local buffers = {}
-    local all_buffers = vim.fn.range(1, vim.fn.bufnr "$")
+    local all_buffers = vim.fn.range(1, vim.fn.bufnr("$"))
     local buf_num_length = #tostring(#all_buffers)
 
     for key, bufnr in ipairs(all_buffers) do
@@ -62,7 +62,7 @@ local function get_bufnr(linenr)
     bufnr = vim.fn.bufnr(buffer_name)
 
     if bufnr == -1 then
-        utils.log_error "Cannot read buffer number from the list."
+        utils.log_error("Cannot read buffer number from the list.")
         return -1
     end
 
@@ -86,7 +86,7 @@ M.mark_dirty = function()
 end
 
 M.jump_to_buffer = function()
-    local bufnr = get_bufnr(vim.fn.line ".")
+    local bufnr = get_bufnr(vim.fn.line("."))
     if bufnr == -1 then
         return
     end
@@ -103,7 +103,7 @@ M.open_buffers = function()
     local tabnr = vim.fn.tabpagenr()
 
     if vim.fn.bufexists(s_open_bufnr) == 0 then
-        vim.api.nvim_command "e firvish://buffers"
+        vim.api.nvim_command("e firvish://buffers")
         s_open_bufnr = vim.fn.bufnr()
 
         M.refresh_buffers()

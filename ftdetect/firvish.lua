@@ -1,6 +1,6 @@
-vim.cmd [[augroup firvish_ft]]
-vim.cmd [[au!]]
-vim.cmd [[autocmd BufNewFile,BufRead firvish://buffers setlocal filetype=firvish-buffers]]
-vim.cmd [[autocmd BufNewFile,BufRead firvish://history setlocal filetype=firvish-history]]
-vim.cmd [[autocmd BufNewFile,BufRead firvish://menu setlocal filetype=firvish-menu]]
-vim.cmd [[augroup END]]
+vim.cmd([[augroup firvish_ft]])
+vim.cmd([[au!]])
+vim.cmd([[autocmd BufNewFile,BufRead firvish://buffers setlocal filetype=firvish-buffers]])
+vim.cmd([[autocmd BufNewFile,BufRead firvish://history setlocal filetype=firvish-history]])
+vim.cmd([[autocmd BufNewFile,BufRead firvish://menu setlocal filetype=firvish-menu]])
+vim.cmd([[augroup END]])

@@ -12,12 +12,12 @@ opt_local.syntax = "firvish"
 opt_local.buftype = "nofile"
 opt_local.swapfile = false
 
-require("firvish.config").apply_mappings "menu"
+require("firvish.config").apply_mappings("menu")
 
-cmd [[augroup neovim_firvish_buffer_local]]
-cmd [[autocmd! * <buffer>]]
-cmd [[autocmd BufEnter <buffer> lua require'firvish.menu'.on_buf_enter()]]
-cmd [[autocmd BufDelete,BufWipeout <buffer> lua require'firvish.menu'.on_buf_delete()]]
-cmd [[augroup END]]
+cmd([[augroup neovim_firvish_buffer_local]])
+cmd([[autocmd! * <buffer>]])
+cmd([[autocmd BufEnter <buffer> lua require'firvish.menu'.on_buf_enter()]])
+cmd([[autocmd BufDelete,BufWipeout <buffer> lua require'firvish.menu'.on_buf_delete()]])
+cmd([[augroup END]])
 
 require("firvish.menu").open()

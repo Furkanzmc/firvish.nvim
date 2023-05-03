@@ -1,4 +1,4 @@
-local keymap = require "firvish.keymap"
+local keymap = require("firvish.keymap")
 local nnoremap = keymap.nnoremap
 local inoremap = keymap.inoremap
 local vnoremap = keymap.vnoremap
@@ -54,22 +54,22 @@ M.config = {
                 },
                 ["-"] = {
                     function()
-                        vim.cmd "edit firvish://menu"
+                        vim.cmd("edit firvish://menu")
                     end,
                 },
                 fa = {
                     function()
-                        require("firvish.buffers").filter_buffers "args"
+                        require("firvish.buffers").filter_buffers("args")
                     end,
                 },
                 fm = {
                     function()
-                        require("firvish.buffers").filter_buffers "modified"
+                        require("firvish.buffers").filter_buffers("modified")
                     end,
                 },
                 ft = {
                     function()
-                        require("firvish.buffers").filter_buffers "current_tab"
+                        require("firvish.buffers").filter_buffers("current_tab")
                     end,
                 },
                 R = {
@@ -99,7 +99,7 @@ M.config = {
                 },
                 ["-"] = {
                     function()
-                        vim.cmd "edit firvish://menu"
+                        vim.cmd("edit firvish://menu")
                     end,
                 },
             },
@@ -109,8 +109,9 @@ M.config = {
             n = {
                 ["<enter>"] = {
                     function()
-                        local line = vim.fn.line "."
-                        local lines = vim.api.nvim_buf_get_var(0, "firvish_job_list_additional_lines")
+                        local line = vim.fn.line(".")
+                        local lines =
+                            vim.api.nvim_buf_get_var(0, "firvish_job_list_additional_lines")
                         require("firvish.job_control").preview_job_output(lines[line].job_id)
                     end,
                 },
@@ -121,7 +122,7 @@ M.config = {
                 },
                 E = {
                     function()
-                        local line = vim.fn.line "."
+                        local line = vim.fn.line(".")
                         local lines = vim.b.firvish_job_list_additional_lines
                         require("firvish.job_control").echo_job_output(
                             lines[line].job_id,
@@ -131,8 +132,9 @@ M.config = {
                 },
                 P = {
                     function()
-                        local line = vim.fn.line "."
-                        local lines = vim.api.nvim_buf_get_var(0, "firvish_job_list_additional_lines")
+                        local line = vim.fn.line(".")
+                        local lines =
+                            vim.api.nvim_buf_get_var(0, "firvish_job_list_additional_lines")
                         require("firvish.job_control").preview_job_output(lines[line].job_id)
                     end,
                 },
@@ -161,7 +163,7 @@ M.config = {
             n = {
                 ["<enter>"] = {
                     function()
-                        require("firvish.menu").open_item(vim.fn.line ".")
+                        require("firvish.menu").open_item(vim.fn.line("."))
                     end,
                 },
                 R = {
@@ -178,32 +180,32 @@ M.apply_mappings = function(map)
     local config = M.config
     for lhs, opts in pairs(config.keymaps[map].n or {}) do
         if opts then
-            nnoremap { lhs, opts[1], buffer = true, silent = true }
+            nnoremap({ lhs, opts[1], buffer = true, silent = true })
         end
     end
     for lhs, opts in pairs(config.keymaps[map].i or {}) do
         if opts then
-            inoremap { lhs, opts[1], buffer = true, silent = true }
+            inoremap({ lhs, opts[1], buffer = true, silent = true })
         end
     end
     for lhs, opts in pairs(config.keymaps[map].v or {}) do
         if opts then
-            vnoremap { lhs, opts[1], buffer = true, silent = true }
+            vnoremap({ lhs, opts[1], buffer = true, silent = true })
         end
     end
     for lhs, opts in pairs(config.keymaps[map].x or {}) do
         if opts then
-            xnoremap { lhs, opts[1], buffer = true, silent = true }
+            xnoremap({ lhs, opts[1], buffer = true, silent = true })
         end
     end
     for lhs, opts in pairs(config.keymaps[map].s or {}) do
         if opts then
-            snoremap { lhs, opts[1], buffer = true, silent = true }
+            snoremap({ lhs, opts[1], buffer = true, silent = true })
         end
     end
     for lhs, opts in pairs(config.keymaps[map].o or {}) do
         if opts then
-            onoremap { lhs, opts[1], buffer = true, silent = true }
+            onoremap({ lhs, opts[1], buffer = true, silent = true })
         end
     end
 end

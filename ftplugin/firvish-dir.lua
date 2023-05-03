@@ -4,4 +4,4 @@ end
 
 vim.opt_local.cursorline = true
 
-require("firvish.config").apply_mappings "dir"
+require("firvish.config").apply_mappings("dir")
