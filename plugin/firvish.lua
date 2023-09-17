@@ -1,7 +1,6 @@
 local utils = require("firvish.utils")
 local map = utils.map
 local jobs = require("firvish.job_control")
-local cmd = vim.cmd
 local fn = vim.fn
 local g = vim.g
 local opt = vim.opt
