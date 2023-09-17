@@ -2,8 +2,6 @@ if vim.b.did_ftp == true then
     return
 end
 
-local map = require("firvish.utils").map
-local cmd = vim.cmd
 local opt_local = vim.opt_local
 
 opt_local.cursorline = true
@@ -15,13 +13,36 @@ opt_local.swapfile = false
 
 require("firvish.config").internal.apply_mappings("buffers")
 
-cmd([[command! -buffer -nargs=* -range Bufdo :lua require'firvish.buffers'.buf_do(<line1>, <line2>, <q-args>)]])
+vim.api.nvim_create_user_command("Bufdo", function(args)
+    require("firvish.buffers").buf_do(args.line1, args.line2, args.args)
+end, { nargs = "*", range = true })
 
-cmd([[command! -buffer -bang -nargs=* -range Bdelete :lua require'firvish.buffers'.buf_delete(<line1>, <line2>, "<bang>" == "!")]])
+vim.api.nvim_create_user_command("Bdelete", function(args)
+    require("firvish.buffers").buf_delete(args.line1, args.line2, args.bang)
+end, { nargs = "*", range = true, bang = true })
 
-cmd([[augroup neovim_firvish_buffer_local]])
-cmd([[autocmd! * <buffer>]])
-cmd([[autocmd BufEnter <buffer> lua require'firvish.buffers'.on_buf_enter()]])
-cmd([[autocmd BufDelete,BufWipeout <buffer> lua require'firvish.buffers'.on_buf_delete()]])
-cmd([[autocmd BufLeave <buffer> lua require'firvish.buffers'.on_buf_leave()]])
-cmd([[augroup END]])
+local autocmd_group = vim.api.nvim_create_augroup("neovim_firvish_buffer_local", { clear = true })
+local bufnr = vim.fn.bufnr()
+vim.api.nvim_create_autocmd({ "BufEnter" }, {
+    group = autocmd_group,
+    callback = function(_)
+        require("firvish.buffers").on_buf_enter()
+    end,
+    buffer = bufnr,
+})
+
+vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout" }, {
+    group = autocmd_group,
+    callback = function(_)
+        require("firvish.buffers").on_buf_delete()
+    end,
+    buffer = bufnr,
+})
+
+vim.api.nvim_create_autocmd({ "BufLeave" }, {
+    group = autocmd_group,
+    callback = function(_)
+        require("firvish.buffers").on_buf_leave()
+    end,
+    buffer = bufnr,
+})

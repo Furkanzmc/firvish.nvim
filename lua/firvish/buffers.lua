@@ -50,7 +50,8 @@ end
 
 local function get_bufnr(linenr)
     local line = vim.fn.getbufline(s_open_bufnr, linenr)[1]
-    local bufnr = tonumber(vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g"))
+    local bufnr =
+        tonumber(vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g"))
 
     if bufnr ~= nil then
         return bufnr
@@ -117,6 +118,7 @@ end
 
 M.refresh_buffers = function()
     assert(s_open_bufnr ~= -1, "s_open_bufnr must be valid.")
+
     s_buffer_list_dirty = true
     s_buffers_filtered = false
     local lines = create_buffer_list()
