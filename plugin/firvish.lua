@@ -3,7 +3,6 @@ local map = utils.map
 local jobs = require("firvish.job_control")
 local cmd = vim.cmd
 local fn = vim.fn
-local opt_local = vim.opt_local
 local g = vim.g
 local opt = vim.opt
 
@@ -23,9 +22,6 @@ if g.firvish_use_default_mappings ~= nil and g.firvish_use_default_mappings ~= 0
     )
 end
 
-cmd([[command! Buffers lua require'firvish.buffers'.open_buffers()<CR>]])
-cmd([[command! History lua require'firvish.history'.open_history()<CR>]])
-
 if g.firvish_shell == nil then
     g.firvish_shell = opt.shell:get()
 end
@@ -34,8 +30,16 @@ if g.firvish_interactive_window_height == nil then
     g.firvish_interactive_window_height = 3
 end
 
+vim.api.nvim_create_user_command("Buffers", function(_)
+    require("firvish.buffers").open_buffers()
+end, {})
+
+vim.api.nvim_create_user_command("History", function(_)
+    require("firvish.history").open_history()
+end, {})
+
 if fn.executable("rg") == 1 then
-    function _G.firvish_run_rg(args, use_last_buffer, qf, loc, open)
+    local function firvish_run_rg(args, use_last_buffer, qf, loc, open)
         local command = {
             "rg",
             "--column",
@@ -65,19 +69,21 @@ if fn.executable("rg") == 1 then
         })
     end
 
-    cmd(
-        [[command! -bang -complete=file -nargs=* Rg :lua _G.firvish_run_rg({<f-args>}, "<bang>" == "!")]]
-    )
-    cmd(
-        [[command! -bang -complete=file -nargs=* Crg :lua _G.firvish_run_rg({<f-args>}, false, true, false, "<bang>" == "!")]]
-    )
-    cmd(
-        [[command! -bang -complete=file -nargs=* Lrg :lua _G.firvish_run_rg({<f-args>}, false, false, true, "<bang>" == "!")]]
-    )
+    vim.api.nvim_create_user_command("Rg", function(args)
+        firvish_run_rg(args.fargs, args.bang, false, false, false)
+    end, { nargs = "*", complete = "file", bang = true })
+
+    vim.api.nvim_create_user_command("Crg", function(args)
+        firvish_run_rg(args.fargs, false, true, false, false)
+    end, { nargs = "*", complete = "file" })
+
+    vim.api.nvim_create_user_command("Lrg", function(args)
+        firvish_run_rg(args.fargs, false, false, true, false)
+    end, { nargs = "*", complete = "file" })
 end
 
 if fn.executable("ugrep") == 1 then
-    function _G.firvish_run_ug(args, use_last_buffer, qf, loc)
+    local function firvish_run_ug(args, use_last_buffer, qf, loc)
         local command = {
             "ugrep",
             "--column-number",
@@ -104,19 +110,21 @@ if fn.executable("ugrep") == 1 then
         })
     end
 
-    cmd(
-        [[command! -bang -complete=file -nargs=* Ug :lua _G.firvish_run_ug({<f-args>}, "<bang>" == "!")]]
-    )
-    cmd(
-        [[command! -complete=file -nargs=* Cug :lua _G.firvish_run_ug({<f-args>}, false, true, false)]]
-    )
-    cmd(
-        [[command! -complete=file -nargs=* Lug :lua _G.firvish_run_ug({<f-args>}, false, false, true)]]
-    )
+    vim.api.nvim_create_user_command("Ug", function(args)
+        firvish_run_ug(args.fargs, args.bang, false, false)
+    end, { nargs = "*", complete = "file", bang = true })
+
+    vim.api.nvim_create_user_command("Cug", function(args)
+        firvish_run_ug(args.fargs, false, true, false)
+    end, { nargs = "*", complete = "file" })
+
+    vim.api.nvim_create_user_command("Lug", function(args)
+        firvish_run_ug(args.fargs, false, false, true)
+    end, { nargs = "*", complete = "file" })
 end
 
 if fn.executable("fd") == 1 then
-    function _G.firvish_run_fd(args, use_last_buffer, qf, loc, open)
+    local function firvish_run_fd(args, use_last_buffer, qf, loc, open)
         local command = { "fd", "--color=never" }
         if args then
             command = table.extend(command, args)
@@ -137,18 +145,20 @@ if fn.executable("fd") == 1 then
         })
     end
 
-    cmd(
-        [[command! -bang -complete=file -nargs=* Fd  :lua _G.firvish_run_fd({<f-args>}, "<bang>" == "!", false, false)]]
-    )
-    cmd(
-        [[command! -bang -complete=file -nargs=* Cfd :lua _G.firvish_run_fd({<f-args>}, false, true, false, "<bang>" == "!")]]
-    )
-    cmd(
-        [[command! -bang -complete=file -nargs=* Lfd :lua _G.firvish_run_fd({<f-args>}, false, false, true, "<bang>" == "!")]]
-    )
+    vim.api.nvim_create_user_command("Fd", function(args)
+        firvish_run_fd(args.fargs, args.bang, false, false)
+    end, { nargs = "*", complete = "file", bang = true })
+
+    vim.api.nvim_create_user_command("Cfd", function(args)
+        firvish_run_fd(args.fargs, false, true, false)
+    end, { nargs = "*", complete = "file" })
+
+    vim.api.nvim_create_user_command("Lfd", function(args)
+        firvish_run_fd(args.fargs, false, false, true)
+    end, { nargs = "*", complete = "file" })
 end
 
-function _G.firvish_call_frun(args, is_background_job, qf, loc)
+local function firvish_call_frun(args, is_background_job, qf, loc)
     jobs.start_job({
         cmd = args,
         filetype = "firvish-job",
@@ -161,35 +171,35 @@ function _G.firvish_call_frun(args, is_background_job, qf, loc)
     })
 end
 
-cmd(
-    [[command! -bang -complete=file -nargs=* FRun :lua _G.firvish_call_frun({<f-args>}, "<bang>" == "!")]]
-)
-cmd(
-    [[command! -complete=file -nargs=* Cfrun :lua _G.firvish_call_frun({<f-args>}, false, true, false)]]
-)
-cmd(
-    [[command! -complete=file -nargs=* Lfrun :lua _G.firvish_call_frun({<f-args>}, false, false, true)]]
-)
+vim.api.nvim_create_user_command("FRun", function(args)
+    firvish_call_frun(args.fargs, args.bang, false, false)
+end, { nargs = "*", bang = true })
 
-cmd(
-    [[command! -nargs=* -complete=shellcmd -bang -range Fhdo lua require'firvish'.open_linedo_buffer(<line1>, <line2>, vim.fn.bufnr(), <q-args>, "<bang>" ~= "!")]]
-)
+vim.api.nvim_create_user_command("Cfrun", function(args)
+    firvish_call_frun(args.fargs, args.bang, true, false)
+end, { nargs = "*" })
 
-cmd([[command! -bar FirvishJobs lua require'firvish.job_control'.show_jobs_list()]])
+vim.api.nvim_create_user_command("Lfrun", function(args)
+    firvish_call_frun(args.fargs, args.bang, false, true)
+end, { nargs = "*" })
 
-cmd(
-    [[command! -bang -nargs=* -range FhFilter :lua require"firvish".filter_lines( <line1>, <line2>, "<bang>" ~= "!", <q-args>)]]
-)
+vim.api.nvim_create_user_command("Fhdo", function(args)
+    require("firvish").open_linedo_buffer(
+        args.line1,
+        args.line2,
+        vim.fn.bufnr(),
+        args.args,
+        not args.bang
+    )
+end, { nargs = "*", complete = "shellcmd", bang = true, range = true })
 
-cmd(
-    [[command! -bang -range FhQf :lua require"firvish".set_buf_lines_to_qf( <line1>, <line2> - 1, "<bang>" == "!", false)]]
-)
+vim.api.nvim_create_user_command("FirvishJobs", function(_)
+    require("firvish.job_control").show_jobs_list()
+end, { nargs = "*" })
 
-cmd(
-    [[command! -bang -range Fhllist :lua require"firvish".set_buf_lines_to_qf( <line1>, <line2>, "<bang>" == "!", true)]]
-)
-
-cmd([[augroup neovim_firvish_buffer]])
-cmd([[autocmd!]])
-cmd([[autocmd BufDelete,BufWipeout,BufAdd * lua require'firvish.buffers'.mark_dirty()]])
-cmd([[augroup END]])
+vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout", "BufAdd" }, {
+    group = vim.api.nvim_create_augroup("neovim_firvish_buffer", { clear = true }),
+    callback = function(_)
+        require("firvish.buffers").mark_dirty()
+    end,
+})

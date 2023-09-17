@@ -43,23 +43,23 @@ If ripgrep is installed on your system, you can use this command to search in a
 given directory. The output of the search will be streamed to a dedicated
 buffer. The file type of the opened buffer is set to `firvish-dir`.
 
+If <bang> is used, the last buffer will be used instead of opening a new one.
+
 Any arguments that you pass will be passed on to the `rg` executable.
 
 Example: >
     :Rg firvish ./lua
 
-:Crg[!] {args}                                                               *:Crg*
+:Crg {args}                                                               *:Crg*
 
 Like |:Rg| but the output is directed to |quickfix| window.
-If <bang> is used, the quickfix window will be opened when the command exits.
 
 Example: >
     :Crg firvish ./lua
 
-:Lrg[!] {args}                                                               *:Lrg*
+:Lrg {args}                                                               *:Lrg*
 
 Like |:Rg| but the output is directed to |location-list| window.
-If <bang> is used, the location-list window will be opened when the command exits.
 
 Example: >
     :Lrg firvish ./lua

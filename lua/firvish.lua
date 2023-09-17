@@ -19,45 +19,7 @@ if options_loaded then
     })
 end
 
-M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
-    local lines = vim.api.nvim_buf_get_lines(source_buffer, line1 - 1, line2, true)
-    local shell = vim.api.nvim_get_var("firvish_shell")
-    local extension = "sh"
-
-    if sh_mode == false then
-        extension = "vim"
-    elseif string.match(shell, "powershell") ~= nil or string.match(shell, "pwsh") ~= nil then
-        extension = "ps1"
-    elseif string.match(shell, "cmd") ~= nil then
-        extension = "bat"
-    end
-
-    vim.api.nvim_command("silent split " .. vim.fn.tempname() .. "." .. extension)
-    local bufnr = vim.fn.bufnr()
-
-    local command_lines = {}
-    for index, line in pairs(lines) do
-        command_lines[index] = string.gsub(cmd, "{}", '"' .. line .. '"')
-    end
-
-    vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
-    vim.api.nvim_buf_set_option(bufnr, "readonly", false)
-    vim.api.nvim_buf_set_option(bufnr, "buflisted", false)
-
-    vim.api.nvim_command("setlocal cursorline")
-
-    vim.keymap.set("n", "E!", function()
-        vim.cmd("silent write")
-        M.run_commands(vim.fn.bufnr(), sh_mode)
-    end, { noremap = true, buffer = true })
-
-    utils.set_buf_lines(bufnr, command_lines)
-    vim.api.nvim_command("write")
-
-    return bufnr
-end
-
-M.run_commands = function(bufnr, sh_mode)
+local function run_commands(bufnr, sh_mode)
     if sh_mode == true then
         local shell = vim.api.nvim_get_var("firvish_shell")
         local cmd = { shell }
@@ -91,19 +53,47 @@ M.run_commands = function(bufnr, sh_mode)
     end
 end
 
-M.filter_lines = function(start_line, end_line, matching, args)
-    local bang = ""
-    if matching then
-        bang = "!"
+--- @param line1 integer
+--- @param line2 integer
+--- @param source_buffer integer
+--- @param cmd string
+--- @param sh_mode boolean
+M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
+    local lines = vim.api.nvim_buf_get_lines(source_buffer, line1 - 1, line2, true)
+    local shell = vim.api.nvim_get_var("firvish_shell")
+    local extension = "sh"
+
+    if sh_mode == false then
+        extension = "vim"
+    elseif string.match(shell, "powershell") ~= nil or string.match(shell, "pwsh") ~= nil then
+        extension = "ps1"
+    elseif string.match(shell, "cmd") ~= nil then
+        extension = "bat"
     end
 
-    if start_line == end_line then
-        vim.fn.execute("execute '%g" .. bang .. "/" .. args .. "/d'")
-    else
-        vim.fn.execute(
-            "execute '" .. start_line .. "," .. end_line .. "g" .. bang .. "/" .. args .. "/d'"
-        )
+    vim.api.nvim_command("silent split " .. vim.fn.tempname() .. "." .. extension)
+    local bufnr = vim.fn.bufnr()
+
+    local command_lines = {}
+    for index, line in pairs(lines) do
+        command_lines[index] = string.gsub(cmd, "{}", '"' .. line .. '"')
     end
+
+    vim.api.nvim_buf_set_option(bufnr, "modifiable", true)
+    vim.api.nvim_buf_set_option(bufnr, "readonly", false)
+    vim.api.nvim_buf_set_option(bufnr, "buflisted", false)
+
+    vim.api.nvim_command("setlocal cursorline")
+
+    vim.keymap.set("n", "E!", function()
+        vim.cmd("silent write")
+        run_commands(vim.fn.bufnr(), sh_mode)
+    end, { noremap = true, buffer = true })
+
+    utils.set_buf_lines(bufnr, command_lines)
+    vim.api.nvim_command("write")
+
+    return bufnr
 end
 
 M.open_file_under_cursor = function(nav_direction, preview, reuse_window, vertical)
@@ -129,17 +119,6 @@ M.open_file_under_cursor = function(nav_direction, preview, reuse_window, vertic
         vim.api.nvim_command("normal j")
     elseif nav_direction == "up" then
         vim.api.nvim_command("normal k")
-    end
-end
-
-M.set_buf_lines_to_qf = function(line1, line2, replace, loclist)
-    local lines = vim.api.nvim_buf_get_lines(0, line1 - 1, line2 + 1, false)
-    local bufnr = vim.api.nvim_get_current_buf()
-
-    if replace then
-        utils.set_qflist(lines, "r", bufnr, {}, loclist)
-    else
-        utils.set_qflist(lines, "a", bufnr, {}, loclist)
     end
 end
 
