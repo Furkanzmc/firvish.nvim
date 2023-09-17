@@ -12,12 +12,11 @@ local function create_buffer_list(predicate)
         return s_cached_buffers
     end
 
-    local buffer_information = vim.fn.getbufinfo()
     local buffers = {}
     local all_buffers = vim.fn.range(1, vim.fn.bufnr("$"))
     local buf_num_length = #tostring(#all_buffers)
 
-    for key, bufnr in ipairs(all_buffers) do
+    for _, bufnr in ipairs(all_buffers) do
         if
             vim.fn.buflisted(bufnr) == 1
             and bufnr ~= s_open_bufnr
@@ -51,14 +50,14 @@ end
 
 local function get_bufnr(linenr)
     local line = vim.fn.getbufline(s_open_bufnr, linenr)[1]
-    local bufnr = vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g")
+    local bufnr = tonumber(vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g"))
 
-    if bufnr ~= "" then
-        return tonumber(bufnr)
+    if bufnr ~= nil then
+        return bufnr
     end
 
     local buffer_name = string.sub(line, vim.fn.matchstrpos(line, "[A-Za-z]")[2], -1)
-    local buffer_name = vim.fn.trim(buffer_name)
+    buffer_name = vim.fn.trim(buffer_name)
     bufnr = vim.fn.bufnr(buffer_name)
 
     if bufnr == -1 then

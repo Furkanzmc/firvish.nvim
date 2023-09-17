@@ -46,7 +46,6 @@ M.jump_to_window = function(tab, window)
 end
 
 M.find_open_window = function(buffer)
-    local current_tab = vim.fn.tabpagenr()
     local last_tab = vim.fn.tabpagenr("$")
     for tabnr = 1, last_tab, 1 do
         local buffers = vim.fn.tabpagebuflist(tabnr)
@@ -96,7 +95,7 @@ M.merge_table = function(target, source)
 end
 
 M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
-    local result, efm = pcall(vim.api.nvim_get_option, "errorformat")
+    local _, efm = pcall(vim.api.nvim_get_option, "errorformat")
     if efm == nil then
         efm = ""
     end
@@ -104,7 +103,7 @@ M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
     extra_efm = extra_efm or {}
     local local_efm = nil
     if bufnr ~= nil then
-        result, local_efm = pcall(vim.api.nvim_buf_get_option, bufnr, "errorformat")
+        _, local_efm = pcall(vim.api.nvim_buf_get_option, bufnr, "errorformat")
     end
 
     if efm ~= "" and local_efm ~= nil then

@@ -2,7 +2,6 @@ local vim = vim
 local fn = vim.fn
 local cmd = vim.cmd
 local api = vim.api
-local b = vim.b
 
 local utils = require("firvish.utils")
 local notifications = require("firvish.notifications")
@@ -200,7 +199,11 @@ end
 
 -- Job Control {{{
 
-local function on_stdout(job_id, data, name)
+local function on_stdout(
+    job_id,
+    data,
+    _ --[[ name ]]
+)
     local job_info = s_jobs[job_id]
     if #data == 1 and data[#data] == "" then
         return
@@ -236,18 +239,17 @@ local function on_stdout(job_id, data, name)
     end
 end
 
-local function on_stderr(job_id, data, name)
+local function on_stderr(
+    job_id,
+    data,
+    _ --[[ name ]]
+)
     if #data == 1 and data[#data] == "" then
         return
     end
 
     if #data > 1 and data[#data] == "" then
         data[#data] = nil
-    end
-
-    local error_lines = {}
-    for index, error in ipairs(data) do
-        error_lines[index] = "ERROR: " .. error
     end
 
     local job_info = s_jobs[job_id]
@@ -272,7 +274,11 @@ local function on_stderr(job_id, data, name)
     end
 end
 
-local function on_exit(job_id, exit_code, event)
+local function on_exit(
+    job_id,
+    exit_code,
+    _ --[[ event ]]
+)
     local job_info = s_jobs[job_id]
     job_info.finish_time = fn.strftime("%H:%M:%S")
     local finished_message = "Job Finished at " .. job_info.finish_time
@@ -455,7 +461,9 @@ M.preview_job_output = function(job_id)
 
     cmd([["augroup firvish_job_preview"]])
     cmd("autocmd! * <buffer=" .. s_job_output_preview_bufnr .. ">")
-    cmd([[autocmd BufDelete,BufWipeout,WinClosed <buffer> lua require'firvish.job_control'.on_job_output_preview_bufdeleter()]])
+    cmd(
+        [[autocmd BufDelete,BufWipeout,WinClosed <buffer> lua require'firvish.job_control'.on_job_output_preview_bufdeleter()]]
+    )
     cmd([[augroup END]])
 end
 
@@ -478,8 +486,8 @@ function M.echo_job_output(job_id, line)
 end
 
 function M.go_back_from_job_output()
-    if b.firvish_job_list_linenr ~= nil then
-        local bufnr = b.firvish_job_list_linenr
+    if vim.b.firvish_job_list_linenr ~= nil then
+        local bufnr = vim.b.firvish_job_list_linenr
         fn.execute("FirvishJobs")
         fn.execute("wincmd P")
         fn.execute("normal " .. bufnr .. "G")
