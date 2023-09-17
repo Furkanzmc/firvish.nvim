@@ -1,17 +1,16 @@
 local vim = vim
-local cmd = vim.cmd
 local log = {}
 
 function log.error(msg)
-    cmd([[echohl ErrorMsg]])
-    cmd("echo '[firvish] " .. msg .. "'")
-    cmd([[echohl Normal]])
+    vim.api.nvim_command([[echohl ErrorMsg]])
+    vim.api.nvim_command("echo '[firvish] " .. msg .. "'")
+    vim.api.nvim_command([[echohl Normal]])
 end
 
 function log.warning(msg)
-    cmd([[echohl WarningMsg]])
-    cmd("echo '[firvish] " .. msg .. "'")
-    cmd([[echohl Normal]])
+    vim.api.nvim_command([[echohl WarningMsg]])
+    vim.api.nvim_command("echo '[firvish] " .. msg .. "'")
+    vim.api.nvim_command([[echohl Normal]])
 end
 
 return log
