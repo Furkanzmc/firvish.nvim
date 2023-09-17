@@ -70,12 +70,6 @@ M.is_window_visible = function(tabnr, bufnr)
     return false
 end
 
-M.log_error = function(message)
-    vim.api.nvim_command("echohl ErrorMsg")
-    vim.api.nvim_command('echo "[firvish] ' .. message .. '"')
-    vim.api.nvim_command("echohl Normal")
-end
-
 M.any_of = function(items, predicate)
     for _, value in pairs(items) do
         if predicate(value) == true then

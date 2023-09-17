@@ -4,6 +4,7 @@ local cmd = vim.cmd
 local api = vim.api
 
 local utils = require("firvish.utils")
+local log = require("firvish.log")
 local notifications = require("firvish.notifications")
 local options_loaded, options = pcall(require, "options")
 
@@ -118,14 +119,14 @@ local function check_start_job_args(opts)
     if opts.output_qf then
         for _, value in pairs(s_jobs) do
             if value.output_qf and value.running then
-                utils.log_error("There's already a job running with quickfix.")
+                log.error("There's already a job running with quickfix.")
                 return nil
             end
         end
     elseif opts.output_lqf then
         for _, value in pairs(s_jobs) do
             if value.output_lqf and value.running then
-                utils.log_error("There's already a job running with local-list window.")
+                log.error("There's already a job running with local-list window.")
                 return nil
             end
         end
@@ -166,7 +167,7 @@ M.delete_job_from_history = function(stop_job)
     local info = additional_lines[linenr]
     local job_info = s_jobs[info.job_id]
     if job_info.running and not stop_job then
-        utils.log_error("Job is still running.")
+        log.error("Job is still running.")
         return
     end
 
@@ -372,9 +373,9 @@ M.start_job = function(opts)
     })
 
     if job_id == 0 then
-        utils.log_error("Invalid arguments were provided to start_job.")
+        log.error("Invalid arguments were provided to start_job.")
     elseif job_id == -1 then
-        utils.log_error("Command or 'shell' is not executable.")
+        log.error("Command or 'shell' is not executable.")
     end
 
     if not opts.is_background_job then
@@ -436,7 +437,7 @@ end
 M.preview_job_output = function(job_id)
     local job_info = s_jobs[job_id]
     if job_info == nil then
-        utils.log_error("Job does not exist: " .. job_id)
+        log.error("Job does not exist: " .. job_id)
         return
     end
 
@@ -470,7 +471,7 @@ end
 function M.echo_job_output(job_id, line)
     local job_info = s_jobs[job_id]
     if job_info == nil then
-        utils.log_error("Job does not exist: " .. job_id)
+        log.error("Job does not exist: " .. job_id)
         return
     end
 
