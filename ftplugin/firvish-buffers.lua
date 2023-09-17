@@ -13,7 +13,7 @@ opt_local.syntax = "firvish-buffers"
 opt_local.buftype = "nofile"
 opt_local.swapfile = false
 
-require("firvish.config").apply_mappings("buffers")
+require("firvish.config").internal.apply_mappings("buffers")
 
 cmd([[command! -buffer -nargs=* -range Bufdo :lua require'firvish.buffers'.buf_do(<line1>, <line2>, <q-args>)]])
 

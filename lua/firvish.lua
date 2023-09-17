@@ -46,13 +46,10 @@ M.open_linedo_buffer = function(line1, line2, source_buffer, cmd, sh_mode)
 
     vim.api.nvim_command("setlocal cursorline")
 
-    require("firvish.keymap").nnoremap({
-        "E!",
-        function()
-            vim.cmd("silent write")
-            M.run_commands(vim.fn.bufnr(), sh_mode)
-        end,
-    })
+    vim.keymap.set("n", "E!", function()
+        vim.cmd("silent write")
+        M.run_commands(vim.fn.bufnr(), sh_mode)
+    end, { noremap = true, buffer = true })
 
     utils.set_buf_lines(bufnr, command_lines)
     vim.api.nvim_command("write")

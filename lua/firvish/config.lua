@@ -1,10 +1,4 @@
-local keymap = require("firvish.keymap")
-local nnoremap = keymap.nnoremap
-local inoremap = keymap.inoremap
-local vnoremap = keymap.vnoremap
-local xnoremap = keymap.xnoremap
-local snoremap = keymap.snoremap
-local onoremap = keymap.onoremap
+local keymap = vim.keymap
 
 local M = {}
 
@@ -152,39 +146,41 @@ M.config = {
     },
 }
 
-M.apply_mappings = function(map)
-    local config = M.config
-    for lhs, opts in pairs(config.keymaps[map].n or {}) do
-        if opts then
-            nnoremap({ lhs, opts[1], buffer = true, silent = true })
+M.internal = {
+    apply_mappings = function(map)
+        local config = M.config
+        for lhs, opts in pairs(config.keymaps[map].n or {}) do
+            if opts then
+                keymap.set("n", lhs, opts[1], { noremap = true, buffer = true, silent = true })
+            end
         end
-    end
-    for lhs, opts in pairs(config.keymaps[map].i or {}) do
-        if opts then
-            inoremap({ lhs, opts[1], buffer = true, silent = true })
+        for lhs, opts in pairs(config.keymaps[map].i or {}) do
+            if opts then
+                keymap.set("i", lhs, opts[1], { noremap = true, buffer = true, silent = true })
+            end
         end
-    end
-    for lhs, opts in pairs(config.keymaps[map].v or {}) do
-        if opts then
-            vnoremap({ lhs, opts[1], buffer = true, silent = true })
+        for lhs, opts in pairs(config.keymaps[map].v or {}) do
+            if opts then
+                keymap.set("v", lhs, opts[1], { noremap = true, buffer = true, silent = true })
+            end
         end
-    end
-    for lhs, opts in pairs(config.keymaps[map].x or {}) do
-        if opts then
-            xnoremap({ lhs, opts[1], buffer = true, silent = true })
+        for lhs, opts in pairs(config.keymaps[map].x or {}) do
+            if opts then
+                keymap.set("x", lhs, opts[1], { noremap = true, buffer = true, silent = true })
+            end
         end
-    end
-    for lhs, opts in pairs(config.keymaps[map].s or {}) do
-        if opts then
-            snoremap({ lhs, opts[1], buffer = true, silent = true })
+        for lhs, opts in pairs(config.keymaps[map].s or {}) do
+            if opts then
+                keymap.set("s", lhs, opts[1], { noremap = true, buffer = true, silent = true })
+            end
         end
-    end
-    for lhs, opts in pairs(config.keymaps[map].o or {}) do
-        if opts then
-            onoremap({ lhs, opts[1], buffer = true, silent = true })
+        for lhs, opts in pairs(config.keymaps[map].o or {}) do
+            if opts then
+                keymap.set("o", lhs, opts[1], { noremap = true, buffer = true, silent = true })
+            end
         end
-    end
-end
+    end,
+}
 
 M.merge = function(opts)
     local config = M.config

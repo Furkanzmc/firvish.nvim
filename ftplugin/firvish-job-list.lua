@@ -9,7 +9,7 @@ opt_local.modifiable = false
 opt_local.readonly = true
 opt_local.cursorline = true
 
-require("firvish.config").apply_mappings("job-list")
+require("firvish.config").internal.apply_mappings("job-list")
 
 cmd([[augroup firvish_job_list_preview]])
 cmd([[autocmd! * <buffer>]])

@@ -6,4 +6,4 @@ local opt_local = vim.opt_local
 
 opt_local.cursorline = true
 
-require("firvish.config").apply_mappings("job")
+require("firvish.config").internal.apply_mappings("job")

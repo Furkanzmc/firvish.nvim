@@ -12,7 +12,7 @@ opt_local.syntax = "firvish-buffers"
 opt_local.buftype = "nofile"
 opt_local.swapfile = false
 
-require("firvish.config").apply_mappings("history")
+require("firvish.config").internal.apply_mappings("history")
 
 cmd([[augroup neovim_firvish_history]])
 cmd([[autocmd! * <buffer>]])

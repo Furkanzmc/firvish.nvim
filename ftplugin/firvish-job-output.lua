@@ -7,7 +7,7 @@ local opt_local = vim.opt_local
 
 opt_local.cursorline = true
 
-require("firvish.config").apply_mappings("job-output")
+require("firvish.config").internal.apply_mappings("job-output")
 
 cmd([[augroup firvish_job_output_preview]])
 cmd([[autocmd! * <buffer>]])
