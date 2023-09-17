@@ -73,7 +73,7 @@ M.on_buf_delete = function()
 end
 
 M.on_buf_enter = function()
-    if s_buffers_filtered then
+    if not s_buffers_filtered then
         M.open_buffers()
     end
 end
