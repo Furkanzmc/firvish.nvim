@@ -52,11 +52,6 @@ M.config = {
                         require("firvish.buffers").jump_to_buffer()
                     end,
                 },
-                ["-"] = {
-                    function()
-                        vim.cmd("edit firvish://menu")
-                    end,
-                },
                 fa = {
                     function()
                         require("firvish.buffers").filter_buffers("args")
@@ -95,11 +90,6 @@ M.config = {
                 R = {
                     function()
                         require("firvish.history").refresh_history()
-                    end,
-                },
-                ["-"] = {
-                    function()
-                        vim.cmd("edit firvish://menu")
                     end,
                 },
             },
@@ -155,20 +145,6 @@ M.config = {
                 gb = {
                     function()
                         require("firvish.job_control").go_back_from_job_output()
-                    end,
-                },
-            },
-        },
-        menu = {
-            n = {
-                ["<enter>"] = {
-                    function()
-                        require("firvish.menu").open_item(vim.fn.line("."))
-                    end,
-                },
-                R = {
-                    function()
-                        require("firvish.menu").refresh_menu()
                     end,
                 },
             },

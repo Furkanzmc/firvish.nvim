@@ -318,7 +318,6 @@ setup({opts})                                                    *firvish.setup*
             - job -> filetype=firvish-job
             - job-list -> filetype=firvish-job-list
             - job-output -> filetype=firvish-job-output
-            - menu -> filetype=firvish-menu
         Values are tables of mode mappings, where keys are the mode name
         (see: |map-modes|, supported modes are [n,i,v,x,s,o]) and values are
         a table of mode-specific mappings. For example:
@@ -340,7 +339,7 @@ setup({opts})                                                    *firvish.setup*
             }
         }
 <
-    
+
 start_job({opts})                                *firvish.job_control.start_job*
     Starts a job with the given options. This is the main function used to
     spawn processes. |:FRun| and the other process related commands use this
