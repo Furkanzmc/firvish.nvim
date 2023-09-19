@@ -106,7 +106,9 @@ M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
         efm = local_efm
     end
 
-    efm = efm .. "," .. table.concat(extra_efm, ",")
+    if #extra_efm > 0 then
+        efm = table.concat(extra_efm, ",") .. "," .. efm
+    end
 
     local qflist_opts = { lines = lines }
     if efm ~= "" then
