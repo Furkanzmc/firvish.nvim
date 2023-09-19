@@ -101,7 +101,7 @@ M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
     end
 
     if efm ~= "" and local_efm ~= nil then
-        efm = efm .. "," .. local_efm
+        efm = local_efm .. "," .. efm
     elseif local_efm ~= nil then
         efm = local_efm
     end
