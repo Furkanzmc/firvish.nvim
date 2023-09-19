@@ -108,7 +108,12 @@ M.set_qflist = function(lines, action, bufnr, extra_efm, use_loclist)
 
     efm = efm .. "," .. table.concat(extra_efm, ",")
 
-    local parsed_entries = vim.fn.getqflist({ lines = lines, efm = efm })
+    local qflist_opts = { lines = lines }
+    if efm ~= "" then
+        qflist_opts["efm"] = efm
+    end
+
+    local parsed_entries = vim.fn.getqflist(qflist_opts)
     if parsed_entries.items then
         if use_loclist then
             vim.fn.setloclist(bufnr, parsed_entries.items, action)
