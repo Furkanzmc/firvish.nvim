@@ -119,14 +119,14 @@ local function check_start_job_args(opts)
     if opts.output_qf then
         for _, value in pairs(s_jobs) do
             if value.output_qf and value.running then
-                log.error("There's already a job running with quickfix.")
+                log.warning("There's already a job running with quickfix.")
                 return nil
             end
         end
     elseif opts.output_lqf then
         for _, value in pairs(s_jobs) do
             if value.output_lqf and value.running then
-                log.error("There's already a job running with local-list window.")
+                log.warning("There's already a job running with local-list window.")
                 return nil
             end
         end
@@ -167,7 +167,7 @@ M.delete_job_from_history = function(stop_job)
     local info = additional_lines[linenr]
     local job_info = s_jobs[info.job_id]
     if job_info.running and not stop_job then
-        log.error("Job is still running.")
+        log.warning("Job is still running.")
         return
     end
 
@@ -437,7 +437,7 @@ end
 M.preview_job_output = function(job_id)
     local job_info = s_jobs[job_id]
     if job_info == nil then
-        log.error("Job does not exist: " .. job_id)
+        log.warning("Job does not exist: " .. job_id)
         return
     end
 
@@ -471,7 +471,7 @@ end
 function M.echo_job_output(job_id, line)
     local job_info = s_jobs[job_id]
     if job_info == nil then
-        log.error("Job does not exist: " .. job_id)
+        log.warning("Job does not exist: " .. job_id)
         return
     end
 
