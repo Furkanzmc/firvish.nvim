@@ -6,6 +6,7 @@ local cmd = vim.cmd
 local opt_local = vim.opt_local
 
 opt_local.modifiable = false
+opt_local.cursorlineopt = "both"
 opt_local.readonly = true
 opt_local.cursorline = true
 

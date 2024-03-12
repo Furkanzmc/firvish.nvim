@@ -5,6 +5,7 @@ end
 local opt_local = vim.opt_local
 
 opt_local.cursorline = true
+opt_local.cursorlineopt = "both"
 opt_local.modifiable = true
 opt_local.buflisted = true
 opt_local.syntax = "firvish-buffers"
