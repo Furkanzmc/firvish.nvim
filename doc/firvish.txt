@@ -220,19 +220,6 @@ Deletes the buffers in [range]. If <bang> is given, the command is equivalent to
 |:bdelete!|.
 
 
-OPTIONS                                                        *firvish-options*
-================================================================================
-
-These options are only enabled if |options.nvim| is installed.
-See https://github.com/Furkanzmc/options.nvim for installation details.
-
-Global ~
-
-alwayspreview                                    *firvish-options-alwayspreview*
-
-When set to true, the output of the running job will be shown in
-|previewwindow|. Defaults to `false`.
-
 MAPPINGS                                                      *firvish-mappings*
 ================================================================================
 

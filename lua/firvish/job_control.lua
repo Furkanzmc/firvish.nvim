@@ -6,7 +6,6 @@ local api = vim.api
 local utils = require("firvish.utils")
 local log = require("firvish.log")
 local notifications = require("firvish.notifications")
-local options_loaded, options = pcall(require, "options")
 
 local s_jobs = {}
 local s_job_count = 1
@@ -405,13 +404,6 @@ M.start_job = function(opts)
     end
 
     M.refresh_job_list_window()
-    if
-        (s_job_list_bufnr ~= -1 or s_job_output_preview_bufnr ~= -1)
-        and options_loaded
-        and options.get_option_value("alwayspreview") == true
-    then
-        M.preview_job_output(job_id)
-    end
 end
 
 M.refresh_job_list_window = function()
