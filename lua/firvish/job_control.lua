@@ -244,34 +244,7 @@ local function on_stderr(
     data,
     _ --[[ name ]]
 )
-    if #data == 1 and data[#data] == "" then
-        return
-    end
-
-    if #data > 1 and data[#data] == "" then
-        data[#data] = nil
-    end
-
-    local job_info = s_jobs[job_id]
-    utils.merge_table(job_info.stderr, data)
-    utils.merge_table(job_info.output, data)
-
-    if job_info.output_qf then
-        utils.set_qflist(data, "a", job_info.bufnr, job_info.efm, false)
-    elseif job_info.output_lqf then
-        utils.set_qflist(data, "a", job_info.bufnr, job_info.efm, true)
-    end
-
-    if not job_info.is_background_job then
-        vim.fn.appendbufline(job_info.bufnr, "$", data)
-    end
-
-    if
-        s_job_output_preview_bufnr ~= -1
-        and api.nvim_buf_get_var(s_job_output_preview_bufnr, "firvish_job_id") == job_id
-    then
-        vim.fn.appendbufline(s_job_output_preview_bufnr, "$", data)
-    end
+    on_stdout(job_id, data, _)
 end
 
 local function on_exit(
