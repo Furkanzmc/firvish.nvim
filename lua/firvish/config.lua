@@ -129,7 +129,21 @@ M.config = {
                 },
                 S = {
                     function()
-                        require("firvish.job_control").stop_job()
+                        local bufnr = vim.fn.bufnr()
+                        local linenr = vim.fn.line(".")
+
+                        local additional_lines =
+                            vim.api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
+                        local info = additional_lines[linenr]
+                        require("firvish.job_control").stop_job(info.job_id)
+                    end,
+                },
+                r = {
+                    function()
+                        local line = vim.fn.line(".")
+                        local lines =
+                            vim.api.nvim_buf_get_var(0, "firvish_job_list_additional_lines")
+                        require("firvish.job_control").restart_job(lines[line].job_id)
                     end,
                 },
             },

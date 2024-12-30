@@ -140,20 +140,21 @@ end
 
 local M = {}
 
-M.stop_job = function()
-    assert(vim.wo.previewwindow, "Cannot called when not in preview window.")
+--- @param job_id integer
+M.stop_job = function(job_id)
+    assert(job_id ~= nil)
 
-    local bufnr = fn.bufnr()
-    local linenr = fn.line(".")
+    local job_info = s_jobs[job_id]
+    if job_info == nil then
+        log.error("A job with given ID '" .. job_id .. "' cannot be found!")
+        return
+    end
 
-    local additional_lines = api.nvim_buf_get_var(bufnr, "firvish_job_list_additional_lines")
-    local info = additional_lines[linenr]
-    local job_info = s_jobs[info.job_id]
     if not job_info.running then
         return
     end
 
-    fn.jobstop(info.job_id)
+    fn.jobstop(job_id)
     M.refresh_job_list_window()
 end
 
@@ -364,6 +365,8 @@ M.start_job = function(opts)
         start_time = fn.strftime("%H:%M:%S"),
         finish_time = "",
         exit_code = nil,
+        opts = opts,
+        job_id = job_id,
     }
     s_jobs[job_id] = vim.tbl_extend("keep", job_info, opts)
     if opts.output_qf then
@@ -396,6 +399,8 @@ end
 
 M.show_jobs_list = function()
     local data = get_jobs_preview_data()
+    -- FIXME: This is a hack to prevent W10.
+    cmd[[pclose]]
     s_job_list_bufnr = create_job_list_window(data.lines, data.job_list)
 end
 
@@ -449,6 +454,24 @@ function M.echo_job_output(job_id, line)
     end
 
     vim.cmd("echo " .. fn.shellescape(job_info.output[line]))
+end
+
+--- @param job_id integer
+function M.restart_job(job_id)
+    local job_info = s_jobs[job_id]
+    if job_info == nil then
+        log.warning("Job does not exist: " .. job_id)
+        return
+    end
+
+    if job_info.running then
+        M.stop_job(job_info.job_id)
+        vim.defer_fn(function()
+            M.start_job(job_info.opts)
+        end, 100)
+    else
+        M.start_job(job_info.opts)
+    end
 end
 
 function M.go_back_from_job_output()
