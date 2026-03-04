@@ -38,6 +38,7 @@ end
 
 M.set_buf_lines = function(bufnr, lines)
     vim.api.nvim_buf_set_lines(bufnr, 0, -1, true, lines)
+    vim.api.nvim_buf_set_option(bufnr, "modified", false)
 end
 
 M.jump_to_window = function(tab, window)

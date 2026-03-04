@@ -1,5 +1,5 @@
 vim.filetype.add({
-    filename = {
+    pattern = {
         ["firvish://buffers"] = "firvish-buffers",
         ["firvish://history"] = "firvish-history",
     },
