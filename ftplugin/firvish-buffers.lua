@@ -8,9 +8,15 @@ opt_local.cursorline = true
 opt_local.cursorlineopt = "both"
 opt_local.modifiable = true
 opt_local.buflisted = true
-opt_local.syntax = "firvish-buffers"
 opt_local.buftype = "nofile"
 opt_local.swapfile = false
+
+local syn_buf = vim.fn.bufnr()
+vim.schedule(function()
+    if vim.api.nvim_buf_is_valid(syn_buf) then
+        vim.bo[syn_buf].syntax = "firvish-buffers"
+    end
+end)
 
 require("firvish.config").internal.apply_mappings("buffers")
 
