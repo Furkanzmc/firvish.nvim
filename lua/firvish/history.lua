@@ -6,14 +6,14 @@ local g_open_buffer = 0
 local g_previous_bufnr = 0
 
 local function get_history(predicate)
-    local old_files = vim.api.nvim_get_vvar("oldfiles")
+    local old_files = vim.v.oldfiles
     local history = {}
     for _, file in ipairs(old_files) do
         if
             vim.fn.filereadable(file) == 1
-            and (predicate == nil or (predicate ~= nil and predicate(file) == true))
+            and (predicate == nil or predicate(file))
         then
-            history[#history + 1] = vim.fn.fnamemodify(file, ":p:~:.")
+            table.insert(history, vim.fn.fnamemodify(file, ":p:~:."))
         end
     end
 
@@ -29,10 +29,10 @@ M.on_buf_leave = function()
 end
 
 M.close_history = function()
-    if g_previous_bufnr ~= 0 then
-        vim.api.nvim_command("buffer " .. g_previous_bufnr)
-    else
-        vim.api.nvim_command("bwipeout! " .. g_open_buffer)
+    if g_previous_bufnr ~= 0 and vim.api.nvim_buf_is_valid(g_previous_bufnr) then
+        vim.cmd.buffer(g_previous_bufnr)
+    elseif g_open_buffer ~= 0 and vim.api.nvim_buf_is_valid(g_open_buffer) then
+        vim.api.nvim_buf_delete(g_open_buffer, { force = true })
         g_open_buffer = 0
     end
 
@@ -41,29 +41,36 @@ end
 
 M.open_history = function()
     local tabnr = vim.fn.tabpagenr()
-    g_previous_bufnr = vim.fn.bufnr()
+    g_previous_bufnr = vim.api.nvim_get_current_buf()
 
-    if g_open_buffer == 0 then
-        vim.api.nvim_command("e firvish://history")
-        g_open_buffer = vim.fn.bufnr()
+    if g_open_buffer == 0 or not vim.api.nvim_buf_is_valid(g_open_buffer) then
+        vim.cmd.edit("firvish://history")
+        g_open_buffer = vim.api.nvim_get_current_buf()
         M.refresh_history()
     elseif utils.is_window_visible(tabnr, g_open_buffer) then
-        vim.api.nvim_command(vim.fn.bufwinnr(g_open_buffer) .. "wincmd w")
+        local win = vim.fn.bufwinid(g_open_buffer)
+        if win ~= -1 then
+            vim.api.nvim_set_current_win(win)
+        end
         M.refresh_history()
     else
-        vim.api.nvim_command("buffer " .. g_open_buffer)
+        vim.cmd.buffer(g_open_buffer)
         M.refresh_history()
     end
 end
 
 M.refresh_history = function()
-    utils.set_buf_lines(g_open_buffer, get_history(nil))
+    if g_open_buffer ~= 0 and vim.api.nvim_buf_is_valid(g_open_buffer) then
+        utils.set_buf_lines(g_open_buffer, get_history(nil))
+    end
 end
 
 M.open_file = function()
     local linenr = vim.fn.line(".")
     local lines = vim.api.nvim_buf_get_lines(g_open_buffer, linenr - 1, linenr, true)
-    vim.api.nvim_command("edit " .. lines[1])
+    if #lines > 0 then
+        vim.cmd.edit(lines[1])
+    end
 end
 
 return M

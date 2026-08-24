@@ -1,28 +1,26 @@
 local utils = require("firvish.utils")
-local map = utils.map
 local jobs = require("firvish.job_control")
 local fn = vim.fn
 local g = vim.g
-local opt = vim.opt
 
 if g.firvish_use_default_mappings ~= nil and g.firvish_use_default_mappings ~= 0 then
-    map(
+    vim.keymap.set(
         "n",
         "<leader>b",
-        ":lua require'firvish.buffers'.open_buffers()<CR>",
-        { silent = true, nowait = true }
+        function() require("firvish.buffers").open_buffers() end,
+        { silent = true, nowait = true, desc = "Firvish Buffers" }
     )
 
-    map(
+    vim.keymap.set(
         "n",
         "<leader>h",
-        ":lua require'firvish.history'.open_history()<CR>",
-        { silent = true, nowait = true }
+        function() require("firvish.history").open_history() end,
+        { silent = true, nowait = true, desc = "Firvish History" }
     )
 end
 
 if g.firvish_shell == nil then
-    g.firvish_shell = opt.shell:get()
+    g.firvish_shell = vim.o.shell
 end
 
 if g.firvish_interactive_window_height == nil then
@@ -31,11 +29,11 @@ end
 
 vim.api.nvim_create_user_command("Buffers", function(_)
     require("firvish.buffers").open_buffers()
-end, {})
+end, { desc = "Firvish Buffers" })
 
 vim.api.nvim_create_user_command("History", function(_)
     require("firvish.history").open_history()
-end, {})
+end, { desc = "Firvish History" })
 
 if fn.executable("rg") == 1 then
     local function firvish_run_rg(args, use_last_buffer, qf, loc, open)
@@ -50,7 +48,7 @@ if fn.executable("rg") == 1 then
             "--block-buffered",
         }
         if args then
-            command = table.extend(command, args)
+            vim.list_extend(command, args)
         end
 
         jobs.start_job({
@@ -70,15 +68,15 @@ if fn.executable("rg") == 1 then
 
     vim.api.nvim_create_user_command("Rg", function(args)
         firvish_run_rg(args.fargs, args.bang, false, false, false)
-    end, { nargs = "*", complete = "file", bang = true })
+    end, { nargs = "*", complete = "file", bang = true, desc = "Firvish Rg" })
 
     vim.api.nvim_create_user_command("Crg", function(args)
         firvish_run_rg(args.fargs, false, true, false, false)
-    end, { nargs = "*", complete = "file" })
+    end, { nargs = "*", complete = "file", desc = "Firvish Crg" })
 
     vim.api.nvim_create_user_command("Lrg", function(args)
         firvish_run_rg(args.fargs, false, false, true, false)
-    end, { nargs = "*", complete = "file" })
+    end, { nargs = "*", complete = "file", desc = "Firvish Lrg" })
 end
 
 if fn.executable("ugrep") == 1 then
@@ -93,7 +91,7 @@ if fn.executable("ugrep") == 1 then
             "-J1",
         }
         if args then
-            command = table.extend(command, args)
+            vim.list_extend(command, args)
         end
 
         jobs.start_job({
@@ -111,22 +109,22 @@ if fn.executable("ugrep") == 1 then
 
     vim.api.nvim_create_user_command("Ug", function(args)
         firvish_run_ug(args.fargs, args.bang, false, false)
-    end, { nargs = "*", complete = "file", bang = true })
+    end, { nargs = "*", complete = "file", bang = true, desc = "Firvish Ug" })
 
     vim.api.nvim_create_user_command("Cug", function(args)
         firvish_run_ug(args.fargs, false, true, false)
-    end, { nargs = "*", complete = "file" })
+    end, { nargs = "*", complete = "file", desc = "Firvish Cug" })
 
     vim.api.nvim_create_user_command("Lug", function(args)
         firvish_run_ug(args.fargs, false, false, true)
-    end, { nargs = "*", complete = "file" })
+    end, { nargs = "*", complete = "file", desc = "Firvish Lug" })
 end
 
 if fn.executable("fd") == 1 then
     local function firvish_run_fd(args, use_last_buffer, qf, loc, open)
         local command = { "fd", "--color=never" }
         if args then
-            command = table.extend(command, args)
+            vim.list_extend(command, args)
         end
 
         jobs.start_job({
@@ -146,15 +144,15 @@ if fn.executable("fd") == 1 then
 
     vim.api.nvim_create_user_command("Fd", function(args)
         firvish_run_fd(args.fargs, args.bang, false, false)
-    end, { nargs = "*", complete = "file", bang = true })
+    end, { nargs = "*", complete = "file", bang = true, desc = "Firvish Fd" })
 
     vim.api.nvim_create_user_command("Cfd", function(args)
         firvish_run_fd(args.fargs, false, true, false)
-    end, { nargs = "*", complete = "file" })
+    end, { nargs = "*", complete = "file", desc = "Firvish Cfd" })
 
     vim.api.nvim_create_user_command("Lfd", function(args)
         firvish_run_fd(args.fargs, false, false, true)
-    end, { nargs = "*", complete = "file" })
+    end, { nargs = "*", complete = "file", desc = "Firvish Lfd" })
 end
 
 local function firvish_call_frun(args, is_background_job, qf, loc)
@@ -172,29 +170,29 @@ end
 
 vim.api.nvim_create_user_command("FRun", function(args)
     firvish_call_frun(args.fargs, args.bang, false, false)
-end, { nargs = "*", bang = true })
+end, { nargs = "*", bang = true, desc = "Firvish Run" })
 
 vim.api.nvim_create_user_command("Cfrun", function(args)
     firvish_call_frun(args.fargs, args.bang, true, false)
-end, { nargs = "*" })
+end, { nargs = "*", desc = "Firvish Crun" })
 
 vim.api.nvim_create_user_command("Lfrun", function(args)
     firvish_call_frun(args.fargs, args.bang, false, true)
-end, { nargs = "*" })
+end, { nargs = "*", desc = "Firvish Lrun" })
 
 vim.api.nvim_create_user_command("Fhdo", function(args)
     require("firvish").open_linedo_buffer(
         args.line1,
         args.line2,
-        vim.fn.bufnr(),
+        vim.api.nvim_get_current_buf(),
         args.args,
         not args.bang
     )
-end, { nargs = "*", complete = "shellcmd", bang = true, range = true })
+end, { nargs = "*", complete = "shellcmd", bang = true, range = true, desc = "Firvish Hdo" })
 
 vim.api.nvim_create_user_command("FirvishJobs", function(_)
     require("firvish.job_control").show_jobs_list()
-end, { nargs = "*" })
+end, { nargs = "*", desc = "Firvish Jobs List" })
 
 vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout", "BufAdd" }, {
     group = vim.api.nvim_create_augroup("neovim_firvish_buffer", { clear = true }),

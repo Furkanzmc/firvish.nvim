@@ -14,19 +14,27 @@ local function create_buffer_list(predicate)
     end
 
     local buffers = {}
-    local all_buffers = vim.fn.range(1, vim.fn.bufnr("$"))
-    local buf_num_length = #tostring(#all_buffers)
-
+    local all_buffers = vim.api.nvim_list_bufs()
+    
+    -- Filter listed buffers
+    local listed_buffers = {}
     for _, bufnr in ipairs(all_buffers) do
+        if vim.api.nvim_get_option_value("buflisted", { buf = bufnr }) then
+            table.insert(listed_buffers, bufnr)
+        end
+    end
+
+    local buf_num_length = #tostring(#listed_buffers)
+
+    for _, bufnr in ipairs(listed_buffers) do
         if
-            vim.fn.buflisted(bufnr) == 1
-            and bufnr ~= s_open_bufnr
-            and (predicate == nil or (predicate ~= nil and predicate(bufnr) == true))
+            bufnr ~= s_open_bufnr
+            and (predicate == nil or predicate(bufnr))
         then
             local bufnr_str = "[" .. bufnr .. "]"
             local line = bufnr_str
-            local modified = vim.api.nvim_buf_get_option(bufnr, "modified")
-            local bufname = vim.fn.bufname(bufnr)
+            local modified = vim.api.nvim_get_option_value("modified", { buf = bufnr })
+            local bufname = vim.api.nvim_buf_get_name(bufnr)
             bufname = vim.fn.fnamemodify(bufname, ":p:~:.")
 
             if modified then
@@ -40,7 +48,7 @@ local function create_buffer_list(predicate)
                 line = line .. bufname
             end
 
-            buffers[#buffers + 1] = line
+            table.insert(buffers, line)
         end
     end
 
@@ -50,24 +58,26 @@ local function create_buffer_list(predicate)
 end
 
 local function get_bufnr(linenr)
-    local line = vim.fn.getbufline(s_open_bufnr, linenr)[1]
-    local bufnr =
-        tonumber(vim.fn.substitute(vim.fn.matchstr(line, "[[0-9]\\+]"), "\\(\\[\\|\\]\\)", "", "g"))
-
-    if bufnr ~= nil then
-        return bufnr
+    local lines = vim.api.nvim_buf_get_lines(s_open_bufnr, linenr - 1, linenr, false)
+    if #lines == 0 then return -1 end
+    local line = lines[1]
+    
+    local bufnr_match = string.match(line, "%[(%d+)%]")
+    if bufnr_match then
+        return tonumber(bufnr_match)
     end
 
-    local buffer_name = string.sub(line, vim.fn.matchstrpos(line, "[A-Za-z]")[2], -1)
-    buffer_name = vim.fn.trim(buffer_name)
-    bufnr = vim.fn.bufnr(buffer_name)
-
-    if bufnr == -1 then
-        log.error("Cannot read buffer number from the list.")
-        return -1
+    local buffer_name = string.match(line, "%s+(.*)$")
+    if buffer_name then
+        buffer_name = vim.trim(buffer_name)
+        local bufnr = vim.fn.bufnr(buffer_name)
+        if bufnr ~= -1 then
+            return bufnr
+        end
     end
 
-    return tonumber(bufnr)
+    log.error("Cannot read buffer number from the list.")
+    return -1
 end
 
 M.on_buf_delete = function()
@@ -96,29 +106,33 @@ M.jump_to_buffer = function()
     if jump_info.tabnr ~= -1 and jump_info.winnr ~= -1 then
         utils.jump_to_window(jump_info.tabnr, jump_info.winnr)
     else
-        vim.api.nvim_command("buffer " .. bufnr)
+        vim.cmd.buffer(bufnr)
     end
 end
 
 M.open_buffers = function()
     local tabnr = vim.fn.tabpagenr()
 
-    if vim.fn.bufexists(s_open_bufnr) == 0 then
-        vim.api.nvim_command("e firvish://buffers")
-        s_open_bufnr = vim.fn.bufnr()
-
+    if s_open_bufnr == -1 or not vim.api.nvim_buf_is_valid(s_open_bufnr) then
+        vim.cmd.edit("firvish://buffers")
+        s_open_bufnr = vim.api.nvim_get_current_buf()
         M.refresh_buffers()
     elseif utils.is_window_visible(tabnr, s_open_bufnr) then
-        vim.api.nvim_command(vim.fn.bufwinnr(s_open_bufnr) .. "wincmd w")
+        local win = vim.fn.bufwinid(s_open_bufnr)
+        if win ~= -1 then
+            vim.api.nvim_set_current_win(win)
+        end
         M.refresh_buffers()
     else
-        vim.api.nvim_command("buffer " .. s_open_bufnr)
+        vim.cmd.buffer(s_open_bufnr)
         M.refresh_buffers()
     end
 end
 
 M.refresh_buffers = function()
-    assert(s_open_bufnr ~= -1, "s_open_bufnr must be valid.")
+    if s_open_bufnr == -1 or not vim.api.nvim_buf_is_valid(s_open_bufnr) then
+        return
+    end
 
     s_buffer_list_dirty = true
     s_buffers_filtered = false
@@ -126,12 +140,12 @@ M.refresh_buffers = function()
     local cursor = vim.api.nvim_win_get_cursor(0)
     utils.set_buf_lines(s_open_bufnr, lines)
 
-    if cursor[1] > #lines then
-        cursor[1] = #lines - 1
+    if cursor[1] > #lines and #lines > 0 then
+        cursor[1] = #lines
     end
 
     if cursor[1] > 0 then
-        vim.api.nvim_win_set_cursor(0, cursor)
+        pcall(vim.api.nvim_win_set_cursor, 0, cursor)
     end
 end
 
@@ -140,7 +154,7 @@ M.filter_buffers = function(mode)
     s_buffer_list_dirty = true
     if mode == "modified" then
         buffers = create_buffer_list(function(bufnr)
-            return vim.api.nvim_buf_get_option(bufnr, "modified")
+            return vim.api.nvim_get_option_value("modified", { buf = bufnr })
         end)
     elseif mode == "current_tab" then
         local tabnr = vim.fn.tabpagenr()
@@ -150,19 +164,20 @@ M.filter_buffers = function(mode)
     elseif mode == "args" then
         local args = vim.fn.argv()
         local args_bufnr = {}
-        for index, arg in ipairs(args) do
-            args_bufnr[index] = vim.fn.bufnr(arg)
+        for _, arg in ipairs(args) do
+            local b = vim.fn.bufnr(arg)
+            if b ~= -1 then
+                args_bufnr[b] = true
+            end
         end
 
         buffers = create_buffer_list(function(bufnr)
-            return utils.any_of(args_bufnr, function(v)
-                return v == bufnr
-            end)
+            return args_bufnr[bufnr] == true
         end)
     elseif type(mode) == "function" then
         buffers = create_buffer_list(mode)
     else
-        assert(false, "Unsupported filter type: " .. mode)
+        error("Unsupported filter type: " .. tostring(mode))
     end
 
     utils.set_buf_lines(s_open_bufnr, buffers)
@@ -170,22 +185,24 @@ M.filter_buffers = function(mode)
 end
 
 M.buf_do = function(start_line, end_line, cmd)
+    local current_buf = vim.api.nvim_get_current_buf()
     for linenr = start_line, end_line, 1 do
-        vim.api.nvim_command("buffer " .. get_bufnr(linenr))
-        vim.api.nvim_command(cmd)
+        local bufnr = get_bufnr(linenr)
+        if bufnr ~= -1 then
+            vim.cmd.buffer(bufnr)
+            vim.cmd(cmd)
+        end
     end
 
-    vim.api.nvim_command("buffer " .. s_open_bufnr)
+    vim.cmd.buffer(current_buf)
 end
 
 M.buf_delete = function(start_line, end_line, force)
-    local start_buffer = get_bufnr(start_line)
-    local end_buffer = get_bufnr(end_line)
-
-    if not force then
-        vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bdelete")
-    else
-        vim.api.nvim_command(start_buffer .. "," .. end_buffer .. "bdelete!")
+    for linenr = start_line, end_line, 1 do
+        local bufnr = get_bufnr(linenr)
+        if bufnr ~= -1 then
+            vim.api.nvim_buf_delete(bufnr, { force = force })
+        end
     end
 
     M.refresh_buffers()

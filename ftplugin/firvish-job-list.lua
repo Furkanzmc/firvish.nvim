@@ -1,18 +1,22 @@
 if vim.b.did_ftp == true then
     return
 end
+vim.b.did_ftp = true
 
-local cmd = vim.cmd
-local opt_local = vim.opt_local
+local bufnr = vim.api.nvim_get_current_buf()
 
-opt_local.modifiable = false
-opt_local.cursorlineopt = "both"
-opt_local.readonly = true
-opt_local.cursorline = true
+vim.api.nvim_set_option_value("modifiable", false, { buf = bufnr })
+vim.api.nvim_set_option_value("readonly", true, { buf = bufnr })
+vim.api.nvim_set_option_value("cursorline", true, { win = 0 })
+vim.api.nvim_set_option_value("cursorlineopt", "both", { win = 0 })
 
 require("firvish.config").internal.apply_mappings("job-list")
 
-cmd([[augroup firvish_job_list_preview]])
-cmd([[autocmd! * <buffer>]])
-cmd([[autocmd BufDelete,BufWipeout,WinClosed <buffer> lua require'firvish.job_control'.on_job_list_bufdelete()]])
-cmd([[augroup END]])
+local group = vim.api.nvim_create_augroup("firvish_job_list_preview", { clear = true })
+vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout", "WinClosed" }, {
+    group = group,
+    buffer = bufnr,
+    callback = function()
+        require("firvish.job_control").on_job_list_bufdelete()
+    end,
+})

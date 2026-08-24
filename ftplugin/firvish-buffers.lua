@@ -1,55 +1,54 @@
 if vim.b.did_ftp == true then
     return
 end
+vim.b.did_ftp = true
 
-local opt_local = vim.opt_local
+local bufnr = vim.api.nvim_get_current_buf()
 
-opt_local.cursorline = true
-opt_local.cursorlineopt = "both"
-opt_local.modifiable = true
-opt_local.buflisted = true
-opt_local.buftype = "nofile"
-opt_local.swapfile = false
+vim.api.nvim_set_option_value("cursorline", true, { win = 0 })
+vim.api.nvim_set_option_value("cursorlineopt", "both", { win = 0 })
+vim.api.nvim_set_option_value("modifiable", true, { buf = bufnr })
+vim.api.nvim_set_option_value("buflisted", true, { buf = bufnr })
+vim.api.nvim_set_option_value("buftype", "nofile", { buf = bufnr })
+vim.api.nvim_set_option_value("swapfile", false, { buf = bufnr })
 
-local syn_buf = vim.fn.bufnr()
 vim.schedule(function()
-    if vim.api.nvim_buf_is_valid(syn_buf) then
-        vim.bo[syn_buf].syntax = "firvish-buffers"
+    if vim.api.nvim_buf_is_valid(bufnr) then
+        vim.api.nvim_set_option_value("syntax", "firvish-buffers", { buf = bufnr })
     end
 end)
 
 require("firvish.config").internal.apply_mappings("buffers")
 
-vim.api.nvim_create_user_command("Bufdo", function(args)
+vim.api.nvim_buf_create_user_command(bufnr, "Bufdo", function(args)
     require("firvish.buffers").buf_do(args.line1, args.line2, args.args)
-end, { nargs = "*", range = true })
+end, { nargs = "*", range = true, desc = "Firvish Bufdo" })
 
-vim.api.nvim_create_user_command("Bdelete", function(args)
+vim.api.nvim_buf_create_user_command(bufnr, "Bdelete", function(args)
     require("firvish.buffers").buf_delete(args.line1, args.line2, args.bang)
-end, { nargs = "*", range = true, bang = true })
+end, { nargs = "*", range = true, bang = true, desc = "Firvish Bdelete" })
 
-local autocmd_group = vim.api.nvim_create_augroup("neovim_firvish_buffer_local", { clear = true })
-local bufnr = vim.fn.bufnr()
-vim.api.nvim_create_autocmd({ "BufEnter" }, {
-    group = autocmd_group,
-    callback = function(_)
+local group = vim.api.nvim_create_augroup("firvish_buffers_local", { clear = true })
+vim.api.nvim_create_autocmd("BufEnter", {
+    group = group,
+    buffer = bufnr,
+    callback = function()
         require("firvish.buffers").on_buf_enter()
     end,
-    buffer = bufnr,
 })
 
 vim.api.nvim_create_autocmd({ "BufDelete", "BufWipeout" }, {
-    group = autocmd_group,
-    callback = function(_)
+    group = group,
+    buffer = bufnr,
+    callback = function()
         require("firvish.buffers").on_buf_delete()
     end,
-    buffer = bufnr,
 })
 
-vim.api.nvim_create_autocmd({ "BufLeave" }, {
-    group = autocmd_group,
-    callback = function(_)
+vim.api.nvim_create_autocmd("BufLeave", {
+    group = group,
+    buffer = bufnr,
+    callback = function()
         require("firvish.buffers").on_buf_leave()
     end,
-    buffer = bufnr,
 })
